@@ -1,0 +1,86 @@
+﻿using System;
+using System.Linq.Expressions;
+using System.Threading;
+using System.Threading.Tasks;
+using Lilys_CM.Domain.Entities.Common;
+using Lilys_CM.Infrastructure.Database.Seeders;
+using Microsoft.EntityFrameworkCore;
+
+namespace Lilys_CM.Infrastructure.Database
+{
+    public partial class DatabaseContext
+    {
+      
+
+        // Umjesto _clock koristi sistemski UTC
+        private DateTime UtcNow => DateTime.UtcNow;
+
+        private void ApplyAuditAndSoftDelete()
+        {
+            foreach (var entry in ChangeTracker.Entries<BaseEntity>())
+            {
+                switch (entry.State)
+                {
+                    case EntityState.Added:
+                        entry.Entity.CreatedAtUtc = UtcNow;
+                        entry.Entity.ModifiedAtUtc = null;
+                        entry.Entity.IsDeleted = false;
+                        break;
+
+                    case EntityState.Modified:
+                        entry.Entity.ModifiedAtUtc = UtcNow;
+                        break;
+
+                    case EntityState.Deleted:
+                        // Soft delete - ne briši iz baze
+                        entry.State = EntityState.Modified;
+                        entry.Entity.IsDeleted = true;
+                        entry.Entity.ModifiedAtUtc = UtcNow;
+                        break;
+                }
+            }
+        }
+
+        protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+        {
+            // Globalna preciznost za decimal tipove
+            configurationBuilder.Properties<decimal>().HavePrecision(18, 2);
+            configurationBuilder.Properties<decimal?>().HavePrecision(18, 2);
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            // Učitaj sve konfiguracije iz Infrastructure.Database.Configurations
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(DatabaseContext).Assembly);
+
+            // Globalni filter za soft delete
+            ApplyGlobalFilters(modelBuilder);
+
+            // Dodaj statičke podatke (seed)
+            StaticDataSeeder.Seed(modelBuilder);
+        }
+
+        private void ApplyGlobalFilters(ModelBuilder modelBuilder)
+        {
+            // Primijeni globalni filter na sve entitete koji nasljeđuju BaseEntity
+            foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+            {
+                if (typeof(BaseEntity).IsAssignableFrom(entityType.ClrType))
+                {
+                    var parameter = Expression.Parameter(entityType.ClrType, "e");
+                    var prop = Expression.Property(parameter, nameof(BaseEntity.IsDeleted));
+                    var compare = Expression.Equal(prop, Expression.Constant(false));
+                    var lambda = Expression.Lambda(compare, parameter);
+
+                    modelBuilder.Entity(entityType.ClrType).HasQueryFilter(lambda);
+                }
+            }
+        }
+
+
+
+
+    }
+}
