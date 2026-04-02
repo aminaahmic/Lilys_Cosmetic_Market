@@ -1,20 +1,20 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { BaseComponent } from '../../../core/components/base-classes/base-component';
 import { AuthApiService } from '../../../api-services/auth/auth-api.service';
-import { RegisterCommand } from '../../../api-services/auth/auth-api.model';
 
 @Component({
-  selector: 'app-register',
+  selector: 'app-reset-password',
   standalone: false,
-  templateUrl: './register.component.html',
-  styleUrl: './register.component.scss',
+  templateUrl: './reset-password.component.html',
+  styleUrl: './reset-password.component.scss',
 })
-export class RegisterComponent extends BaseComponent {
+export class ResetPasswordComponent extends BaseComponent implements OnInit {
   private fb = inject(FormBuilder);
   private authApi = inject(AuthApiService);
+  private route = inject(ActivatedRoute);
   private router = inject(Router);
   private snackBar = inject(MatSnackBar);
 
@@ -22,19 +22,25 @@ export class RegisterComponent extends BaseComponent {
   hideConfirmPassword = true;
 
   form = this.fb.group({
-    name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
-    email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(6)]],
+    token: ['', [Validators.required]],
+    newPassword: ['', [Validators.required, Validators.minLength(6)]],
     confirmPassword: ['', [Validators.required]],
   });
+
+  ngOnInit(): void {
+    const tokenFromQuery = this.route.snapshot.queryParamMap.get('token') ?? '';
+    if (tokenFromQuery) {
+      this.form.patchValue({ token: tokenFromQuery });
+    }
+  }
 
   onSubmit(): void {
     if (this.form.invalid || this.isLoading) return;
 
-    const password = this.form.value.password ?? '';
+    const newPassword = this.form.value.newPassword ?? '';
     const confirmPassword = this.form.value.confirmPassword ?? '';
 
-    if (password !== confirmPassword) {
+    if (newPassword !== confirmPassword) {
       this.snackBar.open('Lozinka i potvrda lozinke se ne poklapaju.', 'Zatvori', {
         duration: 3500,
         panelClass: ['error-snackbar']
@@ -44,19 +50,16 @@ export class RegisterComponent extends BaseComponent {
 
     this.startLoading();
 
-    const payload: RegisterCommand = {
-      name: this.form.value.name ?? '',
-      email: this.form.value.email ?? '',
-      password,
+    this.authApi.resetPassword({
+      token: (this.form.value.token ?? '').trim(),
+      newPassword,
       confirmPassword
-    };
-
-    this.authApi.register(payload).subscribe({
+    }).subscribe({
       next: (response) => {
         this.stopLoading();
 
         this.snackBar.open(
-          response.message || 'Registracija uspješna. Sada se možete prijaviti.',
+          response.message || 'Lozinka je uspješno promijenjena.',
           'Zatvori',
           {
             duration: 3500,
@@ -72,14 +75,14 @@ export class RegisterComponent extends BaseComponent {
         const backendMessage =
           err?.error?.message ||
           err?.error?.Message ||
-          'Registracija nije uspjela. Provjerite unesene podatke.';
+          'Promjena lozinke nije uspjela.';
 
         this.snackBar.open(backendMessage, 'Zatvori', {
           duration: 4000,
           panelClass: ['error-snackbar']
         });
 
-        console.error('Register error:', err);
+        console.error('Reset password error:', err);
       }
     });
   }

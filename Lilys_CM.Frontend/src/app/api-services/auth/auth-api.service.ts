@@ -5,6 +5,12 @@ import { environment } from '../../../environments/environment';
 import {
   LoginCommand,
   LoginCommandDto,
+  RegisterCommand,
+  RegisterCommandDto,
+  ForgotPasswordCommand,
+  ForgotPasswordCommandDto,
+  ResetPasswordCommand,
+  ResetPasswordCommandDto,
   RefreshTokenCommand,
   RefreshTokenCommandDto,
   LogoutCommand
@@ -17,26 +23,28 @@ export class AuthApiService {
   private readonly baseUrl = `${environment.apiUrl}/api/Auth`;
   private http = inject(HttpClient);
 
-  /**
-   * POST /Auth/login
-   * Authenticate user and get access/refresh tokens.
-   */
   login(payload: LoginCommand): Observable<LoginCommandDto> {
     return this.http.post<LoginCommandDto>(`${this.baseUrl}/login`, payload);
   }
 
-  /**
-   * POST /Auth/refresh
-   * Refresh access token using refresh token.
-   */
+  register(payload: RegisterCommand): Observable<RegisterCommandDto> {
+    return this.http.post<RegisterCommandDto>(`${this.baseUrl}/register`, payload);
+  }
+
+
+  forgotPassword(payload: ForgotPasswordCommand): Observable<ForgotPasswordCommandDto> {
+    return this.http.post<ForgotPasswordCommandDto>(`${this.baseUrl}/forgot-password`, payload);
+  }
+
+ 
+  resetPassword(payload: ResetPasswordCommand): Observable<ResetPasswordCommandDto> {
+    return this.http.post<ResetPasswordCommandDto>(`${this.baseUrl}/reset-password`, payload);
+  }
+
   refresh(payload: RefreshTokenCommand): Observable<RefreshTokenCommandDto> {
     return this.http.post<RefreshTokenCommandDto>(`${this.baseUrl}/refresh`, payload);
   }
 
-  /**
-   * POST /Auth/logout
-   * Invalidate refresh token and logout user.
-   */
   logout(payload: LogoutCommand): Observable<void> {
     return this.http.post<void>(`${this.baseUrl}/logout`, payload);
   }

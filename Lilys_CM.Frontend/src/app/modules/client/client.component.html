@@ -1,2 +1,36 @@
-<h1>Client dashboard radi</h1>
-<p>Login je uspješan.</p>
+<div class="client-page">
+  <div class="client-card">
+    <div class="client-header">
+      <div>
+        <p class="eyebrow">CLIENT PANEL</p>
+        <h1>Dobrodošli</h1>
+        <p class="subtitle">
+          Uspješno ste prijavljeni kao obični korisnik.
+        </p>
+      </div>
+
+      <a routerLink="/auth/logout" class="logout-btn">
+        <span>Odjava</span>
+      </a>
+    </div>
+
+    <div class="client-info">
+      <div class="info-box">
+        <span class="label">Email</span>
+        <strong>{{ currentUser.snapshot?.email }}</strong>
+      </div>
+
+      <div class="info-box">
+        <span class="label">Uloga</span>
+        <strong>Klijent</strong>
+      </div>
+
+      <div class="info-box">
+        <span class="label">Status</span>
+        <strong>Prijavljen</strong>
+      </div>
+    </div>
+
+    
+  </div>
+</div>

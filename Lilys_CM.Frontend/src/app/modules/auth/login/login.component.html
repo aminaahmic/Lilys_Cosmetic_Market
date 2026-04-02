@@ -1,21 +1,17 @@
-<!-- src/app/pages/auth/login/login.component.html -->
 <div class="auth-container">
   <div class="auth-background">
-    <!-- Decorative elements -->
     <div class="bg-shape shape-1"></div>
     <div class="bg-shape shape-2"></div>
     <div class="bg-shape shape-3"></div>
   </div>
 
   <div class="auth-content">
-    <!-- Logo & Brand -->
     <div class="auth-brand">
       <mat-icon class="brand-icon">storefront</mat-icon>
-      <h1 class="brand-name">FIT Market</h1>
+      <h1 class="brand-name">Lilys Cosmetic Market</h1>
       <p class="brand-tagline">Dobrodošli nazad</p>
     </div>
 
-    <!-- Login Card -->
     <mat-card class="auth-card mat-elevation-z8">
       <mat-card-header>
         <mat-card-title>{{ 'AUTH.LOGIN.TITLE' | translate }}</mat-card-title>
@@ -23,14 +19,7 @@
       </mat-card-header>
 
       <mat-card-content>
-        <!-- Error message -->
-        <div *ngIf="errorMessage" class="error-message" @fadeIn>
-          <mat-icon>error_outline</mat-icon>
-          <span>{{ errorMessage }}</span>
-        </div>
-
         <form [formGroup]="form" (ngSubmit)="onSubmit()">
-          <!-- Email -->
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>{{ 'AUTH.LOGIN.EMAIL_LABEL' | translate }}</mat-label>
             <input
@@ -49,7 +38,6 @@
             </mat-error>
           </mat-form-field>
 
-          <!-- Password -->
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>{{ 'AUTH.LOGIN.PASSWORD_LABEL' | translate }}</mat-label>
             <input
@@ -74,15 +62,16 @@
             </mat-error>
           </mat-form-field>
 
-          <!-- Remember Me & Forgot Password -->
           <div class="form-row">
             <mat-checkbox formControlName="rememberMe" color="primary">
               {{ 'AUTH.LOGIN.REMEMBER_ME' | translate }}
             </mat-checkbox>
-            <a href="#" class="forgot-link">Zaboravili ste lozinku?</a>
+
+            <a routerLink="/auth/forgot-password" class="forgot-link">
+              Zaboravili ste lozinku?
+            </a>
           </div>
 
-          <!-- Submit Button -->
           <div class="actions">
             <button
               mat-raised-button
@@ -106,12 +95,10 @@
             </button>
           </div>
 
-          <!-- Divider -->
           <div class="divider">
             <span>ili</span>
           </div>
 
-          <!-- Register Link -->
           <div class="register-prompt">
             <span>Nemate nalog?</span>
             <a routerLink="/auth/register" class="register-link">Registrujte se</a>
@@ -120,7 +107,6 @@
       </mat-card-content>
     </mat-card>
 
-    <!-- Footer -->
     <div class="auth-footer">
       <a routerLink="/" class="back-link">
         <mat-icon>arrow_back</mat-icon>

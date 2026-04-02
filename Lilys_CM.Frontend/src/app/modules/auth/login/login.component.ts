@@ -23,7 +23,7 @@ export class LoginComponent extends BaseComponent {
   hidePassword = true;
 
   form = this.fb.group({
-    email: ['admin@market.local', [Validators.required, Validators.email]],
+    email: ['admin@lilys.local', [Validators.required, Validators.email]],
     password: ['Admin123!', [Validators.required]],
     rememberMe: [false],
   });
@@ -34,7 +34,7 @@ export class LoginComponent extends BaseComponent {
     this.startLoading();
 
     const payload: LoginCommand = {
-      email: this.form.value.email ?? '',
+      email: (this.form.value.email ?? '').trim(),
       password: this.form.value.password ?? '',
       fingerprint: null,
     };
@@ -42,18 +42,24 @@ export class LoginComponent extends BaseComponent {
     this.auth.login(payload).subscribe({
       next: () => {
         this.stopLoading();
+
         const target = this.currentUser.getDefaultRoute();
+
+        this.snackBar.open('Prijava uspješna.', 'Zatvori', {
+          duration: 2200,
+          panelClass: ['success-snackbar']
+        });
+
         this.router.navigate([target]);
       },
       error: (err) => {
         this.stopLoading();
 
-    //===POPUP ERROR MESSAGE===
         this.snackBar.open(
-          'Neispravan email ili password',
+          'Neispravan email ili password.',
           'Zatvori',
           {
-            duration: 3000,
+            duration: 3200,
             panelClass: ['error-snackbar']
           }
         );

@@ -1,0 +1,151 @@
+.auth-container {
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 45%, #f8fafc 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px;
+}
+
+.auth-background {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.bg-shape {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(10px);
+  opacity: 0.22;
+}
+
+.shape-1 {
+  width: 260px;
+  height: 260px;
+  background: #f472b6;
+  top: -60px;
+  left: -60px;
+}
+
+.shape-2 {
+  width: 320px;
+  height: 320px;
+  background: #c084fc;
+  right: -100px;
+  top: 15%;
+}
+
+.shape-3 {
+  width: 220px;
+  height: 220px;
+  background: #60a5fa;
+  left: 10%;
+  bottom: -80px;
+}
+
+.auth-content {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 560px;
+}
+
+.auth-brand {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.brand-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  color: #be185d;
+  margin-bottom: 10px;
+}
+
+.brand-name {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 800;
+  color: #1f2937;
+}
+
+.brand-tagline {
+  margin-top: 8px;
+  color: #6b7280;
+  font-size: 1rem;
+}
+
+.auth-card {
+  border-radius: 24px;
+  overflow: hidden;
+  backdrop-filter: blur(8px);
+}
+
+.full-width {
+  width: 100%;
+  margin-bottom: 14px;
+}
+
+.actions {
+  margin-top: 10px;
+}
+
+.submit-button {
+  width: 100%;
+  min-height: 48px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.divider {
+  margin: 24px 0 16px;
+  text-align: center;
+  position: relative;
+  color: #9ca3af;
+}
+
+.divider span {
+  background: white;
+  padding: 0 12px;
+  position: relative;
+  z-index: 2;
+}
+
+.divider::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  border-top: 1px solid #e5e7eb;
+}
+
+.register-prompt {
+  text-align: center;
+  color: #6b7280;
+}
+
+.register-link,
+.back-link {
+  color: #be185d;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.auth-footer {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}

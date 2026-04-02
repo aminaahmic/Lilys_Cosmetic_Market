@@ -1,10 +1,12 @@
-//=== ANGULAR COMPONENT FOR CLIENT PART ===
+import { Component, inject } from '@angular/core';
+import { CurrentUserService } from '../../core/services/auth/current-user.service';
 
-import { Component } from '@angular/core';
-
-@Component({ 
-  selector: 'app-client', 
-  standalone: false, 
-  templateUrl: './client.component.html' 
+@Component({
+  selector: 'app-client',
+  standalone: false,
+  templateUrl: './client.component.html',
+  styleUrl: './client.component.scss'
 })
-export class ClientComponent {} 
+export class ClientComponent {
+  currentUser = inject(CurrentUserService);
+}
