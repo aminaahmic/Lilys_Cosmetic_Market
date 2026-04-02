@@ -5,6 +5,7 @@ import { BaseComponent } from '../../../core/components/base-classes/base-compon
 import { AuthFacadeService } from '../../../core/services/auth/auth-facade.service';
 import { LoginCommand } from '../../../api-services/auth/auth-api.model';
 import { CurrentUserService } from '../../../core/services/auth/current-user.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-login',
@@ -17,6 +18,8 @@ export class LoginComponent extends BaseComponent {
   private auth = inject(AuthFacadeService);
   private router = inject(Router);
   private currentUser = inject(CurrentUserService);
+  private snackBar = inject(MatSnackBar);
+
   hidePassword = true;
 
   form = this.fb.group({
@@ -43,7 +46,18 @@ export class LoginComponent extends BaseComponent {
         this.router.navigate([target]);
       },
       error: (err) => {
-        this.stopLoading('Invalid credentials. Please try again.');
+        this.stopLoading();
+
+    //===POPUP ERROR MESSAGE===
+        this.snackBar.open(
+          'Neispravan email ili password',
+          'Zatvori',
+          {
+            duration: 3000,
+            panelClass: ['error-snackbar']
+          }
+        );
+
         console.error('Login error:', err);
       },
     });

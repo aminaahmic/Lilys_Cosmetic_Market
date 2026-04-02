@@ -29,15 +29,18 @@ public sealed class JwtTokenService : IJwtTokenService
         var refreshExpires = nowInstant.AddDays(_jwt.RefreshTokenDays).UtcDateTime;
 
         // --- Claims (including jti/aud for standard compliance) ---
-        var claims = new List<Claim>
-        {
-            new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-            new(ClaimTypes.NameIdentifier,   user.Id.ToString()),
-            new(ClaimTypes.Email,            user.Email),
-            new(JwtRegisteredClaimNames.Iat, ToUnixTimeSeconds(nowInstant).ToString(), ClaimValueTypes.Integer64),
-            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString("N")),
-            new(JwtRegisteredClaimNames.Aud, _jwt.Audience)
-        };
+       var claims = new List<Claim>
+{
+    new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+    new(ClaimTypes.NameIdentifier, user.Id.ToString()),
+    new(ClaimTypes.Email, user.Email),
+
+   new Claim("is_admin", user.IsAdmin ? "true" : "false"),
+
+    new(JwtRegisteredClaimNames.Iat, ToUnixTimeSeconds(nowInstant).ToString(), ClaimValueTypes.Integer64),
+    new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString("N")),
+    new(JwtRegisteredClaimNames.Aud, _jwt.Audience)
+};
 
         // --- Signature ---
         var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwt.Key));

@@ -56,9 +56,18 @@ public partial class Program
                 .AddAPI(builder.Configuration, builder.Environment)
                 .AddInfrastructure(builder.Configuration, builder.Environment)
                 .AddApplication();
-
+            builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend",
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:4200")
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
+});
             var app = builder.Build();
-
+            app.UseCors("AllowFrontend");
             // ---------------------------------------------------------
             // 4. Middleware pipeline
             // ---------------------------------------------------------

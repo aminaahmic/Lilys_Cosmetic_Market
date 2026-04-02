@@ -110,7 +110,7 @@ export class AuthFacadeService {
    */
   redirectToLogin(): void {
     this.clearUserState();
-    this.router.navigate(['/login']);
+    this.router.navigate(['/auth/login']);
   }
 
   // =========================================================
@@ -151,7 +151,7 @@ export class AuthFacadeService {
   private decodeAndSetUser(token: string): void {
     try {
       const payload = jwtDecode<JwtPayloadDto>(token);
-
+console.log('JWT PAYLOAD:', payload);
       const user: CurrentUserDto = {
         userId: Number(payload.sub),
         email: payload.email,
@@ -160,7 +160,7 @@ export class AuthFacadeService {
         isEmployee: payload.is_employee === 'true',
         tokenVersion: Number(payload.ver),
       };
-
+console.log('CURRENT USER:', user);
       this._currentUser.set(user);
     } catch (error) {
       console.error('Failed to decode JWT token:', error);

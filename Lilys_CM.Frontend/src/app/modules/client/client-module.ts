@@ -1,13 +1,18 @@
-import {NgModule} from '@angular/core';
+/*
+ANGULAR MODUL FOR CLIENT PART OF THE APPLICATION. 
+PACKET/GROUP FOR THAT PART OF THE APPLICATION.
+*/
 
-import {ClientRoutingModule} from './client-routing-module';
-import {SharedModule} from '../shared/shared-module';
+ import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
+import { ClientRoutingModule } from './client-routing-module';
+import { ClientComponent } from './client.component';
 
 @NgModule({
-  declarations: [],
-  imports: [
-    SharedModule,
+  declarations: [ClientComponent],
+  imports: [ 
+    CommonModule,
     ClientRoutingModule
   ]
 })
