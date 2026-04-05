@@ -1,3 +1,7 @@
+using System.Security.Cryptography;
+using System.Text;
+using Microsoft.EntityFrameworkCore;
+
 namespace Lilys_CM.Application.Modules.Auth.Commands.ResetPassword;
 
 public sealed class ResetPasswordCommandHandler(
@@ -7,12 +11,13 @@ public sealed class ResetPasswordCommandHandler(
 {
     public async Task<ResetPasswordCommandDto> Handle(ResetPasswordCommand request, CancellationToken ct)
     {
-        var tokenValue = request.Token.Trim();
+        var rawToken = request.Token.Trim();
+        var hashedToken = HashToken(rawToken);
 
         var resetToken = await ctx.PasswordResetTokens
             .Include(x => x.User)
             .FirstOrDefaultAsync(x =>
-                x.Token == tokenValue &&
+                x.Token == hashedToken &&   // 🔥 OVDJE JE FIX
                 !x.Used &&
                 !x.IsDeleted, ct);
 
@@ -25,7 +30,10 @@ public sealed class ResetPasswordCommandHandler(
         if (resetToken.User is null || !resetToken.User.IsEnabled || resetToken.User.IsDeleted)
             throw new Lilys_CMConflictException("Korisnik nije dostupan za promjenu lozinke.");
 
+        // change password
         resetToken.User.PasswordHash = hasher.HashPassword(resetToken.User, request.NewPassword);
+
+        // invalidate token
         resetToken.Used = true;
 
         await ctx.SaveChangesAsync(ct);
@@ -34,5 +42,11 @@ public sealed class ResetPasswordCommandHandler(
         {
             Message = "Lozinka je uspješno promijenjena."
         };
+    }
+
+    private static string HashToken(string token)
+    {
+        var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(token));
+        return Convert.ToHexString(bytes);
     }
 }

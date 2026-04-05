@@ -9,6 +9,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using Lilys_CM.Application.Abstractions.Email;
+using Lilys_CM.Infrastructure.Email;
 
 namespace Lilys_CM.Infrastructure;
 
@@ -22,6 +24,16 @@ public static class DependencyInjection
         // Typed ConnectionStrings + validation
         services.AddOptions<ConnectionStringsOptions>()
             .Bind(configuration.GetSection(ConnectionStringsOptions.SectionName))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+        
+        services.AddOptions<MailOptions>()
+            .Bind(configuration.GetSection(MailOptions.SectionName))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
+        services.AddOptions<FrontendOptions>()
+            .Bind(configuration.GetSection(FrontendOptions.SectionName))
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
@@ -54,6 +66,8 @@ public static class DependencyInjection
         // TimeProvider (if used in handlers/services)
         services.AddSingleton<TimeProvider>(TimeProvider.System);
 
+        // Email sender
+        services.AddTransient<IEmailSender, MailtrapEmailSender>();
         return services;
     }
 }

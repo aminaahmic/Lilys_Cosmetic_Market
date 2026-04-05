@@ -4,11 +4,26 @@ using Lilys_CM.Application.Modules.Auth.Commands.Logout;
 using Lilys_CM.Application.Modules.Auth.Commands.Refresh;
 using Lilys_CM.Application.Modules.Auth.Commands.Register;
 using Lilys_CM.Application.Modules.Auth.Commands.ResetPassword;
-
+  using Lilys_CM.Application.Abstractions.Email;
+using Microsoft.AspNetCore.Authorization;
 [ApiController]
 [Route("api/auth")]
 public sealed class AuthController(IMediator mediator) : ControllerBase
 {
+  
+
+[AllowAnonymous]
+[HttpGet("test-email")]
+public async Task<IActionResult> TestEmail([FromServices] IEmailSender emailSender)
+{
+    await emailSender.SendAsync(
+        "test@test.com",
+        "Test mail",
+        "<h1>Radi email 🔥</h1><p>Ako ovo vidiš, Mailtrap radi.</p>"
+    );
+
+    return Ok("Email poslan (provjeri Mailtrap)");
+}
     [HttpPost("login")]
     [AllowAnonymous]
     public async Task<ActionResult<LoginCommandDto>> Login([FromBody] LoginCommand command, CancellationToken ct)
@@ -50,4 +65,5 @@ public sealed class AuthController(IMediator mediator) : ControllerBase
     {
         await mediator.Send(command, ct);
     }
+    
 }
