@@ -66,8 +66,7 @@ public static class DependencyInjection
         // TimeProvider (if used in handlers/services)
         services.AddSingleton<TimeProvider>(TimeProvider.System);
 
-        // Email sender
-        services.AddTransient<IEmailSender, MailtrapEmailSender>();
+      
         return services;
     }
 }

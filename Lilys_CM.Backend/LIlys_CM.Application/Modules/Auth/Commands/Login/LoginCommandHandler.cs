@@ -17,7 +17,7 @@ public sealed class LoginCommandHandler(
 
         var verify = hasher.VerifyHashedPassword(user, user.PasswordHash, request.Password);
         if (verify == PasswordVerificationResult.Failed)
-            throw new Lilys_CMConflictException("Pogrešni kredencijali.");
+            throw new Lilys_CMConflictException("Pogreï¿½ni kredencijali.");
 
         var tokens = jwt.IssueTokens(user);
 
@@ -31,11 +31,11 @@ public sealed class LoginCommandHandler(
 
         await ctx.SaveChangesAsync(ct);
 
-        return new LoginCommandDto
-        {
-            AccessToken = tokens.AccessToken,
-            RefreshToken = tokens.RefreshTokenRaw,
-            ExpiresAtUtc = tokens.RefreshTokenExpiresAtUtc
-        };
+      return new LoginCommandDto
+{
+    AccessToken = tokens.AccessToken,
+    RefreshToken = tokens.RefreshTokenRaw,
+    ExpiresAtUtc = tokens.AccessTokenExpiresAtUtc
+};
     }
 }

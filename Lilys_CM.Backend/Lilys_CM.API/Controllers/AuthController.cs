@@ -17,13 +17,14 @@ public sealed class AuthController(IMediator mediator) : ControllerBase
 public async Task<IActionResult> TestEmail([FromServices] IEmailSender emailSender)
 {
     await emailSender.SendAsync(
-        "test@test.com",
-        "Test mail",
-        "<h1>Radi email 🔥</h1><p>Ako ovo vidiš, Mailtrap radi.</p>"
+       "test@blackhole.postmarkapp.com",
+        "Lilys test email",
+        "<h1>Email servis radi</h1><p>Ovo je test poruka poslata preko Postmarka.</p>"
     );
 
-    return Ok("Email poslan (provjeri Mailtrap)");
+    return Ok("Test email je poslan.");
 }
+
     [HttpPost("login")]
     [AllowAnonymous]
     public async Task<ActionResult<LoginCommandDto>> Login([FromBody] LoginCommand command, CancellationToken ct)

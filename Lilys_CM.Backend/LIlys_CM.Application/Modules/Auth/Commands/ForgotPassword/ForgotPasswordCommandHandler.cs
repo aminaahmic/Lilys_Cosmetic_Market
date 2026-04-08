@@ -5,6 +5,7 @@ using Lilys_CM.Domain.Entities.Tokens;
 using Lilys_CM.Shared.Options;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Lilys_CM.Application.Common.EmailTemplates;
 
 namespace Lilys_CM.Application.Modules.Auth.Commands.ForgotPassword;
 
@@ -53,7 +54,7 @@ public sealed class ForgotPasswordCommandHandler(
         ctx.PasswordResetTokens.Add(new PasswordResetTokenEntity
         {
             UserId = user.Id,
-            Token = hashedToken, // čuvamo HASH, ne raw token
+            Token = hashedToken, 
             ExpiryDate = expires,
             Used = false
         });
@@ -73,7 +74,14 @@ public sealed class ForgotPasswordCommandHandler(
             <p><a href="{resetLink}">Reset password</a></p>
             <p>Link važi 30 minuta i može se koristiti samo jednom.</p>
             """;
+// EMAIL template
+//var subject = "Reset your Lily's password";
 
+//var htmlBody = AuthEmailTemplates.BuildResetPasswordEmail(
+  //  resetLink,
+    //"Lily's Cosmetic Market",
+    //30
+//);
         await _emailSender.SendAsync(user.Email, subject, htmlBody, ct);
 
         return new ForgotPasswordCommandDto
