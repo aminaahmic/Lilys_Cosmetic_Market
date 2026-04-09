@@ -1,40 +1,22 @@
-//Amina
-using Microsoft.AspNetCore.Mvc;
-namespace Lilys_CM.API.Controllers;
+using Lilys_CM.Application.Modules.Catalog.Products.Queries.GetProducts;
+using Microsoft.AspNetCore.Authorization;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
+[AllowAnonymous]
 public class ProductsController : ControllerBase
 {
-    [HttpGet]
-    public IActionResult GetAll()
+    private readonly IMediator _mediator;
+
+    public ProductsController(IMediator mediator)
     {
-        var products = new List<object>
-        {
-            new {
-                id = 1,
-                name = "Laptop",
-                price = 1500,
-                stockQuantity = 10,
-                categoryName = "Elektronika",
-                isEnabled = true
-            },
-            new {
-                id = 2,
-                name = "Telefon",
-                price = 800,
-                stockQuantity = 5,
-                categoryName = "Mobilni uređaji",
-                isEnabled = true
-            }
-        };
+        _mediator = mediator;
+    }
 
-        var result = new
-        {
-            items = products,
-            totalCount = products.Count
-        };
-
+    [HttpGet]
+    public async Task<IActionResult> Get([FromQuery] GetProductsQuery query)
+    {
+        var result = await _mediator.Send(query);
         return Ok(result);
     }
 }

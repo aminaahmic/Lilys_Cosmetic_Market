@@ -3,7 +3,6 @@ using Lilys_CM.API.Middleware;
 using Lilys_CM.Application;
 using Lilys_CM.Application.Abstractions.Email;
 using Lilys_CM.Infrastructure;
-using Lilys_CM.Infrastructure.Database;
 using Lilys_CM.Infrastructure.Email;
 using Serilog;
 
@@ -35,16 +34,16 @@ public partial class Program
 
             builder.Logging.ClearProviders();
 
-       builder.Services
-    .AddAPI(builder.Configuration, builder.Environment)
-    .AddInfrastructure(builder.Configuration, builder.Environment)
-    .AddApplication();
+            builder.Services
+                .AddAPI(builder.Configuration, builder.Environment)
+                .AddInfrastructure(builder.Configuration, builder.Environment)
+                .AddApplication();
 
-builder.Services.Configure<PostmarkOptions>(
-    builder.Configuration.GetSection("Postmark")
-);
+            builder.Services.Configure<PostmarkOptions>(
+                builder.Configuration.GetSection("Postmark")
+            );
 
-builder.Services.AddScoped<IEmailSender, PostmarkEmailSender>();
+            builder.Services.AddScoped<IEmailSender, PostmarkEmailSender>();
 
             builder.Services.AddCors(options =>
             {
@@ -70,6 +69,7 @@ builder.Services.AddScoped<IEmailSender, PostmarkEmailSender>();
             app.UseMiddleware<RequestResponseLoggingMiddleware>();
 
             app.UseHttpsRedirection();
+
             app.UseAuthentication();
             app.UseAuthorization();
 
@@ -78,7 +78,8 @@ builder.Services.AddScoped<IEmailSender, PostmarkEmailSender>();
             await app.Services.InitializeDatabaseAsync(app.Environment);
 
             Log.Information("Lilys_CM API started successfully.");
-            app.Run();
+
+            await app.RunAsync();
         }
         catch (HostAbortedException)
         {
