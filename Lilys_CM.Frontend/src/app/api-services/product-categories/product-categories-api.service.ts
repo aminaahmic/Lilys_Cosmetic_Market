@@ -15,14 +15,13 @@ import { buildHttpParams } from '../../core/models/build-http-params';
   providedIn: 'root',
 })
 export class ProductCategoriesApiService {
-  private readonly baseUrl = `${environment.apiUrl}/ProductCategories`;
+  private readonly baseUrl = `${environment.apiUrl}/api/ProductCategories`;
   private http = inject(HttpClient);
 
   /**
    * GET /ProductCategories
-   * List categories with optional query parameters.
    */
-  list(request?: ListProductCategoriesRequest): Observable<ListProductCategoriesResponse> {
+  list(request?: Partial<ListProductCategoriesRequest>): Observable<ListProductCategoriesResponse> {
     const params = request ? buildHttpParams(request as any) : undefined;
 
     return this.http.get<ListProductCategoriesResponse>(this.baseUrl, {
@@ -32,7 +31,6 @@ export class ProductCategoriesApiService {
 
   /**
    * GET /ProductCategories/{id}
-   * Get a single category by ID.
    */
   getById(id: number): Observable<GetProductCategoryByIdQueryDto> {
     return this.http.get<GetProductCategoryByIdQueryDto>(`${this.baseUrl}/${id}`);
@@ -40,8 +38,6 @@ export class ProductCategoriesApiService {
 
   /**
    * POST /ProductCategories
-   * Create a new category.
-   * @returns ID of the newly created category
    */
   create(payload: CreateProductCategoryCommand): Observable<number> {
     return this.http.post<number>(this.baseUrl, payload);
@@ -49,7 +45,6 @@ export class ProductCategoriesApiService {
 
   /**
    * PUT /ProductCategories/{id}
-   * Update an existing category.
    */
   update(id: number, payload: UpdateProductCategoryCommand): Observable<void> {
     return this.http.put<void>(`${this.baseUrl}/${id}`, payload);
@@ -57,25 +52,22 @@ export class ProductCategoriesApiService {
 
   /**
    * DELETE /ProductCategories/{id}
-   * Delete a category.
    */
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${id}`);
   }
 
   /**
-   * PUT /ProductCategories/{id}/disable
-   * Disable a category.
-   */
-  disable(id: number): Observable<void> {
-    return this.http.put<void>(`${this.baseUrl}/${id}/disable`, {});
-  }
-
-  /**
    * PUT /ProductCategories/{id}/enable
-   * Enable a category.
    */
   enable(id: number): Observable<void> {
     return this.http.put<void>(`${this.baseUrl}/${id}/enable`, {});
+  }
+
+  /**
+   * PUT /ProductCategories/{id}/disable
+   */
+  disable(id: number): Observable<void> {
+    return this.http.put<void>(`${this.baseUrl}/${id}/disable`, {});
   }
 }

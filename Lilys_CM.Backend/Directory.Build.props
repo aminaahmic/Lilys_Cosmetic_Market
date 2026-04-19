@@ -1,0 +1,6 @@
+<Project>
+  <PropertyGroup>
+    <!-- NuGet audit calls fail in restricted/offline lab networks and spam build output. -->
+    <NuGetAudit>false</NuGetAudit>
+  </PropertyGroup>
+</Project>

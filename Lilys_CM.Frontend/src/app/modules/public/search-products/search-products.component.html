@@ -1,1 +1,76 @@
-<p>search-products works!</p>
+<section class="catalog-page">
+  <div class="hero">
+    <div>
+      <p class="tagline">Glow-first collection</p>
+      <h1>Skincare, makeup and haircare in one elegant catalog.</h1>
+      <p class="lead">
+        Discover trusted products, filter by your routine and find the right match in seconds.
+      </p>
+    </div>
+
+    <div class="featured" *ngIf="featuredProducts.length">
+      <p class="featured-title">Featured now</p>
+      <div class="featured-chips">
+        <span *ngFor="let item of featuredProducts">{{ item.name }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="filters">
+    <mat-form-field appearance="outline">
+      <mat-label>Search</mat-label>
+      <input matInput [(ngModel)]="request.search" placeholder="Name, brand or keyword" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Category</mat-label>
+      <mat-select [(ngModel)]="request.categoryId">
+        <mat-option [value]="null">All categories</mat-option>
+        <mat-option *ngFor="let category of categories" [value]="category.id">{{ category.name }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Brand</mat-label>
+      <input matInput [(ngModel)]="request.brand" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Subcategory</mat-label>
+      <input matInput [(ngModel)]="request.subcategory" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Min price</mat-label>
+      <input matInput type="number" [(ngModel)]="request.priceMin" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Max price</mat-label>
+      <input matInput type="number" [(ngModel)]="request.priceMax" />
+    </mat-form-field>
+
+    <div class="filter-actions">
+      <button mat-stroked-button (click)="onResetFilters()">Reset</button>
+      <button mat-raised-button color="primary" (click)="onApplyFilters()">Apply</button>
+    </div>
+  </div>
+
+  <div class="state" *ngIf="isLoading">Loading products...</div>
+  <div class="state error" *ngIf="!isLoading && errorMessage">{{ errorMessage }}</div>
+
+  <div class="cards" *ngIf="!isLoading && !errorMessage">
+    <article class="product-card" *ngFor="let product of products">
+      <div class="badge">{{ product.categoryName }}</div>
+      <h3>{{ product.name }}</h3>
+      <p class="meta">{{ product.brand || 'Unknown brand' }} - {{ product.subcategory || 'General' }}</p>
+      <p class="desc">{{ product.description || 'No description available.' }}</p>
+      <div class="card-footer">
+        <span class="price">{{ product.price | number : '1.2-2' }} KM</span>
+        <span class="stock" [class.low]="product.stockQuantity < 5">
+          Stock: {{ product.stockQuantity }}
+        </span>
+      </div>
+    </article>
+  </div>
+</section>

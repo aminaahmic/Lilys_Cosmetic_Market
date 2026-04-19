@@ -5,7 +5,6 @@ import { PageResult } from '../../core/models/paging/page-result';
 
 /**
  * Query parameters for GET /ProductCategories
- * Corresponds to: ListProductCategoriesQuery.cs
  */
 export class ListProductCategoriesRequest extends BasePagedQuery {
   search?: string | null;
@@ -14,7 +13,6 @@ export class ListProductCategoriesRequest extends BasePagedQuery {
 
 /**
  * Response item for GET /ProductCategories
- * Corresponds to: ListProductCategoriesQueryDto.cs
  */
 export interface ListProductCategoriesQueryDto {
   id: number;
@@ -24,7 +22,6 @@ export interface ListProductCategoriesQueryDto {
 
 /**
  * Response for GET /ProductCategories/{id}
- * Corresponds to: GetProductCategoryByIdQueryDto.cs
  */
 export interface GetProductCategoryByIdQueryDto {
   id: number;
@@ -37,11 +34,8 @@ export interface GetProductCategoryByIdQueryDto {
  */
 export type ListProductCategoriesResponse = PageResult<ListProductCategoriesQueryDto>;
 
-// === COMMANDS (WRITE) ===
-
 /**
  * Command for POST /ProductCategories
- * Corresponds to: CreateProductCategoryCommand.cs
  */
 export interface CreateProductCategoryCommand {
   name: string;
@@ -49,7 +43,6 @@ export interface CreateProductCategoryCommand {
 
 /**
  * Command for PUT /ProductCategories/{id}
- * Corresponds to: UpdateProductCategoryCommand.cs
  */
 export interface UpdateProductCategoryCommand {
   name: string;

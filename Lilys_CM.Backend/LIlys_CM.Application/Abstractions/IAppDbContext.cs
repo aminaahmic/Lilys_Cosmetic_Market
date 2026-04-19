@@ -18,6 +18,7 @@ namespace Lilys_CM.Application.Abstractions
         DbSet<ProductVariantEntity> ProductVariants { get; }
         DbSet<VariantOptionEntity> VariantOptionEntities { get; }
         DbSet<OptionValueEntity> OptionValueEntities { get; }
+        DbSet<ProductStockMovementEntity> ProductStockMovements { get; }
 
         // 🔹 Identity
         DbSet<UserEntity> Users { get; }

@@ -1,147 +1,145 @@
-<div class="container">
-  <!-- Header kartica -->
-  <div class="header-card mat-elevation-z2">
-    <div class="header-card-content">
-      <!-- Lijevo: naslov -->
-      <h1>{{ 'PRODUCTS.TITLE' | translate }}</h1>
+<section class="products-page">
+  <header class="page-header">
+    <div>
+      <p class="kicker">Catalog</p>
+      <h1>Products</h1>
+      <p class="subtitle">Manage products, filters and stock-ready listings.</p>
+    </div>
 
-      <!-- Desno: search + novi proizvod -->
-      <div class="actions-container">
-        <mat-form-field class="search-field" appearance="fill">
-          <mat-label>{{ 'PRODUCTS.SEARCH_PLACEHOLDER' | translate }}</mat-label>
-          <input
-            matInput
-            [placeholder]="'PRODUCTS.SEARCH_INPUT_PLACEHOLDER' | translate"
-            (keyup.enter)="request.paging.page = 1; loadPagedData()"
-            [(ngModel)]="request.search"
-          />
-          <mat-icon matSuffix>search</mat-icon>
-        </mat-form-field>
+    <button mat-raised-button color="primary" (click)="onCreate()">
+      <mat-icon>add</mat-icon>
+      New product
+    </button>
+  </header>
 
-        <button mat-raised-button color="primary" (click)="onCreate()">
-          <mat-icon>add</mat-icon>
-          {{ 'PRODUCTS.NEW_PRODUCT' | translate }}
-        </button>
-      </div>
+  <div class="filter-card">
+    <mat-form-field appearance="outline">
+      <mat-label>Name or description</mat-label>
+      <input matInput [(ngModel)]="request.search" (ngModelChange)="onSearchChanged()" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Brand</mat-label>
+      <mat-select [(ngModel)]="request.brand" (ngModelChange)="onBrandChanged()">
+        <mat-option [value]="null">All brands</mat-option>
+        <mat-option *ngFor="let brand of brands" [value]="brand">
+          {{ brand }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Subcategory</mat-label>
+      <mat-select [(ngModel)]="request.subcategory" (ngModelChange)="onSubcategoryChanged()">
+        <mat-option [value]="null">All subcategories</mat-option>
+        <mat-option *ngFor="let subcategory of subcategories" [value]="subcategory">
+          {{ subcategory }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Category</mat-label>
+      <mat-select [(ngModel)]="request.categoryId" (ngModelChange)="onCategoryChanged()">
+        <mat-option [value]="null">All categories</mat-option>
+        <mat-option *ngFor="let category of categories" [value]="category.id">
+          {{ category.name }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Min price</mat-label>
+      <input matInput type="number" [(ngModel)]="request.priceMin" (ngModelChange)="onPriceRangeChanged()" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Max price</mat-label>
+      <input matInput type="number" [(ngModel)]="request.priceMax" (ngModelChange)="onPriceRangeChanged()" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Status</mat-label>
+      <mat-select [(ngModel)]="request.isEnabled" (ngModelChange)="onStatusChanged()">
+        <mat-option [value]="null">All</mat-option>
+        <mat-option [value]="true">Active</mat-option>
+        <mat-option [value]="false">Inactive</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <div class="filter-actions">
+      <button mat-stroked-button (click)="onResetFilters()">Reset</button>
     </div>
   </div>
 
-  <!-- Loading / error -->
-  <div *ngIf="isLoading" class="loading">
-    {{ 'PRODUCTS.LOADING' | translate }}
-  </div>
+  <div class="state-message" *ngIf="isLoading">Loading products...</div>
+  <div class="state-message error" *ngIf="!isLoading && errorMessage">{{ errorMessage }}</div>
 
-  <div *ngIf="!isLoading && errorMessage" class="error">
-    {{ errorMessage }}
-  </div>
-
-  <!-- Tabela -->
-  <div class="mat-elevation-z8" *ngIf="!isLoading && !errorMessage">
+  <div class="table-card" *ngIf="!isLoading && !errorMessage">
     <table mat-table [dataSource]="items">
-      <!-- Naziv -->
       <ng-container matColumnDef="name">
-        <th mat-header-cell *matHeaderCellDef>{{ 'PRODUCTS.TABLE.NAME' | translate }}</th>
+        <th mat-header-cell *matHeaderCellDef>Name</th>
         <td mat-cell *matCellDef="let product">
-          <span style="font-weight: 500">{{ product.name }}</span>
+          <strong>{{ product.name }}</strong>
         </td>
       </ng-container>
 
-      <!-- Kategorija -->
+      <ng-container matColumnDef="brand">
+        <th mat-header-cell *matHeaderCellDef>Brand</th>
+        <td mat-cell *matCellDef="let product">{{ product.brand || 'N/A' }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="subcategory">
+        <th mat-header-cell *matHeaderCellDef>Subcategory</th>
+        <td mat-cell *matCellDef="let product">{{ product.subcategory || 'N/A' }}</td>
+      </ng-container>
+
       <ng-container matColumnDef="categoryName">
-        <th mat-header-cell *matHeaderCellDef>{{ 'PRODUCTS.TABLE.CATEGORY' | translate }}</th>
-        <td mat-cell *matCellDef="let product">
-          {{ product.categoryName }}
-        </td>
+        <th mat-header-cell *matHeaderCellDef>Category</th>
+        <td mat-cell *matCellDef="let product">{{ product.categoryName }}</td>
       </ng-container>
 
-      <!-- Cijena -->
       <ng-container matColumnDef="price">
-        <th mat-header-cell *matHeaderCellDef>{{ 'PRODUCTS.TABLE.PRICE' | translate }}</th>
+        <th mat-header-cell *matHeaderCellDef>Price</th>
+        <td mat-cell *matCellDef="let product">{{ product.price | number : '1.2-2' }} KM</td>
+      </ng-container>
+
+      <ng-container matColumnDef="stockQuantity">
+        <th mat-header-cell *matHeaderCellDef>Stock</th>
         <td mat-cell *matCellDef="let product">
-          <span style="font-weight: 600; color: #4976b5"
-            >{{ product.price | number : '1.2-2' }} KM</span
-          >
+          <span [class.low]="product.stockQuantity < 5">{{ product.stockQuantity }}</span>
         </td>
       </ng-container>
 
-      <!-- Stanje -->
-      <ng-container matColumnDef="stockQuantity">
-        <th mat-header-cell *matHeaderCellDef>{{ 'PRODUCTS.TABLE.STOCK' | translate }}</th>
+      <ng-container matColumnDef="isEnabled">
+        <th mat-header-cell *matHeaderCellDef>Status</th>
         <td mat-cell *matCellDef="let product">
-          <span
-            [style.color]="product.stockQuantity > 0 ? '#66bb6a' : '#ef5350'"
-            style="font-weight: 500"
-          >
-            {{ product.stockQuantity }}
+          <span class="status" [class.enabled]="product.isEnabled">
+            {{ product.isEnabled ? 'Active' : 'Inactive' }}
           </span>
         </td>
       </ng-container>
 
-      <!-- Aktivno -->
-      <ng-container matColumnDef="isEnabled">
-        <th mat-header-cell *matHeaderCellDef>{{ 'PRODUCTS.TABLE.ACTIVE' | translate }}</th>
-        <td mat-cell *matCellDef="let product">
-          <mat-icon [ngClass]="product.isEnabled ? 'icon-enabled' : 'icon-disabled'">
-            {{ product.isEnabled ? 'check_circle' : 'cancel' }}
-          </mat-icon>
-        </td>
-      </ng-container>
-
-      <!-- Akcije -->
       <ng-container matColumnDef="actions">
-        <th mat-header-cell *matHeaderCellDef>{{ 'PRODUCTS.TABLE.ACTIONS' | translate }}</th>
+        <th mat-header-cell *matHeaderCellDef>Actions</th>
         <td mat-cell *matCellDef="let product">
-          <button
-            mat-icon-button
-            color="primary"
-            (click)="onEdit(product)"
-            [matTooltip]="'PRODUCTS.ACTIONS.EDIT_TOOLTIP' | translate"
-          >
+          <button mat-icon-button color="primary" (click)="onEdit(product)" matTooltip="Edit">
             <mat-icon>edit</mat-icon>
           </button>
-          <button
-            mat-icon-button
-            color="warn"
-            (click)="onDelete(product)"
-            [matTooltip]="'PRODUCTS.ACTIONS.DELETE_TOOLTIP' | translate"
-          >
+          <button mat-icon-button color="warn" (click)="onDelete(product)" matTooltip="Delete">
             <mat-icon>delete</mat-icon>
           </button>
         </td>
       </ng-container>
 
-      <tr
-        mat-header-row
-        *matHeaderRowDef="[
-          'name',
-          'categoryName',
-          'price',
-          'stockQuantity',
-          'isEnabled',
-          'actions'
-        ]"
-      ></tr>
-      <tr
-        mat-row
-        *matRowDef="
-          let row;
-          columns: ['name', 'categoryName', 'price', 'stockQuantity', 'isEnabled', 'actions']
-        "
-      ></tr>
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
 
-      <!-- No data -->
       <tr class="mat-row" *matNoDataRow>
-        <td class="mat-cell" colspan="6">
-          <ng-container *ngIf="request.search; else noDataDefault">
-            {{ 'PRODUCTS.NO_DATA_FILTER' | translate }}
-          </ng-container>
-          <ng-template #noDataDefault>
-            {{ 'PRODUCTS.NO_DATA' | translate }}
-          </ng-template>
-        </td>
+        <td class="mat-cell" [attr.colspan]="displayedColumns.length">No products found.</td>
       </tr>
     </table>
 
-    <app-fit-paginator-bar [vm]="this" />
+    <app-fit-paginator-bar [vm]="this"></app-fit-paginator-bar>
   </div>
-</div>
+</section>

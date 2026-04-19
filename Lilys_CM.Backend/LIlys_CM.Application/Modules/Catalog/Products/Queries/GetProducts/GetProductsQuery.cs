@@ -1,14 +1,14 @@
 using Lilys_CM.Application.Common;
-using MediatR;
 
 namespace Lilys_CM.Application.Modules.Catalog.Products.Queries.GetProducts;
 
-public class GetProductsQuery : IRequest<PageResult<ProductDto>>
+public sealed class GetProductsQuery : BasePagedQuery<ProductDto>
 {
-    public int Page { get; set; } = 1;
-    public int PageSize { get; set; } = 10;
-
-    public int? CategoryId { get; set; }
-    public int? SubcategoryId { get; set; }
-    public string? Search { get; set; }
+    public int? CategoryId { get; init; }
+    public string? Brand { get; init; }
+    public string? Subcategory { get; init; }
+    public decimal? PriceMin { get; init; }
+    public decimal? PriceMax { get; init; }
+    public bool? IsEnabled { get; init; }
+    public string? Search { get; init; }
 }

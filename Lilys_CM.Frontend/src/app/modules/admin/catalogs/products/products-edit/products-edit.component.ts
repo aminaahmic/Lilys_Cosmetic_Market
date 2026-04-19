@@ -1,19 +1,22 @@
-import {Component, inject, OnInit} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
-import {forkJoin} from 'rxjs';
-import {ProductFormService} from '../services/product-form.service';
-import {BaseFormComponent} from '../../../../../core/components/base-classes/base-form-component';
-import {GetProductByIdQueryDto, UpdateProductCommand} from '../../../../../api-services/products/products-api.models';
-import {ProductsApiService} from '../../../../../api-services/products/products-api.service';
+import { Component, inject, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { forkJoin } from 'rxjs';
+import { ProductFormService } from '../services/product-form.service';
+import { BaseFormComponent } from '../../../../../core/components/base-classes/base-form-component';
 import {
-  ProductCategoriesApiService
-} from '../../../../../api-services/product-categories/product-categories-api.service';
-import {ToasterService} from '../../../../../core/services/toaster.service';
+  AdjustProductStockCommand,
+  GetProductByIdQueryDto,
+  ListProductStockMovementsRequest,
+  ProductStockMovementDto,
+  UpdateProductCommand
+} from '../../../../../api-services/products/products-api.models';
+import { ProductsApiService } from '../../../../../api-services/products/products-api.service';
+import { ProductCategoriesApiService } from '../../../../../api-services/product-categories/product-categories-api.service';
+import { ToasterService } from '../../../../../core/services/toaster.service';
 import {
-  ListProductCategoriesQueryDto
+  ListProductCategoriesQueryDto,
+  ListProductCategoriesRequest
 } from '../../../../../api-services/product-categories/product-categories-api.model';
-import {largePaging} from '../../../../../core/models/paging/paging-utils';
-
 
 @Component({
   selector: 'app-products-edit',
@@ -35,23 +38,35 @@ export class ProductsEditComponent
 
   productId!: number;
   categories: ListProductCategoriesQueryDto[] = [];
+  stockMovements: ProductStockMovementDto[] = [];
+  stockDelta = 0;
+  stockReason = 'Manual correction';
+  stockNote = '';
+  isStockBusy = false;
 
   ngOnInit(): void {
     this.productId = +this.route.snapshot.params['id'];
-    this.initForm(true); // Edit mode
+    this.initForm(true);
   }
 
   protected loadData(): void {
     this.startLoading();
 
-    // Load product and categories in parallel
+    const categoriesRequest = new ListProductCategoriesRequest();
+    categoriesRequest.onlyEnabled = true;
+    categoriesRequest.paging.pageSize = 100;
+    const movementsRequest = new ListProductStockMovementsRequest();
+    movementsRequest.paging.pageSize = 8;
+
     forkJoin({
       product: this.api.getById(this.productId),
-      categories: this.categoriesApi.list({ onlyEnabled: true, paging: largePaging })
+      categories: this.categoriesApi.list(categoriesRequest),
+      movements: this.api.getStockMovements(this.productId, movementsRequest)
     }).subscribe({
-      next: ({ product, categories }) => {
+      next: ({ product, categories, movements }) => {
         this.model = product;
-        this.categories = categories.items;
+        this.categories = categories.items.filter(x => x.isEnabled);
+        this.stockMovements = movements.items;
         this.form = this.formService.createProductForm(product);
         this.stopLoading();
       },
@@ -74,7 +89,10 @@ export class ProductsEditComponent
     const command: UpdateProductCommand = {
       name: this.form.value.name,
       description: this.form.value.description,
+      brand: this.form.value.brand,
+      subcategory: this.form.value.subcategory,
       price: this.form.value.price,
+      isEnabled: this.form.value.isEnabled,
       categoryId: this.form.value.categoryId
     };
 
@@ -91,11 +109,70 @@ export class ProductsEditComponent
     });
   }
 
+  applyStockChange(): void {
+    if (this.isStockBusy || this.stockDelta === 0) {
+      return;
+    }
+
+    this.isStockBusy = true;
+
+    const payload: AdjustProductStockCommand = {
+      quantityDelta: this.stockDelta,
+      reason: this.stockReason.trim() || 'Manual correction',
+      note: this.stockNote?.trim() || null
+    };
+
+    this.api.adjustStock(this.productId, payload).subscribe({
+      next: () => {
+        this.toaster.success('Stock updated');
+        this.stockDelta = 0;
+        this.stockNote = '';
+        this.reloadStockPanel();
+      },
+      error: (err) => {
+        this.isStockBusy = false;
+        this.toaster.error('Failed to update stock');
+        console.error('Adjust stock error:', err);
+      }
+    });
+  }
+
+  private reloadStockPanel(): void {
+    const movementsRequest = new ListProductStockMovementsRequest();
+    movementsRequest.paging.pageSize = 8;
+
+    forkJoin({
+      product: this.api.getById(this.productId),
+      movements: this.api.getStockMovements(this.productId, movementsRequest)
+    }).subscribe({
+      next: ({ product, movements }) => {
+        this.model = product;
+        this.stockMovements = movements.items;
+        this.isStockBusy = false;
+      },
+      error: (err) => {
+        this.isStockBusy = false;
+        this.toaster.error('Stock updated but refresh failed');
+        console.error('Reload stock panel error:', err);
+      }
+    });
+  }
+
   onCancel(): void {
     this.router.navigate(['/admin/products']);
   }
 
   getErrorMessage(controlName: string): string {
     return this.formService.getErrorMessage(this.form, controlName);
+  }
+
+  isBasicStepValid(): boolean {
+    return !this.form.get('name')?.invalid &&
+      !this.form.get('brand')?.invalid &&
+      !this.form.get('description')?.invalid;
+  }
+
+  isPricingStepValid(): boolean {
+    return !!this.form.get('price')?.valid && !!this.form.get('categoryId')?.valid;
   }
 }

@@ -2,11 +2,11 @@ namespace Lilys_CM.Application.Abstractions;
 
 public sealed class JwtTokenPair
 {
-    public string AccessToken { get; init; }
+    public string AccessToken { get; init; } = default!;
     public DateTime AccessTokenExpiresAtUtc { get; init; }
 
-    public string RefreshTokenRaw { get; init; }
-    public string RefreshTokenHash { get; init; }
+    public string RefreshTokenRaw { get; init; } = default!;
+    public string RefreshTokenHash { get; init; } = default!;
     public DateTime RefreshTokenExpiresAtUtc { get; init; }
 }
 

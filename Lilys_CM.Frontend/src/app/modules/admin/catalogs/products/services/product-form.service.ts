@@ -2,18 +2,10 @@ import { Injectable, inject } from '@angular/core';
 import { FormBuilder, Validators, FormGroup } from '@angular/forms';
 import {GetProductByIdQueryDto} from '../../../../../api-services/products/products-api.models';
 
-/**
- * Service for creating and managing product forms.
- * Provides reusable form creation with validation for Add and Edit components.
- */
 @Injectable()
 export class ProductFormService {
   private fb = inject(FormBuilder);
 
-  /**
-   * Create a product form with validation.
-   * If product data is provided, form is pre-filled (edit mode).
-   */
   createProductForm(product?: GetProductByIdQueryDto): FormGroup {
     return this.fb.group({
       name: [
@@ -28,6 +20,14 @@ export class ProductFormService {
         product?.description ?? '',
         [Validators.maxLength(500)]
       ],
+      brand: [
+        product?.brand ?? '',
+        [Validators.maxLength(100)]
+      ],
+      subcategory: [
+        product?.subcategory ?? '',
+        [Validators.maxLength(80)]
+      ],
       price: [
         product?.price ?? 0,
         [
@@ -36,6 +36,7 @@ export class ProductFormService {
           Validators.max(1000000)
         ]
       ],
+      isEnabled: [product?.isEnabled ?? true],
       categoryId: [
         product?.categoryId ?? null,
         [Validators.required]
@@ -43,9 +44,6 @@ export class ProductFormService {
     });
   }
 
-  /**
-   * Get validation error message for a form control.
-   */
   getErrorMessage(form: FormGroup, controlName: string): string {
     const control = form.get(controlName);
     if (!control || !control.errors || !control.touched) {

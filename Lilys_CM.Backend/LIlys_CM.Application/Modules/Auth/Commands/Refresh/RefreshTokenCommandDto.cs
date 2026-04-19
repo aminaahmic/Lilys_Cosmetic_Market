@@ -8,12 +8,12 @@ public sealed class RefreshTokenCommandDto
     /// <summary>
     /// New access token that the client should use for authentication.
     /// </summary>
-    public string AccessToken { get; init; }
+    public string AccessToken { get; init; } = default!;
 
     /// <summary>
     /// New refresh token that replaces the previous one.
     /// </summary>
-    public string RefreshToken { get; init; }
+    public string RefreshToken { get; init; } = default!;
 
     /// <summary>
     /// Expiration date of the access token in UTC format.

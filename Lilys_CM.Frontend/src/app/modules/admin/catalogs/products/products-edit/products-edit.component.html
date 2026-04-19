@@ -1,104 +1,154 @@
-<div class="container">
-  <!-- Header -->
-  <div class="header-card mat-elevation-z2">
-    <h1>{{ 'PRODUCTS.EDIT.TITLE' | translate }}</h1>
-  </div>
+<section class="product-editor">
+  <header class="editor-header">
+    <div>
+      <p class="kicker">Catalog</p>
+      <h1>Edit Product</h1>
+      <p class="subtitle">Update details and manage stock from one place.</p>
+    </div>
+    <button type="button" mat-stroked-button (click)="onCancel()">
+      <mat-icon>arrow_back</mat-icon>
+      Back to products
+    </button>
+  </header>
 
-  <!-- Form Card -->
-  <div class="form-card mat-elevation-z2">
-    <form [formGroup]="form" (ngSubmit)="onSubmit()" *ngIf="!isLoading || form">
-      <!-- Error Message -->
-      <div *ngIf="errorMessage" class="error-banner">
-        <mat-icon>error</mat-icon>
-        <span>{{ errorMessage }}</span>
-      </div>
+  <div class="layout-grid" *ngIf="form; else loadingState">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="editor-card">
+      <mat-stepper [linear]="false" class="beauty-stepper">
+        <mat-step label="Basics">
+          <div class="step-grid">
+            <mat-form-field appearance="outline">
+              <mat-label>Name</mat-label>
+              <input matInput formControlName="name" />
+              <mat-error *ngIf="hasError('name')">{{ getErrorMessage('name') }}</mat-error>
+            </mat-form-field>
 
-      <!-- Product Name -->
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>{{ 'PRODUCTS.FORM.NAME' | translate }}</mat-label>
-        <input
-          matInput
-          formControlName="name"
-          [placeholder]="'PRODUCTS.FORM.NAME_PLACEHOLDER' | translate"
-        />
-        <mat-icon matSuffix>inventory_2</mat-icon>
-        <mat-error *ngIf="hasError('name')">
-          {{ getErrorMessage('name') }}
-        </mat-error>
-      </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Brand</mat-label>
+              <input matInput formControlName="brand" />
+              <mat-error *ngIf="hasError('brand')">{{ getErrorMessage('brand') }}</mat-error>
+            </mat-form-field>
 
-      <!-- Description -->
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>{{ 'PRODUCTS.FORM.DESCRIPTION' | translate }}</mat-label>
-        <textarea
-          matInput
-          formControlName="description"
-          [placeholder]="'PRODUCTS.FORM.DESCRIPTION_PLACEHOLDER' | translate"
-          rows="4"
-        ></textarea>
-        <mat-icon matSuffix>description</mat-icon>
-        <mat-error *ngIf="hasError('description')">
-          {{ getErrorMessage('description') }}
-        </mat-error>
-      </mat-form-field>
+            <mat-form-field appearance="outline" class="wide">
+              <mat-label>Description</mat-label>
+              <textarea matInput rows="4" formControlName="description"></textarea>
+              <mat-error *ngIf="hasError('description')">{{ getErrorMessage('description') }}</mat-error>
+            </mat-form-field>
+          </div>
 
-      <!-- Price and Category Row -->
-      <div class="form-row">
-        <!-- Price -->
-        <mat-form-field appearance="outline" class="half-width">
-          <mat-label>{{ 'PRODUCTS.FORM.PRICE' | translate }}</mat-label>
-          <input
-            matInput
-            type="number"
-            formControlName="price"
-            step="0.01"
-            [placeholder]="'PRODUCTS.FORM.PRICE_PLACEHOLDER' | translate"
-          />
-          <span matTextPrefix>KM&nbsp;</span>
-          <mat-icon matSuffix>payments</mat-icon>
-          <mat-error *ngIf="hasError('price')">
-            {{ getErrorMessage('price') }}
-          </mat-error>
-        </mat-form-field>
+          <div class="step-actions">
+            <button type="button" mat-stroked-button (click)="onCancel()">Cancel</button>
+            <button type="button" mat-raised-button color="primary" matStepperNext [disabled]="!isBasicStepValid()">
+              Continue
+            </button>
+          </div>
+        </mat-step>
 
-        <!-- Category -->
-        <mat-form-field appearance="outline" class="half-width">
-          <mat-label>{{ 'PRODUCTS.FORM.CATEGORY' | translate }}</mat-label>
-          <mat-select formControlName="categoryId">
-            <mat-option *ngFor="let category of categories" [value]="category.id">
-              {{ category.name }}
-            </mat-option>
-          </mat-select>
-          <mat-icon matSuffix>category</mat-icon>
-          <mat-error *ngIf="hasError('categoryId')">
-            {{ getErrorMessage('categoryId') }}
-          </mat-error>
-        </mat-form-field>
-      </div>
+        <mat-step label="Price & Placement">
+          <div class="step-grid">
+            <mat-form-field appearance="outline">
+              <mat-label>Category</mat-label>
+              <mat-select formControlName="categoryId">
+                <mat-option *ngFor="let category of categories" [value]="category.id">
+                  {{ category.name }}
+                </mat-option>
+              </mat-select>
+              <mat-error *ngIf="hasError('categoryId')">{{ getErrorMessage('categoryId') }}</mat-error>
+            </mat-form-field>
 
-      <!-- Actions -->
-      <div class="form-actions">
-        <button type="button" mat-stroked-button (click)="onCancel()" [disabled]="isLoading">
-          <mat-icon>close</mat-icon>
-          {{ 'PRODUCTS.FORM.CANCEL' | translate }}
-        </button>
+            <mat-form-field appearance="outline">
+              <mat-label>Subcategory</mat-label>
+              <input matInput formControlName="subcategory" />
+              <mat-error *ngIf="hasError('subcategory')">{{ getErrorMessage('subcategory') }}</mat-error>
+            </mat-form-field>
 
-        <button
-          type="submit"
-          mat-raised-button
-          color="primary"
-          [disabled]="form.invalid || isLoading"
-        >
-          <mat-icon>save</mat-icon>
-          {{ 'PRODUCTS.FORM.UPDATE' | translate }}
-        </button>
-      </div>
+            <mat-form-field appearance="outline">
+              <mat-label>Price</mat-label>
+              <input matInput type="number" step="0.01" formControlName="price" />
+              <span matTextPrefix>KM&nbsp;</span>
+              <mat-error *ngIf="hasError('price')">{{ getErrorMessage('price') }}</mat-error>
+            </mat-form-field>
+
+            <div class="toggle-wrap">
+              <mat-slide-toggle formControlName="isEnabled" color="primary">
+                Product is active
+              </mat-slide-toggle>
+            </div>
+          </div>
+
+          <div class="step-actions">
+            <button type="button" mat-stroked-button matStepperPrevious>Back</button>
+            <button type="button" mat-raised-button color="primary" matStepperNext [disabled]="!isPricingStepValid()">
+              Continue
+            </button>
+          </div>
+        </mat-step>
+
+        <mat-step label="Save">
+          <div class="summary-card">
+            <h3>Save changes</h3>
+            <p>You are updating {{ form.value.name || 'this product' }}.</p>
+          </div>
+
+          <div class="step-actions">
+            <button type="button" mat-stroked-button matStepperPrevious>Back</button>
+            <button type="submit" mat-raised-button color="primary" [disabled]="form.invalid || isLoading">
+              <mat-icon>save</mat-icon>
+              Save product
+            </button>
+          </div>
+        </mat-step>
+      </mat-stepper>
     </form>
 
-    <!-- Loading State -->
-    <div *ngIf="isLoading && !form" class="loading-overlay">
-      <mat-spinner diameter="50"></mat-spinner>
-      <p>{{ 'PRODUCTS.EDIT.LOADING' | translate }}</p>
-    </div>
+    <aside class="stock-card">
+      <h2>Stock</h2>
+      <p class="stock-now">Current: {{ model?.stockQuantity ?? 0 }}</p>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Change quantity</mat-label>
+        <input matInput type="number" [(ngModel)]="stockDelta" [ngModelOptions]="{ standalone: true }" />
+        <mat-hint>Use positive for stock in, negative for stock out.</mat-hint>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Reason</mat-label>
+        <input matInput [(ngModel)]="stockReason" [ngModelOptions]="{ standalone: true }" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Note</mat-label>
+        <textarea matInput rows="2" [(ngModel)]="stockNote" [ngModelOptions]="{ standalone: true }"></textarea>
+      </mat-form-field>
+
+      <button
+        type="button"
+        mat-raised-button
+        color="accent"
+        (click)="applyStockChange()"
+        [disabled]="isStockBusy || stockDelta === 0"
+      >
+        Apply stock change
+      </button>
+
+      <div class="movement-list">
+        <h3>Latest movements</h3>
+        <div class="movement-item" *ngFor="let movement of stockMovements">
+          <div>
+            <p class="movement-main">
+              {{ movement.quantityDelta > 0 ? '+' : '' }}{{ movement.quantityDelta }} ({{ movement.reason }})
+            </p>
+            <p class="movement-note">{{ movement.note || 'No note' }}</p>
+          </div>
+          <span class="movement-result">{{ movement.previousQuantity }} -> {{ movement.newQuantity }}</span>
+        </div>
+      </div>
+    </aside>
   </div>
-</div>
+
+  <ng-template #loadingState>
+    <div class="loading-wrap">
+      <mat-spinner diameter="42"></mat-spinner>
+      <p>Loading product...</p>
+    </div>
+  </ng-template>
+</section>

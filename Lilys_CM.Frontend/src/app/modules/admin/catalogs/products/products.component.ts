@@ -1,6 +1,4 @@
-// products.component.ts
-
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import {
   ListProductsRequest,
@@ -8,9 +6,13 @@ import {
 } from '../../../../api-services/products/products-api.models';
 import { ProductsApiService } from '../../../../api-services/products/products-api.service';
 import { BaseListPagedComponent } from '../../../../core/components/base-classes/base-list-paged-component';
-import { ToasterService } from '../../../../core/services/toaster.service';
 import { DialogHelperService } from '../../../shared/services/dialog-helper.service';
 import { DialogButton } from '../../../shared/models/dialog-config.model';
+import { ProductCategoriesApiService } from '../../../../api-services/product-categories/product-categories-api.service';
+import {
+  ListProductCategoriesQueryDto,
+  ListProductCategoriesRequest
+} from '../../../../api-services/product-categories/product-categories-api.model';
 
 @Component({
   selector: 'app-products',
@@ -20,15 +22,17 @@ import { DialogButton } from '../../../shared/models/dialog-config.model';
 })
 export class ProductsComponent
   extends BaseListPagedComponent<ListProductsQueryDto, ListProductsRequest>
-  implements OnInit {
+  implements OnInit, OnDestroy {
 
   private api = inject(ProductsApiService);
+  private categoriesApi = inject(ProductCategoriesApiService);
   private router = inject(Router);
-  private toaster = inject(ToasterService);
   private dialogHelper = inject(DialogHelperService);
 
   displayedColumns: string[] = [
     'name',
+    'brand',
+    'subcategory',
     'categoryName',
     'price',
     'stockQuantity',
@@ -36,13 +40,29 @@ export class ProductsComponent
     'actions'
   ];
 
+  categories: ListProductCategoriesQueryDto[] = [];
+  brands: string[] = [];
+  subcategories: string[] = [];
+  private filterDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+
   constructor() {
     super();
     this.request = new ListProductsRequest();
+    this.request.paging.pageSize = 10;
+    this.request.isEnabled = null;
   }
 
   ngOnInit(): void {
     this.initList();
+    this.loadCategories();
+    this.loadFilterOptions();
+  }
+
+  ngOnDestroy(): void {
+    if (this.filterDebounceTimer) {
+      clearTimeout(this.filterDebounceTimer);
+      this.filterDebounceTimer = null;
+    }
   }
 
   protected loadPagedData(): void {
@@ -60,8 +80,6 @@ export class ProductsComponent
     });
   }
 
-  // === UI Actions ===
-
   onCreate(): void {
     this.router.navigate(['/admin/products/add']);
   }
@@ -74,6 +92,85 @@ export class ProductsComponent
     this.dialogHelper.product.confirmDelete(product.name).subscribe(result => {
       if (result && result.button === DialogButton.DELETE) {
         this.performDelete(product);
+      }
+    });
+  }
+
+  onApplyFilters(): void {
+    this.request.paging.page = 1;
+    this.loadPagedData();
+  }
+
+  onSearchChanged(): void {
+    this.triggerDebouncedRefresh();
+  }
+
+  onPriceRangeChanged(): void {
+    this.triggerDebouncedRefresh();
+  }
+
+  onStatusChanged(): void {
+    this.onApplyFilters();
+  }
+
+  onBrandChanged(): void {
+    this.onApplyFilters();
+  }
+
+  onCategoryChanged(): void {
+    this.request.subcategory = null;
+    this.loadFilterOptions();
+    this.onApplyFilters();
+  }
+
+  onSubcategoryChanged(): void {
+    this.onApplyFilters();
+  }
+
+  onResetFilters(): void {
+    this.request.search = null;
+    this.request.brand = null;
+    this.request.subcategory = null;
+    this.request.categoryId = null;
+    this.request.priceMin = null;
+    this.request.priceMax = null;
+    this.request.isEnabled = null;
+    this.request.paging.page = 1;
+    this.loadFilterOptions();
+    this.loadPagedData();
+  }
+
+  private loadCategories(): void {
+    const request = new ListProductCategoriesRequest();
+    request.onlyEnabled = true;
+    request.paging.pageSize = 100;
+
+    this.categoriesApi.list(request).subscribe({
+      next: (response) => {
+        this.categories = response.items;
+      },
+      error: (err) => {
+        console.error('Load categories error:', err);
+      }
+    });
+  }
+
+  private loadFilterOptions(): void {
+    this.api.getFilterOptions(this.request.categoryId).subscribe({
+      next: (response) => {
+        this.brands = response.brands;
+        this.subcategories = response.subcategories;
+
+        if (this.request.brand && !this.brands.includes(this.request.brand)) {
+          this.request.brand = null;
+        }
+
+        if (this.request.subcategory && !this.subcategories.includes(this.request.subcategory)) {
+          this.request.subcategory = null;
+        }
+      },
+      error: (err) => {
+        console.error('Load product filter options error:', err);
       }
     });
   }
@@ -99,8 +196,13 @@ export class ProductsComponent
     });
   }
 
-  onSearch(): void {
-    this.request.paging.page = 1;
-    this.loadPagedData();
+  private triggerDebouncedRefresh(): void {
+    if (this.filterDebounceTimer) {
+      clearTimeout(this.filterDebounceTimer);
+    }
+
+    this.filterDebounceTimer = setTimeout(() => {
+      this.onApplyFilters();
+    }, 300);
   }
 }

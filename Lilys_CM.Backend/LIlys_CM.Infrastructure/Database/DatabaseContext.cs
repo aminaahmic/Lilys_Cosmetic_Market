@@ -33,6 +33,7 @@ namespace Lilys_CM.Infrastructure.Database
         public DbSet<ProductVariantEntity> ProductVariants => Set<ProductVariantEntity>();
         public DbSet<VariantOptionEntity> VariantOptionEntities => Set<VariantOptionEntity>();
         public DbSet<OptionValueEntity> OptionValueEntities => Set<OptionValueEntity>();
+        public DbSet<ProductStockMovementEntity> ProductStockMovements => Set<ProductStockMovementEntity>();
         public DbSet<UserEntity> Users => Set<UserEntity>();
         public DbSet<RoleEntity> Roles => Set<RoleEntity>();
         public DbSet<AddressEntity> Addresses => Set<AddressEntity>();

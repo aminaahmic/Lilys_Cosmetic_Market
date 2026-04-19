@@ -28,6 +28,11 @@ public class CustomWebApplicationFactory<TProgram> : WebApplicationFactory<Progr
             response.EnsureSuccessStatusCode();
 
             var loginResponse = await response.Content.ReadFromJsonAsync<LoginCommandDto>();
+            if (loginResponse?.AccessToken is null)
+            {
+                throw new InvalidOperationException("Login response did not return an access token.");
+            }
+
             _cachedToken = loginResponse.AccessToken;
         }
         client.DefaultRequestHeaders.Authorization =

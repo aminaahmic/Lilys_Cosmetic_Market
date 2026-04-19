@@ -9,7 +9,12 @@ import { BasePagedQuery } from '../../core/models/paging/base-paged-query';
  */
 export class ListProductsRequest extends BasePagedQuery {
   search?: string | null;
-  // Future filters: categoryId?, isEnabled?, priceMin?, priceMax?
+  brand?: string | null;
+  subcategory?: string | null;
+  categoryId?: number | null;
+  priceMin?: number | null;
+  priceMax?: number | null;
+  isEnabled?: boolean | null;
 }
 
 /**
@@ -20,8 +25,11 @@ export interface ListProductsQueryDto {
   id: number;
   name: string;
   description?: string | null;
+  brand?: string | null;
+  subcategory?: string | null;
   price: number;
   stockQuantity: number;
+  categoryId: number;
   categoryName: string;
   isEnabled: boolean;
 }
@@ -34,6 +42,8 @@ export interface GetProductByIdQueryDto {
   id: number;
   name: string;
   description?: string | null;
+  brand?: string | null;
+  subcategory?: string | null;
   price: number;
   stockQuantity: number;
   categoryName: string;
@@ -46,6 +56,13 @@ export interface GetProductByIdQueryDto {
  */
 export type ListProductsResponse = PageResult<ListProductsQueryDto>;
 
+export class ListProductStockMovementsRequest extends BasePagedQuery {}
+
+export interface ProductFilterOptionsDto {
+  brands: string[];
+  subcategories: string[];
+}
+
 // === COMMANDS (WRITE) ===
 
 /**
@@ -55,7 +72,10 @@ export type ListProductsResponse = PageResult<ListProductsQueryDto>;
 export interface CreateProductCommand {
   name: string;
   description?: string | null;
+  brand?: string | null;
+  subcategory?: string | null;
   price: number;
+  isEnabled: boolean;
   categoryId: number;
 }
 
@@ -66,6 +86,27 @@ export interface CreateProductCommand {
 export interface UpdateProductCommand {
   name: string;
   description?: string | null;
+  brand?: string | null;
+  subcategory?: string | null;
   price: number;
+  isEnabled: boolean;
   categoryId: number;
 }
+
+export interface AdjustProductStockCommand {
+  quantityDelta: number;
+  reason: string;
+  note?: string | null;
+}
+
+export interface ProductStockMovementDto {
+  id: number;
+  quantityDelta: number;
+  previousQuantity: number;
+  newQuantity: number;
+  reason: string;
+  note?: string | null;
+  createdAtUtc: string;
+}
+
+export type ListProductStockMovementsResponse = PageResult<ProductStockMovementDto>;
