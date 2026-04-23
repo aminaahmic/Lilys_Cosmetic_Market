@@ -32,7 +32,7 @@ namespace Lilys_CM.Infrastructure.Database
                         break;
 
                     case EntityState.Deleted:
-                        // Soft delete - ne briši iz baze
+                        
                         entry.State = EntityState.Modified;
                         entry.Entity.IsDeleted = true;
                         entry.Entity.ModifiedAtUtc = UtcNow;
@@ -43,7 +43,7 @@ namespace Lilys_CM.Infrastructure.Database
 
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
         {
-            // Globalna preciznost za decimal tipove
+            
             configurationBuilder.Properties<decimal>().HavePrecision(18, 2);
             configurationBuilder.Properties<decimal?>().HavePrecision(18, 2);
         }
@@ -52,19 +52,20 @@ namespace Lilys_CM.Infrastructure.Database
         {
             base.OnModelCreating(modelBuilder);
 
-            // Učitaj sve konfiguracije iz Infrastructure.Database.Configurations
+            
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(DatabaseContext).Assembly);
 
-            // Globalni filter za soft delete
+
+            
             ApplyGlobalFilters(modelBuilder);
 
-            // Dodaj statičke podatke (seed)
+            
             StaticDataSeeder.Seed(modelBuilder);
         }
 
         private void ApplyGlobalFilters(ModelBuilder modelBuilder)
         {
-            // Primijeni globalni filter na sve entitete koji nasljeđuju BaseEntity
+           
             foreach (var entityType in modelBuilder.Model.GetEntityTypes())
             {
                 if (typeof(BaseEntity).IsAssignableFrom(entityType.ClrType))

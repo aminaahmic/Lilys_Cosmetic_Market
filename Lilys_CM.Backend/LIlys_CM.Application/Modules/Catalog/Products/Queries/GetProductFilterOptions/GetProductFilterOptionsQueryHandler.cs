@@ -32,7 +32,7 @@ public sealed class GetProductFilterOptionsQueryHandler :
 
         var productSubcategoryQuery = _context.Products
             .AsNoTracking()
-            .Where(p => !string.IsNullOrWhiteSpace(p.Subcategory));
+            .Where(p => p.Subcategory != null && !string.IsNullOrWhiteSpace(p.Subcategory.Name));
 
         if (request.CategoryId.HasValue)
         {
@@ -41,7 +41,7 @@ public sealed class GetProductFilterOptionsQueryHandler :
         }
 
         var subcategoriesFromProducts = await productSubcategoryQuery
-            .Select(p => p.Subcategory!)
+            .Select(p => p.Subcategory!.Name)
             .ToListAsync(cancellationToken);
 
         var subcategoryTableQuery = _context.Subcategories

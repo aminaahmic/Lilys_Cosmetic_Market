@@ -17,6 +17,7 @@ public class GetProductsQueryHandler : IRequestHandler<GetProductsQuery, PageRes
     {
         var query = _context.Products
             .Include(p => p.Category)
+            .Include(p => p.Subcategory)
             .AsQueryable();
 
         if (request.CategoryId.HasValue)
@@ -33,7 +34,7 @@ public class GetProductsQueryHandler : IRequestHandler<GetProductsQuery, PageRes
         if (!string.IsNullOrWhiteSpace(request.Subcategory))
         {
             var subcategory = request.Subcategory.Trim().ToLower();
-            query = query.Where(p => p.Subcategory != null && p.Subcategory.ToLower().Contains(subcategory));
+            query = query.Where(p => p.Subcategory != null && p.Subcategory.Name.ToLower().Contains(subcategory));
         }
 
         if (request.PriceMin.HasValue)
@@ -57,9 +58,12 @@ public class GetProductsQueryHandler : IRequestHandler<GetProductsQuery, PageRes
 
             query = query.Where(p =>
                 p.Name.ToLower().Contains(search) ||
+                p.Sku.ToLower().Contains(search) ||
+                p.Slug.ToLower().Contains(search) ||
                 (p.Brand != null && p.Brand.ToLower().Contains(search)) ||
-                (p.Subcategory != null && p.Subcategory.ToLower().Contains(search)) ||
+                (p.Subcategory != null && p.Subcategory.Name.ToLower().Contains(search)) ||
                 (p.Description != null && p.Description.ToLower().Contains(search)) ||
+                (p.ShortDescription != null && p.ShortDescription.ToLower().Contains(search)) ||
                 p.Category.Name.ToLower().Contains(search));
         }
 
@@ -72,15 +76,39 @@ public class GetProductsQueryHandler : IRequestHandler<GetProductsQuery, PageRes
             .Select(p => new ProductDto
             {
                 Id = p.Id,
+
                 Name = p.Name,
+                Sku = p.Sku,
+                Slug = p.Slug,
+
+                ImageUrl = p.ImageUrl,
+                ShortDescription = p.ShortDescription,
                 Description = p.Description,
+                Ingredients = p.Ingredients,
+                HowToUse = p.HowToUse,
+                Benefits = p.Benefits,
+
                 Brand = p.Brand,
-                Subcategory = p.Subcategory,
+                Size = p.Size,
+                CountryOfOrigin = p.CountryOfOrigin,
+                Barcode = p.Barcode,
+
                 Price = p.Price,
+                CompareAtPrice = p.CompareAtPrice,
+
                 StockQuantity = p.StockQuantity,
+
                 IsEnabled = p.IsEnabled,
+                IsFeatured = p.IsFeatured,
+
+                SeoTitle = p.SeoTitle,
+                SeoDescription = p.SeoDescription,
+
                 CategoryId = p.CategoryId,
-                CategoryName = p.Category.Name
+                CategoryName = p.Category.Name,
+
+                SubcategoryId = p.SubcategoryId,
+                SubcategoryName = p.Subcategory != null ? p.Subcategory.Name : null
             })
             .ToListAsync(cancellationToken);
 

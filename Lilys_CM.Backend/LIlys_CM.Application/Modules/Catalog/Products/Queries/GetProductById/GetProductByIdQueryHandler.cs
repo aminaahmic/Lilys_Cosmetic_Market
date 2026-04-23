@@ -15,6 +15,7 @@ public sealed class GetProductByIdQueryHandler : IRequestHandler<GetProductByIdQ
     {
         var product = await _context.Products
             .Include(p => p.Category)
+            .Include(p => p.Subcategory)
             .FirstOrDefaultAsync(p => p.Id == request.Id, cancellationToken);
 
         if (product is null)
@@ -23,15 +24,39 @@ public sealed class GetProductByIdQueryHandler : IRequestHandler<GetProductByIdQ
         return new GetProductByIdDto
         {
             Id = product.Id,
+
             Name = product.Name,
+            Sku = product.Sku,
+            Slug = product.Slug,
+
+            ImageUrl = product.ImageUrl,
+            ShortDescription = product.ShortDescription,
             Description = product.Description,
+            Ingredients = product.Ingredients,
+            HowToUse = product.HowToUse,
+            Benefits = product.Benefits,
+
             Brand = product.Brand,
-            Subcategory = product.Subcategory,
+            Size = product.Size,
+            CountryOfOrigin = product.CountryOfOrigin,
+            Barcode = product.Barcode,
+
             Price = product.Price,
+            CompareAtPrice = product.CompareAtPrice,
+
             StockQuantity = product.StockQuantity,
+
             IsEnabled = product.IsEnabled,
+            IsFeatured = product.IsFeatured,
+
+            SeoTitle = product.SeoTitle,
+            SeoDescription = product.SeoDescription,
+
             CategoryId = product.CategoryId,
-            CategoryName = product.Category.Name
+            CategoryName = product.Category.Name,
+
+            SubcategoryId = product.SubcategoryId,
+            SubcategoryName = product.Subcategory != null ? product.Subcategory.Name : null
         };
     }
 }

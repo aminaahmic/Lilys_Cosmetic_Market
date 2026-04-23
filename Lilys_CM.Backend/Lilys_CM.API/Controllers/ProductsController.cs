@@ -43,7 +43,7 @@ public class ProductsController : ControllerBase
         return Ok(result);
     }
 
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateProductCommand command)
     {
@@ -51,16 +51,49 @@ public class ProductsController : ControllerBase
         return Ok(id);
     }
 
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateProductCommand command)
     {
-        command.Id = id;
-        await _mediator.Send(command);
+        var updatedCommand = new UpdateProductCommand
+        {
+            Id = id,
+
+            Name = command.Name,
+            Sku = command.Sku,
+            Slug = command.Slug,
+
+            ImageUrl = command.ImageUrl,
+            ShortDescription = command.ShortDescription,
+            Description = command.Description,
+            Ingredients = command.Ingredients,
+            HowToUse = command.HowToUse,
+            Benefits = command.Benefits,
+
+            Brand = command.Brand,
+            Size = command.Size,
+            CountryOfOrigin = command.CountryOfOrigin,
+            Barcode = command.Barcode,
+
+            Price = command.Price,
+            CompareAtPrice = command.CompareAtPrice,
+            StockQuantity = command.StockQuantity,
+
+            IsEnabled = command.IsEnabled,
+            IsFeatured = command.IsFeatured,
+
+            SeoTitle = command.SeoTitle,
+            SeoDescription = command.SeoDescription,
+
+            CategoryId = command.CategoryId,
+            SubcategoryId = command.SubcategoryId
+        };
+
+        await _mediator.Send(updatedCommand);
         return NoContent();
     }
 
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
@@ -68,7 +101,7 @@ public class ProductsController : ControllerBase
         return NoContent();
     }
 
-    [Authorize]
+   [Authorize(Roles = "Admin")]
     [HttpPut("{id:int}/stock/adjust")]
     public async Task<IActionResult> AdjustStock(int id, [FromBody] AdjustProductStockCommand command)
     {

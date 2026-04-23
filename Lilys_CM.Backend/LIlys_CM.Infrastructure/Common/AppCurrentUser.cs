@@ -26,17 +26,6 @@ public sealed class AppCurrentUser(IHttpContextAccessor httpContextAccessor)
     public bool IsAdmin =>
         _user?.FindFirstValue("is_admin")?.Equals("true", StringComparison.OrdinalIgnoreCase) ?? false;
 
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    public bool IsCustomer => throw new NotImplementedException();
+    public bool IsCustomer =>
+        _user?.FindFirstValue(ClaimTypes.Role)?.Equals("User", StringComparison.OrdinalIgnoreCase) ?? false;
 }
