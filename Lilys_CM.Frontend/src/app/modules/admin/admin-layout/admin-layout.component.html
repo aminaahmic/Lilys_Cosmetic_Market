@@ -3,48 +3,53 @@
   <mat-sidenav mode="side" opened class="sidenav">
     <!-- SIDEBAR HEADER WITH USER INFO -->
     <div class="sidebar-header">
+      <!-- Brand Logo -->
+      <div class="brand">
+        <img src="assets/images/lily.svg" class="brand-icon" />
+        <div class="brand-name">Lily's</div>
+        <div class="brand-subtitle">COSMETICS</div>
+      </div>
+
+
       <!-- User Info -->
-      <div class="user-info">
-        <div class="user-avatar">
-          <mat-icon>account_circle</mat-icon>
+      <div class="admin-card">
+        <div class="admin-avatar">
+          {{ (auth.currentUser()?.email?.charAt(0) || 'A').toUpperCase() }}
         </div>
-        <div class="user-details">
-          <div class="user-email">{{ auth.currentUser()?.email }}</div>
-          <div class="user-role">
+
+        <div class="admin-info">
+          <div class="admin-name">
+            {{ auth.currentUser()?.email || 'Administrator' }}
+          </div>
+
+          <div class="admin-role">
             @if (auth.isAdmin()) {
-            <mat-chip class="role-chip admin">
-              <mat-icon>admin_panel_settings</mat-icon>
-              {{ 'ADMIN_PANEL.ROLES.ADMIN' | translate }}
-            </mat-chip>
+            Admin
             } @else if (auth.isManager()) {
-            <mat-chip class="role-chip manager">
-              <mat-icon>manage_accounts</mat-icon>
-              {{ 'ADMIN_PANEL.ROLES.MANAGER' | translate }}
-            </mat-chip>
+            Manager
             } @else if (auth.isEmployee()) {
-            <mat-chip class="role-chip employee">
-              <mat-icon>badge</mat-icon>
-              {{ 'ADMIN_PANEL.ROLES.EMPLOYEE' | translate }}
-            </mat-chip>
+            Employee
             }
           </div>
         </div>
+
+
       </div>
 
       <!-- Language Selector -->
       <div class="language-selector">
-        <button mat-icon-button [matMenuTriggerFor]="langMenu" class="lang-button">
-          <span class="flag-icon">{{ getCurrentLanguage()?.flag }}</span>
-          <mat-icon>arrow_drop_down</mat-icon>
+        <button type="button" [matMenuTriggerFor]="langMenu" class="lang-card">
+          <div class="lang-left">
+            <div class="lang-code">{{ currentLang | uppercase }}</div>
+            <div class="lang-label">{{ getCurrentLanguage()?.name }}</div>
+          </div>
+
+          <mat-icon class="lang-arrow">keyboard_arrow_down</mat-icon>
         </button>
 
         <mat-menu #langMenu="matMenu">
-          <button
-            mat-menu-item
-            *ngFor="let lang of languages"
-            (click)="switchLanguage(lang.code)"
-            [class.active-lang]="currentLang === lang.code"
-          >
+          <button mat-menu-item *ngFor="let lang of languages" (click)="switchLanguage(lang.code)"
+            [class.active-lang]="currentLang === lang.code">
             <span class="flag-icon">{{ lang.flag }}</span>
             <span>{{ lang.name }}</span>
             <mat-icon *ngIf="currentLang === lang.code" class="check-icon">check</mat-icon>
@@ -100,6 +105,10 @@
         <span matListItemTitle>{{ 'ADMIN_PANEL.MENU.LOGOUT' | translate }}</span>
       </a>
     </mat-nav-list>
+    <!--end of sidebar-->
+          <div class="sidebar-illustration">
+        <img src="assets/images/sidebar-cosmetics.png" alt="Cosmetics illustration" />
+      </div>
   </mat-sidenav>
 
   <!-- MAIN CONTENT -->

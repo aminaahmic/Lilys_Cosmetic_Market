@@ -1,24 +1,32 @@
-// Glavne boje - teget paleta #4976b5
-$primary-color: #4976b5;
-$primary-light: #6b96d1;
-$primary-lighter: #e8f0f9;
-$primary-dark: #3a5e91;
+// color palette
+$primary-color: #c46f7a;
+$primary-light: #f4d9d5;
+$primary-lighter: #fff1ee;
+$primary-dark: #8f4f55;
 
-$secondary-color: #5a8ac9;
-$accent-color: #7ba7db;
+$accent-color: #d98d86;
+$accent-soft: #f8e4df;
 
-$bg-gradient-start: #f0f5fb;
-$bg-gradient-end: #e3ecf7;
+$bg-gradient-start: #fffaf7;
+$bg-gradient-end: #f8e8e5;
+$background-card: #ffffff;
 
-$text-primary: #2c3e50;
-$text-secondary: #546e7a;
-$text-disabled: #90a4ae;
+$text-primary: #3b2926;
+$text-secondary: #7d6660;
+$text-muted: #a98f88;
 
-$success-color: #66bb6a;
-$error-color: #ef5350;
+$success-color: #73b889;
+$success-bg: #e6f6eb;
 
-$border-color: rgba(73, 118, 181, 0.15);
-$hover-bg: rgba(73, 118, 181, 0.04);
+$error-color: #e85d5d;
+$error-bg: #fdeaea;
+
+$warning-color: #e7a95b;
+$warning-bg: #fff2df;
+
+$border-color: #eadbd5;
+$shadow-soft: rgba(92, 51, 44, 0.06);
+$shadow-medium: rgba(92, 51, 44, 0.1);
 
 // Container
 .container {
@@ -29,160 +37,92 @@ $hover-bg: rgba(73, 118, 181, 0.04);
   min-height: 100vh;
 }
 
-// Header Card
-.header-card {
-  background: white;
-  border-radius: 16px;
-  padding: 24px 32px;
-  margin-bottom: 24px;
-  box-shadow: 0 2px 8px rgba(73, 118, 181, 0.08), 0 1px 3px rgba(0, 0, 0, 0.06);
+.soft-card {
+  background: $background-card;
   border: 1px solid $border-color;
-  transition: all 0.3s ease;
+  border-radius: 18px;
+  box-shadow: 0 10px 28px $shadow-soft;
+}
 
-  &:hover {
-    box-shadow: 0 4px 16px rgba(73, 118, 181, 0.12), 0 2px 6px rgba(0, 0, 0, 0.08);
+// Header Card
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+
+  h1 {
+    font-size: 26px;
+    margin: 0;
+    color: #3b2926;
   }
 
-  .header-card-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 24px;
-    flex-wrap: wrap;
-
-    .title-section {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-
-      .title-icon {
-        width: 48px;
-        height: 48px;
-        background: linear-gradient(135deg, $primary-color 0%, $primary-light 100%);
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 4px 12px rgba(73, 118, 181, 0.25);
-
-        mat-icon {
-          color: white;
-          font-size: 28px;
-          width: 28px;
-          height: 28px;
-        }
-      }
-
-      h1 {
-        margin: 0;
-        font-size: 28px;
-        font-weight: 600;
-        color: $text-primary;
-        letter-spacing: -0.5px;
-      }
-    }
-
-    .actions-container {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      flex-wrap: wrap;
-
-      .search-field {
-        width: 280px;
-        background-color: white !important;
-
-        ::ng-deep {
-          .mat-form-field-fill {
-            background-color: white !important;
-          }
-          .mdc-text-field--filled:not(.mdc-text-field--disabled) {
-            background-color: white !important;
-          }
-
-          .mat-form-field-flex {
-            background-color: white !important;
-            border-radius: 8px 8px 0 0;
-            padding: 8px 12px;
-          }
-
-          .mat-form-field-underline {
-            background-color: rgba(73, 118, 181, 0.3) !important;
-          }
-
-          .mat-form-field-ripple {
-            background-color: $primary-color !important;
-          }
-
-          .mat-form-field-label {
-            color: $text-secondary;
-          }
-
-          .mat-focused .mat-form-field-label {
-            color: $primary-color !important;
-          }
-
-          input {
-            color: $text-primary;
-            background-color: transparent;
-          }
-
-          .mat-icon {
-            color: $primary-color;
-          }
-
-          .mat-form-field-wrapper {
-            padding-bottom: 1.34375em;
-          }
-        }
-      }
-
-      .enabled-toggle {
-        ::ng-deep {
-          .mat-slide-toggle-label {
-            color: $text-secondary;
-            font-weight: 500;
-          }
-
-          .mat-slide-toggle-bar {
-            background-color: rgba(73, 118, 181, 0.2);
-          }
-
-          .mat-slide-toggle.mat-checked .mat-slide-toggle-bar {
-            background-color: rgba(73, 118, 181, 0.5);
-          }
-
-          .mat-slide-toggle.mat-checked .mat-slide-toggle-thumb {
-            background-color: $primary-color;
-          }
-        }
-      }
-
-      .add-button {
-        background: linear-gradient(135deg, $primary-color 0%, $primary-light 100%);
-        color: white;
-        font-weight: 600;
-        padding: 0 24px;
-        height: 44px;
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(73, 118, 181, 0.25);
-        transition: all 0.3s ease;
-
-        mat-icon {
-          margin-right: 8px;
-        }
-
-        &:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 6px 20px rgba(73, 118, 181, 0.35);
-        }
-
-        &:active {
-          transform: translateY(0);
-        }
-      }
-    }
+p {
+    margin: 4px 0 0;
+    color: #7d6660;
   }
+}
+
+.primary-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  background: #c46f7a;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 16px;
+
+  cursor: pointer;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.stat-card mat-icon {
+  font-size: 20px;
+
+  width: 40px;
+  height: 40px;
+
+  border-radius: 10px;
+  background: $primary-light;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: $primary-color;
+}
+.stat-card {
+    overflow: visible;
+  background: white;
+  border: 1px solid #eadbd5;
+  border-radius: 14px;
+  padding: 16px;
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  mat-icon {
+    font-size: 28px;
+    color: #c46f7a;
+  }
+}
+
+.stat-number {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: #7d6660;
 }
 
 // Loading Container
@@ -315,9 +255,7 @@ $hover-bg: rgba(73, 118, 181, 0.04);
 
           &.edit-btn {
             color: $primary-color;
-            background: $hover-bg;
-
-            &:hover {
+                        &:hover {
               background: $primary-lighter;
               transform: scale(1.1);
             }
@@ -345,9 +283,7 @@ $hover-bg: rgba(73, 118, 181, 0.04);
     .data-row {
       transition: background-color 0.2s ease;
 
-      &:hover {
-        background-color: $hover-bg;
-      }
+      
     }
 
     .no-data-row {

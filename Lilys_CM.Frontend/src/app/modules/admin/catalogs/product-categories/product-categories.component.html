@@ -1,47 +1,42 @@
 <div class="container">
-  <!-- Header Card -->
-  <div class="header-card">
-    <div class="header-card-content">
-      <!-- Left: Title with Icon -->
-      <div class="title-section">
-        <div class="title-icon">
-          <mat-icon>category</mat-icon>
-        </div>
-        <h1>{{ 'PRODUCT_CATEGORIES.TITLE' | translate }}</h1>
+  <div class="page-header">
+    <div class="header-left">
+      <h1>Kategorije proizvoda</h1>
+      <p>Upravljajte kategorijama i njihovim statusom</p>
+    </div>
+
+    <button class="primary-btn" type="button" (click)="onCreate()">
+      <mat-icon>add</mat-icon>
+      Nova kategorija
+    </button>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <mat-icon>inventory_2</mat-icon>
+      <div>
+        <div class="stat-number">{{ totalCategories }}</div>
+        <div class="stat-label">Ukupno kategorija</div>
       </div>
+    </div>
 
-      <!-- Right: Search, Filter, Button -->
-      <div class="actions-container">
-        <!-- Only Enabled Toggle -->
-        <mat-slide-toggle
-          [(ngModel)]="showOnlyEnabled"
-          (change)="onToggleEnabledFilter($event.checked)"
-          color="primary"
-          class="enabled-toggle"
-        >
-          {{ 'PRODUCT_CATEGORIES.ONLY_ENABLED' | translate }}
-        </mat-slide-toggle>
+    <div class="stat-card">
+      <mat-icon>check_circle</mat-icon>
+      <div>
+        <div class="stat-number">{{ activeCategories }}</div>
+        <div class="stat-label">Aktivne</div>
+      </div>
+    </div>
 
-        <!-- Search -->
-        <mat-form-field class="search-field" appearance="fill">
-          <mat-label>{{ 'PRODUCT_CATEGORIES.SEARCH_PLACEHOLDER' | translate }}</mat-label>
-          <input
-            matInput
-            [(ngModel)]="request.search"
-            (keyup.enter)="onSearchChange(request.search || '')"
-            [placeholder]="'PRODUCT_CATEGORIES.SEARCH_INPUT_PLACEHOLDER' | translate"
-          />
-          <mat-icon matSuffix>search</mat-icon>
-        </mat-form-field>
-
-        <!-- New Category Button -->
-        <button mat-raised-button color="primary" (click)="onCreate()" class="add-button">
-          <mat-icon>add</mat-icon>
-          <span>{{ 'PRODUCT_CATEGORIES.NEW_CATEGORY' | translate }}</span>
-        </button>
+    <div class="stat-card">
+      <mat-icon>cancel</mat-icon>
+      <div>
+        <div class="stat-number">{{ inactiveCategories }}</div>
+        <div class="stat-label">Neaktivne</div>
       </div>
     </div>
   </div>
+</div>
 
   <!-- Loading -->
   <div *ngIf="isLoading" class="loading-container">
@@ -159,4 +154,4 @@
       <app-fit-paginator-bar [vm]="this"></app-fit-paginator-bar>
     </div>
   </div>
-</div>
+

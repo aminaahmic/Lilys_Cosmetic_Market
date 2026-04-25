@@ -34,7 +34,17 @@ export class ProductCategoriesComponent
     this.request = new ListProductCategoriesRequest();
     this.request.onlyEnabled = true;
   }
+get totalCategories(): number {
+  return this.items?.length || 0;
+}
 
+get activeCategories(): number {
+  return this.items?.filter(x => x.isEnabled).length || 0;
+}
+
+get inactiveCategories(): number {
+  return this.items?.filter(x => !x.isEnabled).length || 0;
+}
   ngOnInit(): void {
     this.initList();
   }
