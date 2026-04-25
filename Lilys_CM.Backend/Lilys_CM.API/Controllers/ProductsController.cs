@@ -110,7 +110,7 @@ public class ProductsController : ControllerBase
         return NoContent();
     }
 
-    [Authorize]
+   [Authorize(Roles = "Admin")]
     [HttpGet("{id:int}/stock-movements")]
     public async Task<IActionResult> GetStockMovements(int id, [FromQuery] GetProductStockMovementsQuery query)
     {

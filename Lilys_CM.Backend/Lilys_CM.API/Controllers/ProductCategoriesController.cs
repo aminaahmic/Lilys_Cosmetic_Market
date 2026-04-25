@@ -38,7 +38,7 @@ public class ProductCategoriesController : ControllerBase
         return Ok(result);
     }
 
-    [Authorize]
+[Authorize(Roles = "Admin")]
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateCategoryCommand command)
     {
@@ -46,7 +46,7 @@ public class ProductCategoriesController : ControllerBase
         return Ok(id);
     }
 
-    [Authorize]
+  [Authorize(Roles = "Admin")]
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateCategoryCommand command)
     {
@@ -55,7 +55,7 @@ public class ProductCategoriesController : ControllerBase
         return NoContent();
     }
 
-    [Authorize]
+   [Authorize(Roles = "Admin")]
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
@@ -63,7 +63,7 @@ public class ProductCategoriesController : ControllerBase
         return NoContent();
     }
 
-    [Authorize]
+   [Authorize(Roles = "Admin")]
     [HttpPut("{id:int}/enable")]
     public async Task<IActionResult> Enable(int id)
     {
@@ -71,7 +71,7 @@ public class ProductCategoriesController : ControllerBase
         return NoContent();
     }
 
-    [Authorize]
+   [Authorize(Roles = "Admin")]
     [HttpPut("{id:int}/disable")]
     public async Task<IActionResult> Disable(int id)
     {

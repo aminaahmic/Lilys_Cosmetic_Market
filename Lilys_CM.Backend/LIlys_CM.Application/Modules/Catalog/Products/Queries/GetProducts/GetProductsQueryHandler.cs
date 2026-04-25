@@ -18,6 +18,7 @@ public class GetProductsQueryHandler : IRequestHandler<GetProductsQuery, PageRes
         var query = _context.Products
             .Include(p => p.Category)
             .Include(p => p.Subcategory)
+            .Where(p => !p.IsDeleted)
             .AsQueryable();
 
         if (request.CategoryId.HasValue)
@@ -49,7 +50,11 @@ public class GetProductsQueryHandler : IRequestHandler<GetProductsQuery, PageRes
 
         if (request.IsEnabled.HasValue)
         {
-            query = query.Where(p => p.IsEnabled == request.IsEnabled.Value);
+           query = _context.Products
+                    .Include(p => p.Category)
+                    .Include(p => p.Subcategory)
+                    .Where(p => !p.IsDeleted && p.IsEnabled)
+                    .AsQueryable();
         }
 
         if (!string.IsNullOrWhiteSpace(request.Search))

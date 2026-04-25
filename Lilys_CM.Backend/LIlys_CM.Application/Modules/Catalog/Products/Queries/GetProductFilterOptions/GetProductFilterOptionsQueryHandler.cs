@@ -19,20 +19,20 @@ public sealed class GetProductFilterOptionsQueryHandler :
     {
         var brandsRaw = await _context.Products
             .AsNoTracking()
-            .Where(p => !string.IsNullOrWhiteSpace(p.Brand))
+            .Where(p => p.IsEnabled && !string.IsNullOrWhiteSpace(p.Brand))
             .Select(p => p.Brand!)
             .ToListAsync(cancellationToken);
 
         var brands = brandsRaw
             .Select(x => x.Trim())
-            .Where(x => !string.IsNullOrWhiteSpace(x))
+            .Where(x => !string.IsNullOrWhiteSpace(x) )
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .OrderBy(x => x)
             .ToList();
 
         var productSubcategoryQuery = _context.Products
             .AsNoTracking()
-            .Where(p => p.Subcategory != null && !string.IsNullOrWhiteSpace(p.Subcategory.Name));
+            .Where(p => p.IsEnabled &&  p.Subcategory != null && !string.IsNullOrWhiteSpace(p.Subcategory.Name));
 
         if (request.CategoryId.HasValue)
         {

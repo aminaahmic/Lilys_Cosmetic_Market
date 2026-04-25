@@ -299,10 +299,25 @@ namespace Lilys_CM.Infrastructure.Database.Seeders
         }
     };
 
-    context.Products.AddRange(products);
-    await context.SaveChangesAsync();
+  var existingSkus = await context.Products
+    .Select(p => p.Sku)
+    .ToListAsync();
 
-    Console.WriteLine("Dynamic seed: demo products added.");
+var productsToAdd = products
+    .Where(p => !existingSkus.Contains(p.Sku))
+    .GroupBy(p => p.Sku)
+    .Select(g => g.First())
+    .ToList();
+
+if (!productsToAdd.Any())
+{
+    return;
+}
+
+context.Products.AddRange(productsToAdd);
+await context.SaveChangesAsync();
+
+Console.WriteLine("Dynamic seed: demo products added.");
 }
         private static async Task SeedUsersAsync(DatabaseContext context)
         {

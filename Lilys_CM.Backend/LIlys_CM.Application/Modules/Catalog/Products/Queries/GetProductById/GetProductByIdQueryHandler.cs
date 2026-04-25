@@ -16,7 +16,7 @@ public sealed class GetProductByIdQueryHandler : IRequestHandler<GetProductByIdQ
         var product = await _context.Products
             .Include(p => p.Category)
             .Include(p => p.Subcategory)
-            .FirstOrDefaultAsync(p => p.Id == request.Id, cancellationToken);
+            .FirstOrDefaultAsync(p => p.Id == request.Id && p.IsEnabled, cancellationToken);
 
         if (product is null)
             throw new Lilys_CMNotFoundException("Product not found.");

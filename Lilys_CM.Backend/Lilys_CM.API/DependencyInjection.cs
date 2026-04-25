@@ -68,8 +68,8 @@ public static class DependencyInjection
                     ValidateLifetime = true,
                     ClockSkew = TimeSpan.Zero,
 
-                    NameClaimType = "email",
-                    RoleClaimType = "role"
+                    NameClaimType = System.Security.Claims.ClaimTypes.NameIdentifier,
+                    RoleClaimType = System.Security.Claims.ClaimTypes.Role
                 };
             });
 
