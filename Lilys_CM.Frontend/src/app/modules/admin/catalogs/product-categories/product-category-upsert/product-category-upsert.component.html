@@ -19,7 +19,17 @@
       <mat-hint align="end">{{ form.get('name')?.value?.length || 0 }}/100</mat-hint>
     </mat-form-field>
   </form>
+<!--Icone-->
+<mat-form-field appearance="outline" class="full-width">
+  <mat-label>Ikonica</mat-label>
 
+  <mat-select formControlName="icon">
+    <mat-option *ngFor="let icon of icons" [value]="icon">
+      <mat-icon>{{ icon }}</mat-icon>
+      {{ icon }}
+    </mat-option>
+  </mat-select>
+</mat-form-field>
   <!-- Loading State -->
   <div *ngIf="isLoading && !form" class="loading-container">
     <mat-spinner diameter="40"></mat-spinner>

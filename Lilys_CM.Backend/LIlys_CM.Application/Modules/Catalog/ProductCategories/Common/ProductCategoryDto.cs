@@ -5,4 +5,8 @@ public class ProductCategoryDto
     public int Id { get; set; }
     public string Name { get; set; } = default!;
     public bool IsEnabled { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public int ProductCount { get; set; }
+    public string? Icon { get; set; }
+
 }

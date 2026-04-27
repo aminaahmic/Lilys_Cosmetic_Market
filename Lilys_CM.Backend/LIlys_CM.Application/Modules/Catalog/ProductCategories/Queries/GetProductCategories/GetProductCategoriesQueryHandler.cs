@@ -39,7 +39,10 @@ public sealed class GetProductCategoriesQueryHandler : IRequestHandler<GetProduc
             {
                 Id = c.Id,
                 Name = c.Name,
-                IsEnabled = c.IsEnabled
+                IsEnabled = c.IsEnabled,
+                CreatedAt = c.CreatedAt,
+                ProductCount = c.Products.Count,
+                Icon = c.Icon
             })
             .ToListAsync(cancellationToken);
 
@@ -51,4 +54,22 @@ public sealed class GetProductCategoriesQueryHandler : IRequestHandler<GetProduc
             PageSize = request.Paging.PageSize
         };
     }
+
+            private static string GetCategoryIcon(string name)
+            {
+                var normalized = name.Trim().ToLower();
+
+                return normalized switch
+                {
+                    "kreme" => "spa",
+                    "serumi" => "science",
+                    "parfemi" => "local_florist",
+                    "šminka" or "sminka" => "brush",
+                    "njega kose" => "content_cut",
+                    "šamponi" or "samponi" => "shower",
+                    "ruževi" or "ruzevi" => "face",
+                    "maskare" => "visibility",
+                    _ => "category"
+                };
+            }
 }

@@ -23,7 +23,8 @@ export class ProductCategoryFormService {
           Validators.minLength(2),
           Validators.maxLength(100)
         ]
-      ]
+      ],
+      icon: [category?.icon || 'category']
     });
   }
 

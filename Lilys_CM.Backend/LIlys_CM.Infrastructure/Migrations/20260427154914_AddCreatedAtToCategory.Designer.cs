@@ -4,6 +4,7 @@ using Lilys_CM.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Lilys_CM.Infrastructure.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20260427154914_AddCreatedAtToCategory")]
+    partial class AddCreatedAtToCategory
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -61,9 +64,6 @@ namespace Lilys_CM.Infrastructure.Migrations
 
                     b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("Icon")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -536,7 +536,7 @@ namespace Lilys_CM.Infrastructure.Migrations
                         {
                             Id = 1,
                             Code = "USD",
-                            CreatedAtUtc = new DateTime(2026, 4, 27, 16, 6, 46, 109, DateTimeKind.Utc).AddTicks(2922),
+                            CreatedAtUtc = new DateTime(2026, 4, 27, 15, 49, 8, 491, DateTimeKind.Utc).AddTicks(9936),
                             Decimals = 2,
                             IsDeleted = false,
                             Name = "US Dollar",
@@ -546,7 +546,7 @@ namespace Lilys_CM.Infrastructure.Migrations
                         {
                             Id = 2,
                             Code = "EUR",
-                            CreatedAtUtc = new DateTime(2026, 4, 27, 16, 6, 46, 109, DateTimeKind.Utc).AddTicks(2922),
+                            CreatedAtUtc = new DateTime(2026, 4, 27, 15, 49, 8, 491, DateTimeKind.Utc).AddTicks(9936),
                             Decimals = 2,
                             IsDeleted = false,
                             Name = "Euro",
@@ -556,7 +556,7 @@ namespace Lilys_CM.Infrastructure.Migrations
                         {
                             Id = 3,
                             Code = "BAM",
-                            CreatedAtUtc = new DateTime(2026, 4, 27, 16, 6, 46, 109, DateTimeKind.Utc).AddTicks(2922),
+                            CreatedAtUtc = new DateTime(2026, 4, 27, 15, 49, 8, 491, DateTimeKind.Utc).AddTicks(9936),
                             Decimals = 2,
                             IsDeleted = false,
                             Name = "Bosnia and Herzegovina Convertible Mark",
@@ -566,7 +566,7 @@ namespace Lilys_CM.Infrastructure.Migrations
                         {
                             Id = 4,
                             Code = "HRK",
-                            CreatedAtUtc = new DateTime(2026, 4, 27, 16, 6, 46, 109, DateTimeKind.Utc).AddTicks(2922),
+                            CreatedAtUtc = new DateTime(2026, 4, 27, 15, 49, 8, 491, DateTimeKind.Utc).AddTicks(9936),
                             Decimals = 2,
                             IsDeleted = false,
                             Name = "Croatian Kuna",
@@ -576,7 +576,7 @@ namespace Lilys_CM.Infrastructure.Migrations
                         {
                             Id = 5,
                             Code = "RSD",
-                            CreatedAtUtc = new DateTime(2026, 4, 27, 16, 6, 46, 109, DateTimeKind.Utc).AddTicks(2922),
+                            CreatedAtUtc = new DateTime(2026, 4, 27, 15, 49, 8, 491, DateTimeKind.Utc).AddTicks(9936),
                             Decimals = 2,
                             IsDeleted = false,
                             Name = "Serbian Dinar",
@@ -586,7 +586,7 @@ namespace Lilys_CM.Infrastructure.Migrations
                         {
                             Id = 6,
                             Code = "GBP",
-                            CreatedAtUtc = new DateTime(2026, 4, 27, 16, 6, 46, 109, DateTimeKind.Utc).AddTicks(2922),
+                            CreatedAtUtc = new DateTime(2026, 4, 27, 15, 49, 8, 491, DateTimeKind.Utc).AddTicks(9936),
                             Decimals = 2,
                             IsDeleted = false,
                             Name = "British Pound",
@@ -596,7 +596,7 @@ namespace Lilys_CM.Infrastructure.Migrations
                         {
                             Id = 7,
                             Code = "JPY",
-                            CreatedAtUtc = new DateTime(2026, 4, 27, 16, 6, 46, 109, DateTimeKind.Utc).AddTicks(2922),
+                            CreatedAtUtc = new DateTime(2026, 4, 27, 15, 49, 8, 491, DateTimeKind.Utc).AddTicks(9936),
                             Decimals = 0,
                             IsDeleted = false,
                             Name = "Japanese Yen",
@@ -606,7 +606,7 @@ namespace Lilys_CM.Infrastructure.Migrations
                         {
                             Id = 8,
                             Code = "CHF",
-                            CreatedAtUtc = new DateTime(2026, 4, 27, 16, 6, 46, 109, DateTimeKind.Utc).AddTicks(2922),
+                            CreatedAtUtc = new DateTime(2026, 4, 27, 15, 49, 8, 491, DateTimeKind.Utc).AddTicks(9936),
                             Decimals = 2,
                             IsDeleted = false,
                             Name = "Swiss Franc",
@@ -616,7 +616,7 @@ namespace Lilys_CM.Infrastructure.Migrations
                         {
                             Id = 9,
                             Code = "CAD",
-                            CreatedAtUtc = new DateTime(2026, 4, 27, 16, 6, 46, 109, DateTimeKind.Utc).AddTicks(2922),
+                            CreatedAtUtc = new DateTime(2026, 4, 27, 15, 49, 8, 491, DateTimeKind.Utc).AddTicks(9936),
                             Decimals = 2,
                             IsDeleted = false,
                             Name = "Canadian Dollar",
@@ -626,7 +626,7 @@ namespace Lilys_CM.Infrastructure.Migrations
                         {
                             Id = 10,
                             Code = "AUD",
-                            CreatedAtUtc = new DateTime(2026, 4, 27, 16, 6, 46, 109, DateTimeKind.Utc).AddTicks(2922),
+                            CreatedAtUtc = new DateTime(2026, 4, 27, 15, 49, 8, 491, DateTimeKind.Utc).AddTicks(9936),
                             Decimals = 2,
                             IsDeleted = false,
                             Name = "Australian Dollar",
@@ -702,28 +702,28 @@ namespace Lilys_CM.Infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAtUtc = new DateTime(2026, 4, 27, 16, 6, 46, 109, DateTimeKind.Utc).AddTicks(2922),
+                            CreatedAtUtc = new DateTime(2026, 4, 27, 15, 49, 8, 491, DateTimeKind.Utc).AddTicks(9936),
                             IsDeleted = false,
                             Name = "Info"
                         },
                         new
                         {
                             Id = 2,
-                            CreatedAtUtc = new DateTime(2026, 4, 27, 16, 6, 46, 109, DateTimeKind.Utc).AddTicks(2922),
+                            CreatedAtUtc = new DateTime(2026, 4, 27, 15, 49, 8, 491, DateTimeKind.Utc).AddTicks(9936),
                             IsDeleted = false,
                             Name = "Warning"
                         },
                         new
                         {
                             Id = 3,
-                            CreatedAtUtc = new DateTime(2026, 4, 27, 16, 6, 46, 109, DateTimeKind.Utc).AddTicks(2922),
+                            CreatedAtUtc = new DateTime(2026, 4, 27, 15, 49, 8, 491, DateTimeKind.Utc).AddTicks(9936),
                             IsDeleted = false,
                             Name = "System"
                         },
                         new
                         {
                             Id = 4,
-                            CreatedAtUtc = new DateTime(2026, 4, 27, 16, 6, 46, 109, DateTimeKind.Utc).AddTicks(2922),
+                            CreatedAtUtc = new DateTime(2026, 4, 27, 15, 49, 8, 491, DateTimeKind.Utc).AddTicks(9936),
                             IsDeleted = false,
                             Name = "Marketing"
                         });
@@ -837,35 +837,35 @@ namespace Lilys_CM.Infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAtUtc = new DateTime(2026, 4, 27, 16, 6, 46, 109, DateTimeKind.Utc).AddTicks(2922),
+                            CreatedAtUtc = new DateTime(2026, 4, 27, 15, 49, 8, 491, DateTimeKind.Utc).AddTicks(9936),
                             IsDeleted = false,
                             Name = "Pending"
                         },
                         new
                         {
                             Id = 2,
-                            CreatedAtUtc = new DateTime(2026, 4, 27, 16, 6, 46, 109, DateTimeKind.Utc).AddTicks(2922),
+                            CreatedAtUtc = new DateTime(2026, 4, 27, 15, 49, 8, 491, DateTimeKind.Utc).AddTicks(9936),
                             IsDeleted = false,
                             Name = "Processing"
                         },
                         new
                         {
                             Id = 3,
-                            CreatedAtUtc = new DateTime(2026, 4, 27, 16, 6, 46, 109, DateTimeKind.Utc).AddTicks(2922),
+                            CreatedAtUtc = new DateTime(2026, 4, 27, 15, 49, 8, 491, DateTimeKind.Utc).AddTicks(9936),
                             IsDeleted = false,
                             Name = "Shipped"
                         },
                         new
                         {
                             Id = 4,
-                            CreatedAtUtc = new DateTime(2026, 4, 27, 16, 6, 46, 109, DateTimeKind.Utc).AddTicks(2922),
+                            CreatedAtUtc = new DateTime(2026, 4, 27, 15, 49, 8, 491, DateTimeKind.Utc).AddTicks(9936),
                             IsDeleted = false,
                             Name = "Delivered"
                         },
                         new
                         {
                             Id = 5,
-                            CreatedAtUtc = new DateTime(2026, 4, 27, 16, 6, 46, 109, DateTimeKind.Utc).AddTicks(2922),
+                            CreatedAtUtc = new DateTime(2026, 4, 27, 15, 49, 8, 491, DateTimeKind.Utc).AddTicks(9936),
                             IsDeleted = false,
                             Name = "Cancelled"
                         });
@@ -900,56 +900,56 @@ namespace Lilys_CM.Infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAtUtc = new DateTime(2026, 4, 27, 16, 6, 46, 109, DateTimeKind.Utc).AddTicks(2922),
+                            CreatedAtUtc = new DateTime(2026, 4, 27, 15, 49, 8, 491, DateTimeKind.Utc).AddTicks(9936),
                             IsDeleted = false,
                             Name = "Credit Card"
                         },
                         new
                         {
                             Id = 2,
-                            CreatedAtUtc = new DateTime(2026, 4, 27, 16, 6, 46, 109, DateTimeKind.Utc).AddTicks(2922),
+                            CreatedAtUtc = new DateTime(2026, 4, 27, 15, 49, 8, 491, DateTimeKind.Utc).AddTicks(9936),
                             IsDeleted = false,
                             Name = "Debit Card"
                         },
                         new
                         {
                             Id = 3,
-                            CreatedAtUtc = new DateTime(2026, 4, 27, 16, 6, 46, 109, DateTimeKind.Utc).AddTicks(2922),
+                            CreatedAtUtc = new DateTime(2026, 4, 27, 15, 49, 8, 491, DateTimeKind.Utc).AddTicks(9936),
                             IsDeleted = false,
                             Name = "PayPal"
                         },
                         new
                         {
                             Id = 4,
-                            CreatedAtUtc = new DateTime(2026, 4, 27, 16, 6, 46, 109, DateTimeKind.Utc).AddTicks(2922),
+                            CreatedAtUtc = new DateTime(2026, 4, 27, 15, 49, 8, 491, DateTimeKind.Utc).AddTicks(9936),
                             IsDeleted = false,
                             Name = "Cash on Delivery"
                         },
                         new
                         {
                             Id = 5,
-                            CreatedAtUtc = new DateTime(2026, 4, 27, 16, 6, 46, 109, DateTimeKind.Utc).AddTicks(2922),
+                            CreatedAtUtc = new DateTime(2026, 4, 27, 15, 49, 8, 491, DateTimeKind.Utc).AddTicks(9936),
                             IsDeleted = false,
                             Name = "Bank Transfer"
                         },
                         new
                         {
                             Id = 6,
-                            CreatedAtUtc = new DateTime(2026, 4, 27, 16, 6, 46, 109, DateTimeKind.Utc).AddTicks(2922),
+                            CreatedAtUtc = new DateTime(2026, 4, 27, 15, 49, 8, 491, DateTimeKind.Utc).AddTicks(9936),
                             IsDeleted = false,
                             Name = "Stripe"
                         },
                         new
                         {
                             Id = 7,
-                            CreatedAtUtc = new DateTime(2026, 4, 27, 16, 6, 46, 109, DateTimeKind.Utc).AddTicks(2922),
+                            CreatedAtUtc = new DateTime(2026, 4, 27, 15, 49, 8, 491, DateTimeKind.Utc).AddTicks(9936),
                             IsDeleted = false,
                             Name = "Apple Pay"
                         },
                         new
                         {
                             Id = 8,
-                            CreatedAtUtc = new DateTime(2026, 4, 27, 16, 6, 46, 109, DateTimeKind.Utc).AddTicks(2922),
+                            CreatedAtUtc = new DateTime(2026, 4, 27, 15, 49, 8, 491, DateTimeKind.Utc).AddTicks(9936),
                             IsDeleted = false,
                             Name = "Google Pay"
                         });
@@ -984,28 +984,28 @@ namespace Lilys_CM.Infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAtUtc = new DateTime(2026, 4, 27, 16, 6, 46, 109, DateTimeKind.Utc).AddTicks(2922),
+                            CreatedAtUtc = new DateTime(2026, 4, 27, 15, 49, 8, 491, DateTimeKind.Utc).AddTicks(9936),
                             IsDeleted = false,
                             Name = "Pending"
                         },
                         new
                         {
                             Id = 2,
-                            CreatedAtUtc = new DateTime(2026, 4, 27, 16, 6, 46, 109, DateTimeKind.Utc).AddTicks(2922),
+                            CreatedAtUtc = new DateTime(2026, 4, 27, 15, 49, 8, 491, DateTimeKind.Utc).AddTicks(9936),
                             IsDeleted = false,
                             Name = "Paid"
                         },
                         new
                         {
                             Id = 3,
-                            CreatedAtUtc = new DateTime(2026, 4, 27, 16, 6, 46, 109, DateTimeKind.Utc).AddTicks(2922),
+                            CreatedAtUtc = new DateTime(2026, 4, 27, 15, 49, 8, 491, DateTimeKind.Utc).AddTicks(9936),
                             IsDeleted = false,
                             Name = "Failed"
                         },
                         new
                         {
                             Id = 4,
-                            CreatedAtUtc = new DateTime(2026, 4, 27, 16, 6, 46, 109, DateTimeKind.Utc).AddTicks(2922),
+                            CreatedAtUtc = new DateTime(2026, 4, 27, 15, 49, 8, 491, DateTimeKind.Utc).AddTicks(9936),
                             IsDeleted = false,
                             Name = "Refunded"
                         });
@@ -1289,7 +1289,7 @@ namespace Lilys_CM.Infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAtUtc = new DateTime(2026, 4, 27, 16, 6, 46, 109, DateTimeKind.Utc).AddTicks(2922),
+                            CreatedAtUtc = new DateTime(2026, 4, 27, 15, 49, 8, 491, DateTimeKind.Utc).AddTicks(9936),
                             CurrencyId = 3,
                             IsDeleted = false,
                             IsoCode2 = "BA",
@@ -1299,7 +1299,7 @@ namespace Lilys_CM.Infrastructure.Migrations
                         new
                         {
                             Id = 2,
-                            CreatedAtUtc = new DateTime(2026, 4, 27, 16, 6, 46, 109, DateTimeKind.Utc).AddTicks(2922),
+                            CreatedAtUtc = new DateTime(2026, 4, 27, 15, 49, 8, 491, DateTimeKind.Utc).AddTicks(9936),
                             CurrencyId = 4,
                             IsDeleted = false,
                             IsoCode2 = "HR",
@@ -1309,7 +1309,7 @@ namespace Lilys_CM.Infrastructure.Migrations
                         new
                         {
                             Id = 3,
-                            CreatedAtUtc = new DateTime(2026, 4, 27, 16, 6, 46, 109, DateTimeKind.Utc).AddTicks(2922),
+                            CreatedAtUtc = new DateTime(2026, 4, 27, 15, 49, 8, 491, DateTimeKind.Utc).AddTicks(9936),
                             CurrencyId = 5,
                             IsDeleted = false,
                             IsoCode2 = "RS",
@@ -1319,7 +1319,7 @@ namespace Lilys_CM.Infrastructure.Migrations
                         new
                         {
                             Id = 4,
-                            CreatedAtUtc = new DateTime(2026, 4, 27, 16, 6, 46, 109, DateTimeKind.Utc).AddTicks(2922),
+                            CreatedAtUtc = new DateTime(2026, 4, 27, 15, 49, 8, 491, DateTimeKind.Utc).AddTicks(9936),
                             CurrencyId = 2,
                             IsDeleted = false,
                             IsoCode2 = "DE",
@@ -1329,7 +1329,7 @@ namespace Lilys_CM.Infrastructure.Migrations
                         new
                         {
                             Id = 5,
-                            CreatedAtUtc = new DateTime(2026, 4, 27, 16, 6, 46, 109, DateTimeKind.Utc).AddTicks(2922),
+                            CreatedAtUtc = new DateTime(2026, 4, 27, 15, 49, 8, 491, DateTimeKind.Utc).AddTicks(9936),
                             CurrencyId = 1,
                             IsDeleted = false,
                             IsoCode2 = "US",
@@ -1339,7 +1339,7 @@ namespace Lilys_CM.Infrastructure.Migrations
                         new
                         {
                             Id = 6,
-                            CreatedAtUtc = new DateTime(2026, 4, 27, 16, 6, 46, 109, DateTimeKind.Utc).AddTicks(2922),
+                            CreatedAtUtc = new DateTime(2026, 4, 27, 15, 49, 8, 491, DateTimeKind.Utc).AddTicks(9936),
                             CurrencyId = 6,
                             IsDeleted = false,
                             IsoCode2 = "GB",
@@ -1349,7 +1349,7 @@ namespace Lilys_CM.Infrastructure.Migrations
                         new
                         {
                             Id = 7,
-                            CreatedAtUtc = new DateTime(2026, 4, 27, 16, 6, 46, 109, DateTimeKind.Utc).AddTicks(2922),
+                            CreatedAtUtc = new DateTime(2026, 4, 27, 15, 49, 8, 491, DateTimeKind.Utc).AddTicks(9936),
                             CurrencyId = 7,
                             IsDeleted = false,
                             IsoCode2 = "JP",
@@ -1359,7 +1359,7 @@ namespace Lilys_CM.Infrastructure.Migrations
                         new
                         {
                             Id = 8,
-                            CreatedAtUtc = new DateTime(2026, 4, 27, 16, 6, 46, 109, DateTimeKind.Utc).AddTicks(2922),
+                            CreatedAtUtc = new DateTime(2026, 4, 27, 15, 49, 8, 491, DateTimeKind.Utc).AddTicks(9936),
                             CurrencyId = 8,
                             IsDeleted = false,
                             IsoCode2 = "CH",
@@ -1369,7 +1369,7 @@ namespace Lilys_CM.Infrastructure.Migrations
                         new
                         {
                             Id = 9,
-                            CreatedAtUtc = new DateTime(2026, 4, 27, 16, 6, 46, 109, DateTimeKind.Utc).AddTicks(2922),
+                            CreatedAtUtc = new DateTime(2026, 4, 27, 15, 49, 8, 491, DateTimeKind.Utc).AddTicks(9936),
                             CurrencyId = 9,
                             IsDeleted = false,
                             IsoCode2 = "CA",
@@ -1379,7 +1379,7 @@ namespace Lilys_CM.Infrastructure.Migrations
                         new
                         {
                             Id = 10,
-                            CreatedAtUtc = new DateTime(2026, 4, 27, 16, 6, 46, 109, DateTimeKind.Utc).AddTicks(2922),
+                            CreatedAtUtc = new DateTime(2026, 4, 27, 15, 49, 8, 491, DateTimeKind.Utc).AddTicks(9936),
                             CurrencyId = 10,
                             IsDeleted = false,
                             IsoCode2 = "AU",

@@ -18,6 +18,7 @@ export interface ListProductCategoriesQueryDto {
   id: number;
   name: string;
   isEnabled: boolean;
+  icon?: string;
 }
 
 /**
@@ -27,6 +28,7 @@ export interface GetProductCategoryByIdQueryDto {
   id: number;
   name: string;
   isEnabled: boolean;
+  icon?: string;
 }
 
 /**
@@ -39,6 +41,7 @@ export type ListProductCategoriesResponse = PageResult<ListProductCategoriesQuer
  */
 export interface CreateProductCategoryCommand {
   name: string;
+  icon?: string;
 }
 
 /**
@@ -46,4 +49,5 @@ export interface CreateProductCategoryCommand {
  */
 export interface UpdateProductCategoryCommand {
   name: string;
+  icon?: string;
 }

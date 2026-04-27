@@ -30,7 +30,7 @@ public sealed class UpdateCategoryCommandHandler : IRequestHandler<UpdateCategor
             throw new Lilys_CMConflictException("Category with the same name already exists.");
 
         category.Name = request.Name.Trim();
-
+category.Icon = request.Icon;
         await _context.SaveChangesAsync(cancellationToken);
 
         return Unit.Value;

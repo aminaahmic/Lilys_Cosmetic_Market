@@ -5,4 +5,5 @@ namespace Lilys_CM.Application.Modules.Catalog.ProductCategories.Commands.Create
 public class CreateCategoryCommand : IRequest<int>
 {
     public string Name { get; set; } = default!;
+    public string? Icon { get; set; }
 }

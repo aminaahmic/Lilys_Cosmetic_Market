@@ -19,8 +19,7 @@ import { ProductCategoryUpsertComponent } from './product-category-upsert/produc
 })
 export class ProductCategoriesComponent
   extends BaseListPagedComponent<ListProductCategoriesQueryDto, ListProductCategoriesRequest>
-  implements OnInit
-{
+  implements OnInit {
   private api = inject(ProductCategoriesApiService);
   private dialog = inject(MatDialog);
   private toaster = inject(ToasterService);
@@ -33,18 +32,39 @@ export class ProductCategoriesComponent
     super();
     this.request = new ListProductCategoriesRequest();
     this.request.onlyEnabled = true;
+    this.request.onlyEnabled = true;
   }
-get totalCategories(): number {
-  return this.items?.length || 0;
-}
+  search = '';
+  statusFilter: 'all' | 'active' | 'inactive' = 'all';
+  sortBy: 'nameAsc' | 'nameDesc' = 'nameAsc';
+  get totalCategories(): number {
+    return this.items?.length || 0;
+  }
 
-get activeCategories(): number {
-  return this.items?.filter(x => x.isEnabled).length || 0;
-}
+  get activeCategories(): number {
+    return this.items?.filter(x => x.isEnabled).length || 0;
+  }
 
-get inactiveCategories(): number {
-  return this.items?.filter(x => !x.isEnabled).length || 0;
-}
+  get inactiveCategories(): number {
+    return this.items?.filter(x => !x.isEnabled).length || 0;
+  }
+  onFilterChange() {
+    if (this.statusFilter === 'active') {
+      this.request.onlyEnabled = true;
+    }
+    else if (this.statusFilter === 'inactive') {
+      this.request.onlyEnabled = false;
+    }
+    else {
+      this.request.onlyEnabled = null;
+    }
+
+    this.loadData();
+  }
+  onSearch() {
+    this.request.search = this.search;
+    this.loadData();
+  }
   ngOnInit(): void {
     this.initList();
   }
