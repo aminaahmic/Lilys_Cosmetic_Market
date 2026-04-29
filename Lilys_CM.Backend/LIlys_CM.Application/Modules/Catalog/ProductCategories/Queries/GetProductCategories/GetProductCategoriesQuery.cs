@@ -7,4 +7,5 @@ public sealed class GetProductCategoriesQuery : BasePagedQuery<ProductCategoryDt
 {
     public string? Search { get; init; }
     public bool? OnlyEnabled { get; init; }
+    public string? SortBy { get; set; }
 }

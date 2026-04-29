@@ -9,6 +9,7 @@ import { PageResult } from '../../core/models/paging/page-result';
 export class ListProductCategoriesRequest extends BasePagedQuery {
   search?: string | null;
   onlyEnabled?: boolean | null;
+    sortBy?: string;
 }
 
 /**
@@ -36,18 +37,14 @@ export interface GetProductCategoryByIdQueryDto {
  */
 export type ListProductCategoriesResponse = PageResult<ListProductCategoriesQueryDto>;
 
-/**
- * Command for POST /ProductCategories
- */
 export interface CreateProductCategoryCommand {
   name: string;
   icon?: string;
+  isEnabled?: boolean;
 }
 
-/**
- * Command for PUT /ProductCategories/{id}
- */
 export interface UpdateProductCategoryCommand {
   name: string;
   icon?: string;
+  isEnabled?: boolean;
 }

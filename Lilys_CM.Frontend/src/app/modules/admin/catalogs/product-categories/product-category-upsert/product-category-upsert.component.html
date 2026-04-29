@@ -5,31 +5,36 @@
     <!-- Category Name -->
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>{{ 'PRODUCT_CATEGORIES.FORM.NAME' | translate }}</mat-label>
-      <input
-        matInput
-        formControlName="name"
-        [placeholder]="'PRODUCT_CATEGORIES.FORM.NAME_PLACEHOLDER' | translate"
-        maxlength="100"
-        autocomplete="off"
-      />
+      <input matInput formControlName="name" [placeholder]="'PRODUCT_CATEGORIES.FORM.NAME_PLACEHOLDER' | translate"
+        maxlength="100" autocomplete="off" />
       <mat-icon matSuffix>label</mat-icon>
       <mat-error *ngIf="form.get('name')?.invalid">
         {{ getErrorMessage('name') }}
       </mat-error>
       <mat-hint align="end">{{ form.get('name')?.value?.length || 0 }}/100</mat-hint>
     </mat-form-field>
-  </form>
-<!--Icone-->
-<mat-form-field appearance="outline" class="full-width">
-  <mat-label>Ikonica</mat-label>
+    <!--Icone-->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Ikonica</mat-label>
 
-  <mat-select formControlName="icon">
-    <mat-option *ngFor="let icon of icons" [value]="icon">
-      <mat-icon>{{ icon }}</mat-icon>
-      {{ icon }}
-    </mat-option>
-  </mat-select>
-</mat-form-field>
+      <mat-select formControlName="icon">
+        <mat-option *ngFor="let icon of icons" [value]="icon">
+          <mat-icon>{{ icon }}</mat-icon>
+          {{ icon }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <div class="active-row">
+      <div>
+        <div class="active-title">Aktivna kategorija</div>
+        <div class="active-subtitle">Kategorija će biti vidljiva korisnicima.</div>
+      </div>
+
+      <mat-slide-toggle formControlName="isEnabled"></mat-slide-toggle>
+    </div>
+
+  </form>
+
   <!-- Loading State -->
   <div *ngIf="isLoading && !form" class="loading-container">
     <mat-spinner diameter="40"></mat-spinner>
@@ -43,19 +48,14 @@
     {{ 'PRODUCT_CATEGORIES.FORM.CANCEL' | translate }}
   </button>
 
-  <button
-    mat-raised-button
-    color="primary"
-    type="button"
-    (click)="onSubmit()"
-    [disabled]="!form || form.invalid || isLoading"
-  >
+  <button mat-raised-button color="primary" type="button" (click)="onSubmit()"
+    [disabled]="!form || form.invalid || isLoading">
     <mat-spinner *ngIf="isLoading" diameter="20"></mat-spinner>
     <mat-icon *ngIf="!isLoading">{{ isEditMode ? 'edit' : 'save' }}</mat-icon>
     {{
-      isEditMode
-        ? ('PRODUCT_CATEGORIES.FORM.UPDATE' | translate)
-        : ('PRODUCT_CATEGORIES.FORM.SAVE' | translate)
+    isEditMode
+    ? ('PRODUCT_CATEGORIES.FORM.UPDATE' | translate)
+    : ('PRODUCT_CATEGORIES.FORM.SAVE' | translate)
     }}
   </button>
 </mat-dialog-actions>

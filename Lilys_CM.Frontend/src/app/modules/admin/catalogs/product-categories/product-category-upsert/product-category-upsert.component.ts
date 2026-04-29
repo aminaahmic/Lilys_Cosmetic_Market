@@ -88,7 +88,8 @@ icons: string[] = [
   private createCategory(): void {
     const command: CreateProductCategoryCommand = {
       name: this.form.value.name.trim(),
-      icon: this.form.value.icon
+      icon: this.form.value.icon,
+        isEnabled: this.form.value.isEnabled
     };
 
     this.api.create(command).subscribe({
@@ -106,13 +107,14 @@ icons: string[] = [
   private updateCategory(): void {
     const command: UpdateProductCategoryCommand = {
       name: this.form.value.name.trim(),
-      icon: this.form.value.icon
+      icon: this.form.value.icon,
+        isEnabled: this.form.value.isEnabled
     };
 
     this.api.update(this.data.categoryId!, command).subscribe({
       next: () => {
         this.toaster.success('Category updated successfully');
-        this.dialogRef.close(true); // Signal success
+        this.dialogRef.close(true);
       },
       error: (err) => {
         this.isLoading = false;

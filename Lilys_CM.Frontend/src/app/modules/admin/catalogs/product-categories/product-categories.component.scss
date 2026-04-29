@@ -57,7 +57,7 @@ $shadow-medium: rgba(92, 51, 44, 0.1);
     color: #3b2926;
   }
 
-p {
+  p {
     margin: 4px 0 0;
     color: #7d6660;
   }
@@ -83,6 +83,7 @@ p {
   gap: 16px;
   margin-bottom: 24px;
 }
+
 .stat-card mat-icon {
   font-size: 20px;
 
@@ -98,8 +99,9 @@ p {
 
   color: $primary-color;
 }
+
 .stat-card {
-    overflow: visible;
+  overflow: visible;
   background: white;
   border: 1px solid #eadbd5;
   border-radius: 14px;
@@ -124,6 +126,7 @@ p {
   font-size: 12px;
   color: #7d6660;
 }
+
 //filters bar
 .filters-bar {
   display: flex;
@@ -136,6 +139,7 @@ p {
     min-width: 220px;
   }
 }
+
 //category list
 .categories-list {
   display: flex;
@@ -150,12 +154,12 @@ p {
   padding: 14px 18px;
   border-radius: 14px;
   background: white;
-  border: 1px solid rgba(0,0,0,0.06);
+  border: 1px solid rgba(0, 0, 0, 0.06);
   transition: 0.2s;
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 18px rgba(0,0,0,0.05);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
   }
 }
 
@@ -177,12 +181,24 @@ p {
     font-weight: 600;
   }
 
+
   .status {
+    display: inline-flex;
+    width: fit-content;
+    margin-top: 6px;
+    padding: 4px 10px;
+    border-radius: 999px;
     font-size: 12px;
-    color: #999;
+    font-weight: 600;
 
     &.active {
-      color: #4caf50;
+      color: #2f7d4a;
+      background: #e6f6eb;
+    }
+
+    &.inactive {
+      color: #b42318;
+      background: #fdeaea;
     }
   }
 }
@@ -191,6 +207,7 @@ p {
   display: flex;
   gap: 6px;
 }
+
 // Loading Container
 .loading-container {
   display: flex;
@@ -321,7 +338,8 @@ p {
 
           &.edit-btn {
             color: $primary-color;
-                        &:hover {
+
+            &:hover {
               background: $primary-lighter;
               transform: scale(1.1);
             }
@@ -349,7 +367,7 @@ p {
     .data-row {
       transition: background-color 0.2s ease;
 
-      
+
     }
 
     .no-data-row {
@@ -479,6 +497,7 @@ p {
 
   .table-card {
     table {
+
       th,
       td {
         padding: 10px 8px;

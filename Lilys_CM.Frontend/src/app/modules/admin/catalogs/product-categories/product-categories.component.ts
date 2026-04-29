@@ -10,6 +10,7 @@ import {
   ListProductCategoriesQueryDto,
 } from '../../../../api-services/product-categories/product-categories-api.model';
 import { ProductCategoryUpsertComponent } from './product-category-upsert/product-category-upsert.component';
+type SortOption = 'name_asc' | 'name_desc' | 'status_asc' | 'status_desc';
 
 @Component({
   selector: 'app-product-categories',
@@ -27,27 +28,43 @@ export class ProductCategoriesComponent
 
   displayedColumns: string[] = ['name', 'isEnabled', 'actions'];
   showOnlyEnabled = true;
-
+  statsItems: ListProductCategoriesQueryDto[] = [];
   constructor() {
     super();
     this.request = new ListProductCategoriesRequest();
-    this.request.onlyEnabled = true;
-    this.request.onlyEnabled = true;
+    this.request.onlyEnabled = null;
   }
   search = '';
   statusFilter: 'all' | 'active' | 'inactive' = 'all';
   sortBy: 'nameAsc' | 'nameDesc' = 'nameAsc';
+
   get totalCategories(): number {
-    return this.items?.length || 0;
+    return this.statsItems?.length || 0;
   }
 
   get activeCategories(): number {
-    return this.items?.filter(x => x.isEnabled).length || 0;
+    return this.statsItems?.filter(x => x.isEnabled).length || 0;
   }
 
   get inactiveCategories(): number {
-    return this.items?.filter(x => !x.isEnabled).length || 0;
+    return this.statsItems?.filter(x => !x.isEnabled).length || 0;
   }
+  private loadStats(): void {
+    const statsRequest = new ListProductCategoriesRequest();
+    statsRequest.onlyEnabled = null;
+    statsRequest.paging.page = 1;
+    statsRequest.paging.pageSize = 1000;
+
+    this.api.list(statsRequest).subscribe({
+      next: (response) => {
+        this.statsItems = response.items;
+      },
+      error: (err) => {
+        console.error('Load category stats error:', err);
+      }
+    });
+  }
+
   onFilterChange() {
     if (this.statusFilter === 'active') {
       this.request.onlyEnabled = true;
@@ -59,14 +76,20 @@ export class ProductCategoriesComponent
       this.request.onlyEnabled = null;
     }
 
-    this.loadData();
+    this.request.sortBy = this.sortBy;
+
+     this.loadPagedData();
+  }
+  ngOnInit(): void {
+    this.request.sortBy = this.sortBy;
+
+    this.initList();
+    this.loadStats();
   }
   onSearch() {
     this.request.search = this.search;
-    this.loadData();
-  }
-  ngOnInit(): void {
-    this.initList();
+    this.request.sortBy = this.sortBy;
+     this.loadPagedData();
   }
 
   protected loadPagedData(): void {
@@ -97,6 +120,7 @@ export class ProductCategoriesComponent
     this.request.onlyEnabled = checked;
     this.request.paging.page = 1;
     this.loadPagedData();
+    this.loadStats();
   }
 
   // === CRUD Actions ===
@@ -115,8 +139,11 @@ export class ProductCategoriesComponent
 
     dialogRef.afterClosed().subscribe((success: boolean) => {
       if (success) {
-        this.dialogHelper.productCategory.showCreateSuccess().subscribe();
+        this.dialogHelper.productCategory.showUpdateSuccess().subscribe();
+
+        this.request.paging.page = 1;
         this.loadPagedData();
+        this.loadStats();
       }
     });
   }
@@ -137,7 +164,10 @@ export class ProductCategoriesComponent
     dialogRef.afterClosed().subscribe((success: boolean) => {
       if (success) {
         this.dialogHelper.productCategory.showUpdateSuccess().subscribe();
+
+        this.request.paging.page = 1;
         this.loadPagedData();
+        this.loadStats();
       }
     });
   }
@@ -157,6 +187,7 @@ export class ProductCategoriesComponent
       next: () => {
         this.dialogHelper.productCategory.showDeleteSuccess().subscribe();
         this.loadPagedData();
+        this.loadStats();
       },
       error: (err) => {
         this.stopLoading();
@@ -186,6 +217,7 @@ export class ProductCategoriesComponent
         const status = category.isEnabled ? 'disabled' : 'enabled';
         this.toaster.success(`Category ${status} successfully`);
         this.loadPagedData();
+        this.loadStats();
       },
       error: (err) => {
         this.stopLoading();
@@ -206,6 +238,7 @@ export class ProductCategoriesComponent
 
         console.error('Toggle status error:', err);
         this.loadPagedData();
+        this.loadStats();
       },
     });
   }

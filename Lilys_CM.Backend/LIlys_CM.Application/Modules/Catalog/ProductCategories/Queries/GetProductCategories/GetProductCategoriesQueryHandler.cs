@@ -18,9 +18,10 @@ public sealed class GetProductCategoriesQueryHandler : IRequestHandler<GetProduc
     {
         var query = _context.Categories.AsQueryable();
 
-        if (request.OnlyEnabled == true)
+
+        if (request.OnlyEnabled.HasValue)
         {
-            query = query.Where(c => c.IsEnabled);
+            query = query.Where(c => c.IsEnabled == request.OnlyEnabled.Value);
         }
 
         if (!string.IsNullOrWhiteSpace(request.Search))
@@ -29,10 +30,15 @@ public sealed class GetProductCategoriesQueryHandler : IRequestHandler<GetProduc
             query = query.Where(c => c.Name.ToLower().Contains(search));
         }
 
+        query = request.SortBy switch
+        {
+            "nameDesc" => query.OrderByDescending(c => c.Name),
+            _ => query.OrderBy(c => c.Name)
+        };
+
         var totalCount = await query.CountAsync(cancellationToken);
 
         var items = await query
-            .OrderBy(c => c.Name)
             .Skip(request.Paging.SkipCount)
             .Take(request.Paging.PageSize)
             .Select(c => new ProductCategoryDto
@@ -53,23 +59,24 @@ public sealed class GetProductCategoriesQueryHandler : IRequestHandler<GetProduc
             Page = request.Paging.Page,
             PageSize = request.Paging.PageSize
         };
+
     }
 
-            private static string GetCategoryIcon(string name)
-            {
-                var normalized = name.Trim().ToLower();
+    private static string GetCategoryIcon(string name)
+    {
+        var normalized = name.Trim().ToLower();
 
-                return normalized switch
-                {
-                    "kreme" => "spa",
-                    "serumi" => "science",
-                    "parfemi" => "local_florist",
-                    "šminka" or "sminka" => "brush",
-                    "njega kose" => "content_cut",
-                    "šamponi" or "samponi" => "shower",
-                    "ruževi" or "ruzevi" => "face",
-                    "maskare" => "visibility",
-                    _ => "category"
-                };
-            }
+        return normalized switch
+        {
+            "kreme" => "spa",
+            "serumi" => "science",
+            "parfemi" => "local_florist",
+            "šminka" or "sminka" => "brush",
+            "njega kose" => "content_cut",
+            "šamponi" or "samponi" => "shower",
+            "ruževi" or "ruzevi" => "face",
+            "maskare" => "visibility",
+            _ => "category"
+        };
+    }
 }

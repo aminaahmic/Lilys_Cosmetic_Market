@@ -23,7 +23,8 @@ public sealed class GetProductCategoryByIdQueryHandler : IRequestHandler<GetProd
         {
             Id = category.Id,
             Name = category.Name,
-            IsEnabled = category.IsEnabled
+            IsEnabled = category.IsEnabled,
+            Icon = category.Icon
         };
     }
 }

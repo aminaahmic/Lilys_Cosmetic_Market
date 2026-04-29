@@ -26,7 +26,7 @@ public sealed class CreateCategoryCommandHandler : IRequestHandler<CreateCategor
         var category = new CategoryEntity
         {
             Name = request.Name.Trim(),
-            IsEnabled = true,
+            IsEnabled = request.IsEnabled,
             Icon=request.Icon
         };
 

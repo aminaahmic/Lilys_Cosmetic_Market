@@ -38,80 +38,77 @@
   </div>
   <div class="filters-bar">
 
-  <!-- Search -->
-  <mat-form-field appearance="outline" class="filter-item">
-    <mat-label>Pretraži kategorije</mat-label>
-    <input matInput [(ngModel)]="search" (keyup.enter)="onSearch()" />
-    <mat-icon matSuffix>search</mat-icon>
-  </mat-form-field>
+    <!-- Search -->
+    <mat-form-field appearance="outline" class="filter-item">
+      <mat-label>Pretraži kategorije</mat-label>
+      <input matInput [(ngModel)]="search" (keyup.enter)="onSearch()" />
+      <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
 
-  <!-- Status -->
-  <mat-form-field appearance="outline" class="filter-item">
-    <mat-label>Status</mat-label>
-    <mat-select [(ngModel)]="statusFilter" (selectionChange)="onFilterChange()">
-      <mat-option value="all">Sve</mat-option>
-      <mat-option value="active">Aktivne</mat-option>
-      <mat-option value="inactive">Neaktivne</mat-option>
-    </mat-select>
-  </mat-form-field>
+    <!-- Status -->
+    <mat-form-field appearance="outline" class="filter-item">
+      <mat-label>Status</mat-label>
+      <mat-select [(ngModel)]="statusFilter" (selectionChange)="onFilterChange()">
+        <mat-option value="all">Sve</mat-option>
+        <mat-option value="active">Aktivne</mat-option>
+        <mat-option value="inactive">Neaktivne</mat-option>
+      </mat-select>
+    </mat-form-field>
 
-  <!-- Sort -->
-  <mat-form-field appearance="outline" class="filter-item">
-    <mat-label>Sortiraj</mat-label>
-    <mat-select [(ngModel)]="sortBy" (selectionChange)="onFilterChange()">
-      <mat-option value="nameAsc">Naziv (A-Z)</mat-option>
-      <mat-option value="nameDesc">Naziv (Z-A)</mat-option>
-    </mat-select>
-  </mat-form-field>
+    <!-- Sort -->
+    <mat-form-field appearance="outline" class="filter-item">
+      <mat-label>Sortiraj</mat-label>
+      <mat-select [(ngModel)]="sortBy" (selectionChange)="onFilterChange()">
+        <mat-option value="nameAsc">Naziv (A-Z)</mat-option>
+        <mat-option value="nameDesc">Naziv (Z-A)</mat-option>
+      </mat-select>
+    </mat-form-field>
 
-</div>
+  </div>
 
 
-<div class="categories-list">
+  <div class="categories-list">
 
-  <div class="category-card" *ngFor="let item of items">
+    <div class="category-card" *ngFor="let item of items">
 
-    <!-- ICON -->
-    <div class="category-icon">
-      <mat-icon>{{ item.icon || 'category' }}</mat-icon>
-    </div>
-
-    <!-- INFO -->
-    <div class="category-info">
-      <div class="name">{{ item.name }}</div>
-
-      <div class="status" [class.active]="item.isEnabled">
-        {{ item.isEnabled ? 'Aktivna' : 'Neaktivna' }}
+      <!-- ICON -->
+      <div class="category-icon">
+        <mat-icon>{{ item.icon || 'category' }}</mat-icon>
       </div>
+
+      <!-- INFO -->
+      <div class="category-info">
+        <div class="name">{{ item.name }}</div>
+
+        <div class="status" [class.active]="item.isEnabled" [class.inactive]="!item.isEnabled">
+          {{ item.isEnabled ? 'Aktivna' : 'Neaktivna' }}
+        </div>
+      </div>
+
+      <!-- ACTIONS -->
+      <div class="actions">
+        <button mat-icon-button (click)="onEdit(item)">
+          <mat-icon>edit</mat-icon>
+        </button>
+
+        <button mat-icon-button color="warn" (click)="onDelete(item)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+
     </div>
 
-    <!-- ACTIONS -->
-    <div class="actions">
-      <button mat-icon-button (click)="onEdit(item)">
-        <mat-icon>edit</mat-icon>
-      </button>
-
-      <button mat-icon-button color="warn" (click)="onDelete(item)">
-        <mat-icon>delete</mat-icon>
-      </button>
-    </div>
-
   </div>
-
-</div>
 </div>
 
-  <!-- Loading -->
-  <div *ngIf="isLoading" class="loading-container">
-    <mat-spinner diameter="48" color="primary"></mat-spinner>
-    <p>{{ 'PRODUCT_CATEGORIES.LOADING' | translate }}</p>
-  </div>
+<!-- Loading -->
+<div *ngIf="isLoading" class="loading-container">
+  <mat-spinner diameter="48" color="primary"></mat-spinner>
+  <p>{{ 'PRODUCT_CATEGORIES.LOADING' | translate }}</p>
+</div>
 
-  <!-- Error -->
-  <div *ngIf="!isLoading && errorMessage" class="error-container">
-    <mat-icon>error_outline</mat-icon>
-    <p>{{ errorMessage }}</p>
-  </div>
-
-  
-
+<!-- Error -->
+<div *ngIf="!isLoading && errorMessage" class="error-container">
+  <mat-icon>error_outline</mat-icon>
+  <p>{{ errorMessage }}</p>
+</div>
