@@ -1,3 +1,4 @@
+import { SubcategoriesApiService, SubcategoryDto } from '../../../../../api-services/subcategories/subcategories-api.service';
 import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
@@ -43,41 +44,54 @@ export class ProductsEditComponent
   stockReason = 'Manual correction';
   stockNote = '';
   isStockBusy = false;
+  images: any[] = [];
+  selectedFile: File | null = null;
+  subcategories: SubcategoryDto[] = [];
 
+  private subApi = inject(SubcategoriesApiService);
   ngOnInit(): void {
     this.productId = +this.route.snapshot.params['id'];
     this.initForm(true);
+    this.loadImages();
   }
 
   protected loadData(): void {
-    this.startLoading();
+  this.startLoading();
 
-    const categoriesRequest = new ListProductCategoriesRequest();
-    categoriesRequest.onlyEnabled = true;
-    categoriesRequest.paging.pageSize = 100;
-    const movementsRequest = new ListProductStockMovementsRequest();
-    movementsRequest.paging.pageSize = 8;
+  const categoriesRequest = new ListProductCategoriesRequest();
+  categoriesRequest.onlyEnabled = true;
+  categoriesRequest.paging.pageSize = 100;
 
-    forkJoin({
-      product: this.api.getById(this.productId),
-      categories: this.categoriesApi.list(categoriesRequest),
-      movements: this.api.getStockMovements(this.productId, movementsRequest)
-    }).subscribe({
-      next: ({ product, categories, movements }) => {
-        this.model = product;
-        this.categories = categories.items.filter(x => x.isEnabled);
-        this.stockMovements = movements.items;
-        this.form = this.formService.createProductForm(product);
-        this.stopLoading();
-      },
-      error: (err) => {
-        this.stopLoading('Failed to load product');
-        this.toaster.error('Product not found');
-        console.error('Load product error:', err);
-        this.router.navigate(['/admin/products']);
+  const movementsRequest = new ListProductStockMovementsRequest();
+  movementsRequest.paging.pageSize = 8;
+
+  forkJoin({
+    product: this.api.getById(this.productId),
+    categories: this.categoriesApi.list(categoriesRequest),
+    movements: this.api.getStockMovements(this.productId, movementsRequest)
+  }).subscribe({
+    next: ({ product, categories, movements }) => {
+      this.model = product;
+      this.categories = categories.items.filter(x => x.isEnabled);
+      this.stockMovements = movements.items;
+      this.form = this.formService.createProductForm(product);
+
+      if (product.categoryId) {
+        this.subApi.getByCategory(product.categoryId).subscribe((res: SubcategoryDto[]) => {
+          this.subcategories = res;
+        });
       }
-    });
-  }
+
+      this.stopLoading();
+    },
+    error: (err) => {
+      this.stopLoading('Failed to load product');
+      this.toaster.error('Product not found');
+      console.error('Load product error:', err);
+      this.router.navigate(['/admin/products']);
+    }
+  });
+}
 
   protected save(): void {
     if (this.form.invalid || this.isLoading) {
@@ -90,7 +104,7 @@ export class ProductsEditComponent
       name: this.form.value.name,
       description: this.form.value.description,
       brand: this.form.value.brand,
-      subcategory: this.form.value.subcategory,
+      subcategoryId: this.form.value.subcategoryId,
       price: this.form.value.price,
       isEnabled: this.form.value.isEnabled,
       categoryId: this.form.value.categoryId
@@ -174,5 +188,48 @@ export class ProductsEditComponent
 
   isPricingStepValid(): boolean {
     return !!this.form.get('price')?.valid && !!this.form.get('categoryId')?.valid;
+  }
+  loadImages(): void {
+    if (!this.productId) return;
+
+    this.api.getImages(this.productId).subscribe(res => {
+      this.images = res;
+    });
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.selectedFile = input.files?.[0] ?? null;
+  }
+  onCategoryChanged(categoryId: number): void {
+    this.form.patchValue({ subcategoryId: null });
+
+    this.subApi.getByCategory(categoryId).subscribe((res: SubcategoryDto[]) => {
+      this.subcategories = res;
+    });
+  }
+  uploadImage(): void {
+    if (!this.selectedFile || !this.productId) return;
+
+    this.api.uploadImage(this.productId, this.selectedFile).subscribe(() => {
+      this.selectedFile = null;
+      this.loadImages();
+    });
+  }
+
+  deleteImage(imageId: number): void {
+    if (!this.productId) return;
+
+    this.api.deleteImage(this.productId, imageId).subscribe(() => {
+      this.loadImages();
+    });
+  }
+
+  setMain(imageId: number): void {
+    if (!this.productId) return;
+
+    this.api.setMainImage(this.productId, imageId).subscribe(() => {
+      this.loadImages();
+    });
   }
 }

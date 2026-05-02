@@ -15,6 +15,7 @@ import {
   ListProductCategoriesQueryDto,
   ListProductCategoriesRequest
 } from '../../../../../api-services/product-categories/product-categories-api.model';
+import { SubcategoriesApiService } from '../../../../../api-services/subcategories/subcategories-api.service';
 
 @Component({
   selector: 'app-products-add',
@@ -29,6 +30,9 @@ export class ProductsAddComponent
 
   private api = inject(ProductsApiService);
   private categoriesApi = inject(ProductCategoriesApiService);
+  subcategories: any[] = [];
+
+  private subApi = inject(SubcategoriesApiService);
   private formService = inject(ProductFormService);
   private router = inject(Router);
   private toaster = inject(ToasterService);
@@ -40,6 +44,11 @@ export class ProductsAddComponent
   ngOnInit(): void {
     this.initForm(false);
     this.loadCategories();
+    this.form.get('categoryId')?.valueChanges.subscribe(val => {
+      if (val) {
+        this.onCategoryChanged(val);
+      }
+    });
   }
 
   protected loadData(): void {
@@ -85,16 +94,16 @@ export class ProductsAddComponent
         })
       )
       .subscribe({
-      next: () => {
-        this.stopLoading();
-        this.toaster.success('Product created successfully');
-        this.router.navigate(['/admin/products']);
-      },
-      error: (err) => {
-        this.stopLoading('Failed to create product');
-        console.error('Create product error:', err);
-      }
-    });
+        next: () => {
+          this.stopLoading();
+          this.toaster.success('Product created successfully');
+          this.router.navigate(['/admin/products']);
+        },
+        error: (err) => {
+          this.stopLoading('Failed to create product');
+          console.error('Create product error:', err);
+        }
+      });
   }
 
   private loadCategories(): void {
@@ -110,6 +119,11 @@ export class ProductsAddComponent
         this.toaster.error('Failed to load categories');
         console.error('Load categories error:', err);
       }
+    });
+  }
+  onCategoryChanged(categoryId: number) {
+    this.subApi.getByCategory(categoryId).subscribe(res => {
+      this.subcategories = res;
     });
   }
 

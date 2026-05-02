@@ -50,13 +50,9 @@ public class GetProductsQueryHandler : IRequestHandler<GetProductsQuery, PageRes
 
         if (request.IsEnabled.HasValue)
         {
-           query = _context.Products
-                    .Include(p => p.Category)
-                    .Include(p => p.Subcategory)
-                    .Where(p => !p.IsDeleted && p.IsEnabled)
-                    .AsQueryable();
+            query = query.Where(x => x.IsEnabled == request.IsEnabled.Value);
         }
-
+        
         if (!string.IsNullOrWhiteSpace(request.Search))
         {
             var search = request.Search.Trim().ToLower();

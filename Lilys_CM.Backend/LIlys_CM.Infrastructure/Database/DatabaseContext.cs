@@ -1,4 +1,5 @@
 ﻿using Lilys_CM.Application.Abstractions;
+using Lilys_CM.Domain.Entities;
 using Lilys_CM.Domain.Entities.Catalog;
 using Lilys_CM.Domain.Entities.Identity;
 using Lilys_CM.Domain.Entities.Localization;
@@ -32,6 +33,7 @@ namespace Lilys_CM.Infrastructure.Database
         public DbSet<SubcategoryEntity> Subcategories => Set<SubcategoryEntity>();
         public DbSet<ProductVariantEntity> ProductVariants => Set<ProductVariantEntity>();
         public DbSet<VariantOptionEntity> VariantOptionEntities => Set<VariantOptionEntity>();
+        public DbSet<ProductImageEntity> ProductImages => Set<ProductImageEntity>();
         public DbSet<OptionValueEntity> OptionValueEntities => Set<OptionValueEntity>();
         public DbSet<ProductStockMovementEntity> ProductStockMovements => Set<ProductStockMovementEntity>();
         public DbSet<UserEntity> Users => Set<UserEntity>();

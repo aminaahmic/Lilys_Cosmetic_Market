@@ -8,7 +8,7 @@ import {
   CreateProductCategoryCommand,
   UpdateProductCategoryCommand
 } from '../../../../../api-services/product-categories/product-categories-api.model';
-import {ProductCategoryFormService} from "../services/product-category-form.service";
+import { ProductCategoryFormService } from "../services/product-category-form.service";
 
 export interface ProductCategoryDialogData {
   mode: 'create' | 'edit';
@@ -33,16 +33,17 @@ export class ProductCategoryUpsertComponent implements OnInit {
   isLoading = false;
   isEditMode = false;
   title = '';
-icons: string[] = [
-  'spa',
-  'science',
-  'local_florist',
-  'brush',
-  'face',
-  'content_cut',
-  'shower',
-  'category'
-];
+  icons: string[] = [
+    'spa',
+    'science',
+    'local_florist',
+    'brush',
+    'face',
+    'content_cut',
+    'shower',
+    'category'
+  ];
+  
   ngOnInit(): void {
     this.isEditMode = this.data.mode === 'edit';
     this.title = this.isEditMode ? 'Edit Category' : 'New Category';
@@ -52,6 +53,7 @@ icons: string[] = [
     } else {
       this.form = this.formService.createCategoryForm();
     }
+
   }
 
   private loadCategory(id: number): void {
@@ -89,14 +91,14 @@ icons: string[] = [
     const command: CreateProductCategoryCommand = {
       name: this.form.value.name.trim(),
       icon: this.form.value.icon,
-        isEnabled: this.form.value.isEnabled
+      isEnabled: this.form.value.isEnabled
     };
 
     this.api.create(command).subscribe({
       next: () => {
         this.toaster.success('Category created successfully');
-        this.dialogRef.close(true); 
-            },
+        this.dialogRef.close(true);
+      },
       error: (err) => {
         this.isLoading = false;
         console.error('Create category error:', err);
@@ -108,7 +110,7 @@ icons: string[] = [
     const command: UpdateProductCategoryCommand = {
       name: this.form.value.name.trim(),
       icon: this.form.value.icon,
-        isEnabled: this.form.value.isEnabled
+      isEnabled: this.form.value.isEnabled
     };
 
     this.api.update(this.data.categoryId!, command).subscribe({
@@ -130,4 +132,5 @@ icons: string[] = [
   getErrorMessage(controlName: string): string {
     return this.formService.getErrorMessage(this.form, controlName);
   }
+
 }

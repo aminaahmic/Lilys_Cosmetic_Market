@@ -23,7 +23,7 @@ namespace Lilys_CM.Infrastructure.Database.Seeders
 
         private static async Task SeedCategoriesAsync(DatabaseContext context)
         {
-            if (await context.Categories.AnyAsync())
+            if (await context.Products.AnyAsync())
             {
                 return;
             }
@@ -100,46 +100,49 @@ namespace Lilys_CM.Infrastructure.Database.Seeders
             Console.WriteLine("Dynamic seed: demo subcategories added.");
         }
 
-      private static async Task SeedProductsAsync(DatabaseContext context)
-{
-   
-
-    var categories = await context.Categories
-        .AsNoTracking()
-        .ToDictionaryAsync(c => c.Name, c => c.Id);
-
-    var subcategories = await context.Subcategories
-        .AsNoTracking()
-        .ToDictionaryAsync(s => s.Name, s => s.Id);
-
-    if (categories.Count == 0)
-    {
-        return;
-    }
-
-    var now = DateTime.UtcNow;
-
-    int GetCategoryOrFallback(string name)
-    {
-        if (categories.TryGetValue(name, out var id))
+        private static async Task SeedProductsAsync(DatabaseContext context)
         {
-            return id;
-        }
 
-        return categories.Values.First();
-    }
+            if (await context.Products.AnyAsync())
+            {
+                return;
+            }
+            var categories = await context.Categories
+                .AsNoTracking()
+                .ToDictionaryAsync(c => c.Name, c => c.Id);
 
-    int? GetSubcategoryOrNull(string name)
-    {
-        if (subcategories.TryGetValue(name, out var id))
-        {
-            return id;
-        }
+            var subcategories = await context.Subcategories
+                .AsNoTracking()
+                .ToDictionaryAsync(s => s.Name, s => s.Id);
 
-        return null;
-    }
+            if (categories.Count == 0)
+            {
+                return;
+            }
 
-    var products = new List<ProductEntity>
+            var now = DateTime.UtcNow;
+
+            int GetCategoryOrFallback(string name)
+            {
+                if (categories.TryGetValue(name, out var id))
+                {
+                    return id;
+                }
+
+                return categories.Values.First();
+            }
+
+            int? GetSubcategoryOrNull(string name)
+            {
+                if (subcategories.TryGetValue(name, out var id))
+                {
+                    return id;
+                }
+
+                return null;
+            }
+
+            var products = new List<ProductEntity>
     {
         new()
         {
@@ -299,26 +302,26 @@ namespace Lilys_CM.Infrastructure.Database.Seeders
         }
     };
 
-  var existingSkus = await context.Products
-    .Select(p => p.Sku)
-    .ToListAsync();
+            var existingSkus = await context.Products
+              .Select(p => p.Sku)
+              .ToListAsync();
 
-var productsToAdd = products
-    .Where(p => !existingSkus.Contains(p.Sku))
-    .GroupBy(p => p.Sku)
-    .Select(g => g.First())
-    .ToList();
+            var productsToAdd = products
+                .Where(p => !existingSkus.Contains(p.Sku))
+                .GroupBy(p => p.Sku)
+                .Select(g => g.First())
+                .ToList();
 
-if (!productsToAdd.Any())
-{
-    return;
-}
+            if (!productsToAdd.Any())
+            {
+                return;
+            }
 
-context.Products.AddRange(productsToAdd);
-await context.SaveChangesAsync();
+            context.Products.AddRange(productsToAdd);
+            await context.SaveChangesAsync();
 
-Console.WriteLine("Dynamic seed: demo products added.");
-}
+            Console.WriteLine("Dynamic seed: demo products added.");
+        }
         private static async Task SeedUsersAsync(DatabaseContext context)
         {
             if (await context.Users.AnyAsync())

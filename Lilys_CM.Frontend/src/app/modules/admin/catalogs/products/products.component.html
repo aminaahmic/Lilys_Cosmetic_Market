@@ -2,133 +2,206 @@
   <header class="page-header">
     <div>
       <p class="kicker">Catalog</p>
-      <h1>Products</h1>
-      <p class="subtitle">Manage products, filters and stock-ready listings.</p>
+      <h1>Proizvodi</h1>
+      <p class="subtitle">Upravljajte proizvodima, filtrima i zalihama.</p>
     </div>
 
-    <button mat-raised-button color="primary" (click)="onCreate()">
+    <button mat-raised-button class="add-product-btn" (click)="onCreate()">
       <mat-icon>add</mat-icon>
-      New product
+      Novi proizvod
     </button>
   </header>
 
-  <div class="filter-card">
-    <mat-form-field appearance="outline">
-      <mat-label>Name or description</mat-label>
-      <input matInput [(ngModel)]="request.search" (ngModelChange)="onSearchChanged()" />
-    </mat-form-field>
+  <section class="filter-card">
+    <div class="filters-grid">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Naziv proizvoda...</mat-label>
+        <mat-icon matPrefix>search</mat-icon>
+        <input matInput [(ngModel)]="request.search" (ngModelChange)="onSearchChanged()" />
+      </mat-form-field>
 
-    <mat-form-field appearance="outline">
-      <mat-label>Brand</mat-label>
-      <mat-select [(ngModel)]="request.brand" (ngModelChange)="onBrandChanged()">
-        <mat-option [value]="null">All brands</mat-option>
-        <mat-option *ngFor="let brand of brands" [value]="brand">
-          {{ brand }}
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Brend</mat-label>
+        <mat-select [(ngModel)]="request.brand" (ngModelChange)="onBrandChanged()">
+          <mat-option [value]="null">Svi brendovi</mat-option>
+          <mat-option *ngFor="let brand of brands" [value]="brand">
+            {{ brand }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
 
-    <mat-form-field appearance="outline">
-      <mat-label>Subcategory</mat-label>
-      <mat-select [(ngModel)]="request.subcategory" (ngModelChange)="onSubcategoryChanged()">
-        <mat-option [value]="null">All subcategories</mat-option>
-        <mat-option *ngFor="let subcategory of subcategories" [value]="subcategory">
-          {{ subcategory }}
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Podkategorija</mat-label>
+        <mat-select [(ngModel)]="request.subcategory" (ngModelChange)="onSubcategoryChanged()">
+          <mat-option [value]="null">Sve podkategorije</mat-option>
+          <mat-option *ngFor="let subcategory of subcategories" [value]="subcategory">
+            {{ subcategory }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
 
-    <mat-form-field appearance="outline">
-      <mat-label>Category</mat-label>
-      <mat-select [(ngModel)]="request.categoryId" (ngModelChange)="onCategoryChanged()">
-        <mat-option [value]="null">All categories</mat-option>
-        <mat-option *ngFor="let category of categories" [value]="category.id">
-          {{ category.name }}
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Kategorija</mat-label>
+        <mat-select [(ngModel)]="request.categoryId" (ngModelChange)="onCategoryChanged()">
+          <mat-option [value]="null">Sve kategorije</mat-option>
+          <mat-option *ngFor="let category of categories" [value]="category.id">
+            {{ category.name }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
 
-    <mat-form-field appearance="outline">
-      <mat-label>Min price</mat-label>
-      <input matInput type="number" [(ngModel)]="request.priceMin" (ngModelChange)="onPriceRangeChanged()" />
-    </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Minimalna cijena</mat-label>
+        <input matInput type="number" placeholder="Od" [(ngModel)]="request.priceMin"
+          (ngModelChange)="onPriceRangeChanged()" />
+        <span matSuffix>KM</span>
+      </mat-form-field>
 
-    <mat-form-field appearance="outline">
-      <mat-label>Max price</mat-label>
-      <input matInput type="number" [(ngModel)]="request.priceMax" (ngModelChange)="onPriceRangeChanged()" />
-    </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Maksimalna cijena</mat-label>
+        <input matInput type="number" placeholder="Do" [(ngModel)]="request.priceMax"
+          (ngModelChange)="onPriceRangeChanged()" />
+        <span matSuffix>KM</span>
+      </mat-form-field>
 
-    <mat-form-field appearance="outline">
-      <mat-label>Status</mat-label>
-      <mat-select [(ngModel)]="request.isEnabled" (ngModelChange)="onStatusChanged()">
-        <mat-option [value]="null">All</mat-option>
-        <mat-option [value]="true">Active</mat-option>
-        <mat-option [value]="false">Inactive</mat-option>
-      </mat-select>
-    </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Status</mat-label>
+        <mat-select [(ngModel)]="request.isEnabled" (ngModelChange)="onStatusChanged()">
+          <mat-option [value]="null">Svi statusi</mat-option>
+          <mat-option [value]="true">Aktivni</mat-option>
+          <mat-option [value]="false">Neaktivni</mat-option>
+        </mat-select>
+      </mat-form-field>
 
-    <div class="filter-actions">
-      <button mat-stroked-button (click)="onResetFilters()">Reset</button>
+      <div class="filter-actions">
+        <button mat-stroked-button class="reset-btn" (click)="onResetFilters()">
+          <mat-icon>restart_alt</mat-icon>
+          Resetuj
+        </button>
+
+        <button mat-raised-button class="apply-btn" (click)="onApplyFilters()">
+          <mat-icon>filter_alt</mat-icon>
+          Primijeni filtere
+        </button>
+      </div>
     </div>
-  </div>
+  </section>
 
-  <div class="state-message" *ngIf="isLoading">Loading products...</div>
+  <section class="stats-grid">
+    <article class="stat-card">
+      <div class="stat-icon total">
+        <mat-icon>inventory_2</mat-icon>
+      </div>
+      <div>
+        <p>Ukupno proizvoda</p>
+        <h3>{{ totalProductsCount }}</h3>
+        <span>Svi proizvodi u sistemu</span>
+      </div>
+    </article>
+
+    <article class="stat-card">
+      <div class="stat-icon active">
+        <mat-icon>check_circle</mat-icon>
+      </div>
+      <div>
+        <p>Aktivni proizvodi</p>
+        <h3>{{ activeProductsCount }}</h3>
+        <span>Trenutno dostupni</span>
+      </div>
+    </article>
+
+    <article class="stat-card">
+      <div class="stat-icon low-stock">
+        <mat-icon>view_week</mat-icon>
+      </div>
+      <div>
+        <p>Niska zaliha</p>
+        <h3>{{ lowStockCount }}</h3>
+        <span>Za dopunu</span>
+      </div>
+    </article>
+
+    <article class="stat-card">
+      <div class="stat-icon out-stock">
+        <mat-icon>inventory</mat-icon>
+      </div>
+      <div>
+        <p>Bez zalihe</p>
+        <h3>{{ outOfStockCount }}</h3>
+        <span>Nema na stanju</span>
+      </div>
+    </article>
+  </section>
+
+  <div class="state-message" *ngIf="isLoading">Učitavanje proizvoda...</div>
   <div class="state-message error" *ngIf="!isLoading && errorMessage">{{ errorMessage }}</div>
 
-  <div class="table-card" *ngIf="!isLoading && !errorMessage">
+  <section class="table-card" *ngIf="!isLoading && !errorMessage">
     <table mat-table [dataSource]="items">
       <ng-container matColumnDef="name">
-        <th mat-header-cell *matHeaderCellDef>Name</th>
+        <th mat-header-cell *matHeaderCellDef>Proizvod</th>
         <td mat-cell *matCellDef="let product">
-          <strong>{{ product.name }}</strong>
+          <div class="product-cell">
+            <div class="product-image">
+              <mat-icon>spa</mat-icon>
+            </div>
+            <strong>{{ product.name }}</strong>
+          </div>
         </td>
       </ng-container>
 
       <ng-container matColumnDef="brand">
-        <th mat-header-cell *matHeaderCellDef>Brand</th>
+        <th mat-header-cell *matHeaderCellDef>Brend</th>
         <td mat-cell *matCellDef="let product">{{ product.brand || 'N/A' }}</td>
       </ng-container>
 
       <ng-container matColumnDef="subcategory">
-        <th mat-header-cell *matHeaderCellDef>Subcategory</th>
+        <th mat-header-cell *matHeaderCellDef>Podkategorija</th>
         <td mat-cell *matCellDef="let product">{{ product.subcategory || 'N/A' }}</td>
       </ng-container>
 
       <ng-container matColumnDef="categoryName">
-        <th mat-header-cell *matHeaderCellDef>Category</th>
+        <th mat-header-cell *matHeaderCellDef>Kategorija</th>
         <td mat-cell *matCellDef="let product">{{ product.categoryName }}</td>
       </ng-container>
 
       <ng-container matColumnDef="price">
-        <th mat-header-cell *matHeaderCellDef>Price</th>
-        <td mat-cell *matCellDef="let product">{{ product.price | number : '1.2-2' }} KM</td>
+        <th mat-header-cell *matHeaderCellDef>Cijena</th>
+        <td mat-cell *matCellDef="let product" class="price-cell">
+          {{ product.price | number : '1.2-2' }} KM
+        </td>
       </ng-container>
 
       <ng-container matColumnDef="stockQuantity">
-        <th mat-header-cell *matHeaderCellDef>Stock</th>
+        <th mat-header-cell *matHeaderCellDef>Zaliha</th>
         <td mat-cell *matCellDef="let product">
-          <span [class.low]="product.stockQuantity < 5">{{ product.stockQuantity }}</span>
+          <span [class.low]="product.stockQuantity < 5">
+            {{ product.stockQuantity }}
+          </span>
         </td>
       </ng-container>
 
       <ng-container matColumnDef="isEnabled">
         <th mat-header-cell *matHeaderCellDef>Status</th>
         <td mat-cell *matCellDef="let product">
-          <span class="status" [class.enabled]="product.isEnabled">
-            {{ product.isEnabled ? 'Active' : 'Inactive' }}
+          <span class="status" [class.enabled]="product.isEnabled" [class.disabled]="!product.isEnabled">
+            {{ product.isEnabled ? 'Aktivan' : 'Neaktivan' }}
           </span>
         </td>
       </ng-container>
 
       <ng-container matColumnDef="actions">
-        <th mat-header-cell *matHeaderCellDef>Actions</th>
+        <th mat-header-cell *matHeaderCellDef>Akcije</th>
         <td mat-cell *matCellDef="let product">
-          <button mat-icon-button color="primary" (click)="onEdit(product)" matTooltip="Edit">
-            <mat-icon>edit</mat-icon>
-          </button>
-          <button mat-icon-button color="warn" (click)="onDelete(product)" matTooltip="Delete">
-            <mat-icon>delete</mat-icon>
-          </button>
+          <div class="actions">
+            <button mat-icon-button class="edit-btn" (click)="onEdit(product)" matTooltip="Uredi">
+              <mat-icon>edit</mat-icon>
+            </button>
+
+            <button mat-icon-button class="delete-btn" (click)="onDelete(product)" matTooltip="Obriši">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
         </td>
       </ng-container>
 
@@ -136,10 +209,12 @@
       <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
 
       <tr class="mat-row" *matNoDataRow>
-        <td class="mat-cell" [attr.colspan]="displayedColumns.length">No products found.</td>
+        <td class="mat-cell no-data" [attr.colspan]="displayedColumns.length">
+          Nema pronađenih proizvoda.
+        </td>
       </tr>
     </table>
 
     <app-fit-paginator-bar [vm]="this"></app-fit-paginator-bar>
-  </div>
+  </section>
 </section>

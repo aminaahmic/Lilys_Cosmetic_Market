@@ -91,6 +91,7 @@ export interface UpdateProductCommand {
   price: number;
   isEnabled: boolean;
   categoryId: number;
+  subcategoryId?: number | null;
 }
 
 export interface AdjustProductStockCommand {

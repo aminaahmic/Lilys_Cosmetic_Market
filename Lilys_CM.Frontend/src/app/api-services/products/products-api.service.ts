@@ -49,6 +49,24 @@ export class ProductsApiService {
   adjustStock(id: number, payload: AdjustProductStockCommand): Observable<void> {
     return this.http.put<void>(`${this.baseUrl}/${id}/stock/adjust`, payload);
   }
+  uploadImage(productId: number, file: File) {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return this.http.post<any>(`/api/products/${productId}/images`, formData);
+  }
+
+  getImages(productId: number) {
+    return this.http.get<any[]>(`/api/products/${productId}/images`);
+  }
+
+  setMainImage(productId: number, imageId: number) {
+    return this.http.put(`/api/products/${productId}/images/${imageId}/main`, {});
+  }
+
+  deleteImage(productId: number, imageId: number) {
+    return this.http.delete(`/api/products/${productId}/images/${imageId}`);
+  }
 
   getStockMovements(
     id: number,
@@ -64,4 +82,5 @@ export class ProductsApiService {
     const params = categoryId ? buildHttpParams({ categoryId }) : undefined;
     return this.http.get<ProductFilterOptionsDto>(`${this.baseUrl}/filter-options`, { params });
   }
+
 }

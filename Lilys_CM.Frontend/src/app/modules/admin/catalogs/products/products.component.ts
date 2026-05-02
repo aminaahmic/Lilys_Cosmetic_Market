@@ -23,7 +23,7 @@ import {
 export class ProductsComponent
   extends BaseListPagedComponent<ListProductsQueryDto, ListProductsRequest>
   implements OnInit, OnDestroy {
-
+  statsItems: ListProductsQueryDto[] = [];
   private api = inject(ProductsApiService);
   private categoriesApi = inject(ProductCategoriesApiService);
   private router = inject(Router);
@@ -56,6 +56,7 @@ export class ProductsComponent
     this.initList();
     this.loadCategories();
     this.loadFilterOptions();
+    this.loadStats();
   }
 
   ngOnDestroy(): void {
@@ -95,7 +96,44 @@ export class ProductsComponent
       }
     });
   }
+  get activeProductsCount(): number {
+    return this.statsItems.filter(x => x.isEnabled).length;
+  }
 
+  get lowStockCount(): number {
+    return this.statsItems.filter(x => x.stockQuantity > 0 && x.stockQuantity < 5).length;
+  }
+
+  get outOfStockCount(): number {
+    return this.statsItems.filter(x => x.stockQuantity === 0).length;
+  }
+
+  get totalProductsCount(): number {
+    return this.statsItems.length;
+  }
+  private loadStats(): void {
+    const statsRequest = new ListProductsRequest();
+
+    statsRequest.paging.page = 1;
+    statsRequest.paging.pageSize = 1000;
+
+    statsRequest.search = null;
+    statsRequest.brand = null;
+    statsRequest.subcategory = null;
+    statsRequest.categoryId = null;
+    statsRequest.priceMin = null;
+    statsRequest.priceMax = null;
+    statsRequest.isEnabled = null;
+
+    this.api.list(statsRequest).subscribe({
+      next: (response) => {
+        this.statsItems = response.items;
+      },
+      error: (err) => {
+        console.error('Load product stats error:', err);
+      }
+    });
+  }
   onApplyFilters(): void {
     this.request.paging.page = 1;
     this.loadPagedData();
@@ -138,6 +176,7 @@ export class ProductsComponent
     this.request.paging.page = 1;
     this.loadFilterOptions();
     this.loadPagedData();
+    this.loadStats();
   }
 
   private loadCategories(): void {
@@ -178,6 +217,7 @@ export class ProductsComponent
   private performDelete(product: ListProductsQueryDto): void {
     this.startLoading();
 
+
     this.api.delete(product.id).subscribe({
       next: () => {
         this.dialogHelper.product.showDeleteSuccess().subscribe();
@@ -193,7 +233,9 @@ export class ProductsComponent
 
         console.error('Delete product error:', err);
       }
+
     });
+    this.loadStats();
   }
 
   private triggerDebouncedRefresh(): void {
@@ -205,4 +247,5 @@ export class ProductsComponent
       this.onApplyFilters();
     }, 300);
   }
+
 }

@@ -2,12 +2,12 @@
   <header class="editor-header">
     <div>
       <p class="kicker">Catalog</p>
-      <h1>Edit Product</h1>
-      <p class="subtitle">Update details and manage stock from one place.</p>
+      <h1>Uredi proizvod</h1>
+      <p class="subtitle">Ažuriraj detalje i upravljaj zalihom s jednog mjesta.</p>
     </div>
     <button type="button" mat-stroked-button (click)="onCancel()">
       <mat-icon>arrow_back</mat-icon>
-      Back to products
+      Natrag na proizvode
     </button>
   </header>
 
@@ -17,28 +17,28 @@
         <mat-step label="Basics">
           <div class="step-grid">
             <mat-form-field appearance="outline">
-              <mat-label>Name</mat-label>
+              <mat-label>Naziv</mat-label>
               <input matInput formControlName="name" />
               <mat-error *ngIf="hasError('name')">{{ getErrorMessage('name') }}</mat-error>
             </mat-form-field>
 
             <mat-form-field appearance="outline">
-              <mat-label>Brand</mat-label>
+              <mat-label>Brend</mat-label>
               <input matInput formControlName="brand" />
               <mat-error *ngIf="hasError('brand')">{{ getErrorMessage('brand') }}</mat-error>
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="wide">
-              <mat-label>Description</mat-label>
+              <mat-label>Opis</mat-label>
               <textarea matInput rows="4" formControlName="description"></textarea>
               <mat-error *ngIf="hasError('description')">{{ getErrorMessage('description') }}</mat-error>
             </mat-form-field>
           </div>
 
           <div class="step-actions">
-            <button type="button" mat-stroked-button (click)="onCancel()">Cancel</button>
+            <button type="button" mat-stroked-button (click)="onCancel()">Nazad</button>
             <button type="button" mat-raised-button color="primary" matStepperNext [disabled]="!isBasicStepValid()">
-              Continue
+              Nastavi
             </button>
           </div>
         </mat-step>
@@ -46,7 +46,7 @@
         <mat-step label="Price & Placement">
           <div class="step-grid">
             <mat-form-field appearance="outline">
-              <mat-label>Category</mat-label>
+              <mat-label>Kategorija</mat-label>
               <mat-select formControlName="categoryId">
                 <mat-option *ngFor="let category of categories" [value]="category.id">
                   {{ category.name }}
@@ -56,13 +56,20 @@
             </mat-form-field>
 
             <mat-form-field appearance="outline">
-              <mat-label>Subcategory</mat-label>
-              <input matInput formControlName="subcategory" />
+              <mat-label>Podkategorija</mat-label>
+              <mat-form-field appearance="outline">
+                <mat-label>Subcategory</mat-label>
+                <mat-select formControlName="subcategoryId">
+                  <mat-option *ngFor="let sub of subcategories" [value]="sub.id">
+                    {{ sub.name }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
               <mat-error *ngIf="hasError('subcategory')">{{ getErrorMessage('subcategory') }}</mat-error>
             </mat-form-field>
 
             <mat-form-field appearance="outline">
-              <mat-label>Price</mat-label>
+              <mat-label>Cijena</mat-label>
               <input matInput type="number" step="0.01" formControlName="price" />
               <span matTextPrefix>KM&nbsp;</span>
               <mat-error *ngIf="hasError('price')">{{ getErrorMessage('price') }}</mat-error>
@@ -76,62 +83,76 @@
           </div>
 
           <div class="step-actions">
-            <button type="button" mat-stroked-button matStepperPrevious>Back</button>
+            <button type="button" mat-stroked-button matStepperPrevious>Nazad</button>
             <button type="button" mat-raised-button color="primary" matStepperNext [disabled]="!isPricingStepValid()">
-              Continue
+              Nastavi
             </button>
           </div>
         </mat-step>
 
         <mat-step label="Save">
           <div class="summary-card">
-            <h3>Save changes</h3>
-            <p>You are updating {{ form.value.name || 'this product' }}.</p>
+            <h3>Sačuvaj promjene</h3>
+            <p>Editovano: {{ form.value.name || 'this product' }}.</p>
           </div>
 
           <div class="step-actions">
-            <button type="button" mat-stroked-button matStepperPrevious>Back</button>
+            <button type="button" mat-stroked-button matStepperPrevious>Nazad </button>
             <button type="submit" mat-raised-button color="primary" [disabled]="form.invalid || isLoading">
-              <mat-icon>save</mat-icon>
-              Save product
+              <mat-icon>Spremi</mat-icon>
+              Sačuvaj proizvod
             </button>
           </div>
+          <div class="image-upload">
+            <input type="file" (change)="onFileSelected($event)" />
+            <button type="button" mat-raised-button (click)="uploadImage()">Ažuriraj</button>
+          </div>
+
+          <div class="image-grid">
+            <div *ngFor="let img of images" class="image-card">
+              <img [src]="img.imageUrl" />
+
+              <div class="image-actions">
+                <button type="button" mat-button (click)="setMain(img.id)">Main</button>
+                <button type="button" mat-button color="warn" (click)="deleteImage(img.id)">Izbriši</button>
+              </div>
+
+              <div *ngIf="img.isMain" class="main-badge">Main</div>
+            </div>
+          </div>
+
         </mat-step>
+
       </mat-stepper>
     </form>
 
     <aside class="stock-card">
-      <h2>Stock</h2>
-      <p class="stock-now">Current: {{ model?.stockQuantity ?? 0 }}</p>
+      <h2>Količina na stanju</h2>
+      <p class="stock-now">Trenutno: {{ model?.stockQuantity ?? 0 }}</p>
 
       <mat-form-field appearance="outline">
-        <mat-label>Change quantity</mat-label>
+        <mat-label>Promijeni količinu</mat-label>
         <input matInput type="number" [(ngModel)]="stockDelta" [ngModelOptions]="{ standalone: true }" />
-        <mat-hint>Use positive for stock in, negative for stock out.</mat-hint>
+        <mat-hint>Koristite pozitivne vrijednosti za povećanje zaliha, negativne za smanjenje.</mat-hint>
       </mat-form-field>
 
       <mat-form-field appearance="outline">
-        <mat-label>Reason</mat-label>
+        <mat-label>Razlog</mat-label>
         <input matInput [(ngModel)]="stockReason" [ngModelOptions]="{ standalone: true }" />
       </mat-form-field>
 
       <mat-form-field appearance="outline">
-        <mat-label>Note</mat-label>
+        <mat-label>Bilješka</mat-label>
         <textarea matInput rows="2" [(ngModel)]="stockNote" [ngModelOptions]="{ standalone: true }"></textarea>
       </mat-form-field>
 
-      <button
-        type="button"
-        mat-raised-button
-        color="accent"
-        (click)="applyStockChange()"
-        [disabled]="isStockBusy || stockDelta === 0"
-      >
-        Apply stock change
+      <button type="button" mat-raised-button color="accent" (click)="applyStockChange()"
+        [disabled]="isStockBusy || stockDelta === 0">
+        Primijeni promjenu zaliha
       </button>
 
       <div class="movement-list">
-        <h3>Latest movements</h3>
+        <h3> Posljednje u zalihi</h3>
         <div class="movement-item" *ngFor="let movement of stockMovements">
           <div>
             <p class="movement-main">
@@ -148,7 +169,7 @@
   <ng-template #loadingState>
     <div class="loading-wrap">
       <mat-spinner diameter="42"></mat-spinner>
-      <p>Loading product...</p>
+      <p>Učitavanje proizvoda...</p>
     </div>
   </ng-template>
 </section>
