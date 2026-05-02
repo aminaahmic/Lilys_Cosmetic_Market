@@ -28,6 +28,15 @@ $border-color: #eadbd5;
 $shadow-soft: rgba(92, 51, 44, 0.06);
 $shadow-medium: rgba(92, 51, 44, 0.1);
 
+.product-category-delete-dialog-panel .mat-mdc-dialog-surface {
+  overflow: hidden !important;
+  border-radius: 24px !important;
+}
+
+.product-category-delete-dialog-panel .mat-mdc-dialog-container {
+  overflow: hidden !important;
+}
+
 // Container
 .container {
   padding: 24px;
@@ -182,24 +191,43 @@ $shadow-medium: rgba(92, 51, 44, 0.1);
   }
 
 
-  .status {
+  .meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+    align-items: center;
+  }
+
+  .status,
+  .count-badge {
     display: inline-flex;
+    align-items: center;
     width: fit-content;
-    margin-top: 6px;
-    padding: 4px 10px;
+    padding: 4px 9px;
     border-radius: 999px;
-    font-size: 12px;
-    font-weight: 600;
+    font-size: 11px;
+    font-weight: 700;
+  }
 
-    &.active {
-      color: #2f7d4a;
-      background: #e6f6eb;
-    }
+  .status.active {
+    background: #d9f5e4;
+    color: #008c45;
+  }
 
-    &.inactive {
-      color: #b42318;
-      background: #fdeaea;
-    }
+  .status.inactive {
+    background: #ffe1e4;
+    color: #e63950;
+  }
+
+  .subcategory-badge {
+    background: #fff0d8;
+    color: #9a5f21;
+  }
+
+  .product-badge {
+    background: #f7e8ee;
+    color: #8a4a5a;
   }
 }
 

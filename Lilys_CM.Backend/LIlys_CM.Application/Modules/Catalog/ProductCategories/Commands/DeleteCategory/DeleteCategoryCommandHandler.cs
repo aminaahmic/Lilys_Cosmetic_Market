@@ -31,7 +31,16 @@ public sealed class DeleteCategoryCommandHandler : IRequestHandler<DeleteCategor
                 "Cannot delete category that contains products."
             );
         }
+        var hasSubcategories = await _context.Subcategories
+            .AnyAsync(s => s.CategoryId == request.Id, cancellationToken);
 
+        if (hasSubcategories)
+        {
+            throw new Lilys_CMBusinessRuleException(
+                "category.delete.subcategories-exist",
+                "Cannot delete category that contains subcategories."
+            );
+        }
         _context.Categories.Remove(category);
         await _context.SaveChangesAsync(cancellationToken);
 

@@ -1,0 +1,50 @@
+<div class="dialog-shell">
+  <div class="dialog-header">
+    <h2>{{ title }}</h2>
+  </div>
+
+  <div class="dialog-body">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Naziv potkategorije</mat-label>
+      <input
+        matInput
+        [(ngModel)]="name"
+        maxlength="100"
+        placeholder="Unesite naziv"
+      />
+      <mat-icon matSuffix>sell</mat-icon>
+      <mat-hint align="end">{{ name.length }}/100</mat-hint>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Kategorija</mat-label>
+      <mat-select [(ngModel)]="categoryId">
+        <mat-option [value]="null">Odaberi kategoriju</mat-option>
+        <mat-option *ngFor="let c of data.categories" [value]="c.id">
+          {{ c.name }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <div class="toggle-card">
+      <div>
+        <strong>Aktivna potkategorija</strong>
+        <p>Potkategorija će biti vidljiva korisnicima.</p>
+      </div>
+
+      <mat-slide-toggle [(ngModel)]="isEnabled"></mat-slide-toggle>
+    </div>
+  </div>
+
+  <div class="dialog-actions">
+    <button mat-stroked-button type="button" (click)="cancel()">
+      <mat-icon>close</mat-icon>
+      OTKAŽI
+    </button>
+
+    <button mat-raised-button color="primary" type="button" (click)="save()">
+      <mat-icon>{{ data.mode === 'edit' ? 'edit' : 'add' }}</mat-icon>
+      {{ submitText }}
+    </button>
+  </div>
+</div>

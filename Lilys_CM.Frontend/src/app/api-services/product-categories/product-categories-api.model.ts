@@ -9,7 +9,7 @@ import { PageResult } from '../../core/models/paging/page-result';
 export class ListProductCategoriesRequest extends BasePagedQuery {
   search?: string | null;
   onlyEnabled?: boolean | null;
-    sortBy?: string;
+  sortBy?: string;
 }
 
 /**
@@ -20,6 +20,8 @@ export interface ListProductCategoriesQueryDto {
   name: string;
   isEnabled: boolean;
   icon?: string;
+  productCount: number;
+  subcategoryCount: number;
 }
 
 /**
@@ -30,6 +32,8 @@ export interface GetProductCategoryByIdQueryDto {
   name: string;
   isEnabled: boolean;
   icon?: string;
+  productCount: number;
+  subcategoryCount: number;
 }
 
 /**

@@ -46,8 +46,8 @@ public sealed class GetProductCategoriesQueryHandler : IRequestHandler<GetProduc
                 Id = c.Id,
                 Name = c.Name,
                 IsEnabled = c.IsEnabled,
-                CreatedAt = c.CreatedAt,
                 ProductCount = c.Products.Count,
+                SubcategoryCount = c.Subcategories.Count,
                 Icon = c.Icon
             })
             .ToListAsync(cancellationToken);

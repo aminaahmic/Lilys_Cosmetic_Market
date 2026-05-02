@@ -6,9 +6,9 @@ import { ProductsComponent } from './catalogs/products/products.component';
 import { ProductsAddComponent } from './catalogs/products/products-add/products-add.component';
 import { ProductsEditComponent } from './catalogs/products/products-edit/products-edit.component';
 import { ProductCategoriesComponent } from './catalogs/product-categories/product-categories.component';
-import {AdminOrdersComponent} from './orders/admin-orders.component';
-import {AdminSettingsComponent} from './admin-settings/admin-settings.component';
-
+import { AdminOrdersComponent } from './orders/admin-orders.component';
+import { AdminSettingsComponent } from './admin-settings/admin-settings.component';
+import { SubcategoriesComponent } from './catalogs/subcategories/subcategories.component';
 const routes: Routes = [
   {
     path: '',
@@ -32,6 +32,11 @@ const routes: Routes = [
       {
         path: 'product-categories',
         component: ProductCategoriesComponent,
+      },
+      
+      {
+        path: 'subcategories',
+        component: SubcategoriesComponent,
       },
 
       {
@@ -59,4 +64,4 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],
 })
-export class AdminRoutingModule {}
+export class AdminRoutingModule { }

@@ -14,7 +14,9 @@ public sealed class GetProductCategoryByIdQueryHandler : IRequestHandler<GetProd
     public async Task<ProductCategoryDto> Handle(GetProductCategoryByIdQuery request, CancellationToken cancellationToken)
     {
         var category = await _context.Categories
-            .FirstOrDefaultAsync(c => c.Id == request.Id, cancellationToken);
+    .Include(c => c.Products)
+    .Include(c => c.Subcategories)
+    .FirstOrDefaultAsync(c => c.Id == request.Id, cancellationToken);
 
         if (category is null)
             throw new Lilys_CMNotFoundException("Category not found.");
@@ -24,6 +26,9 @@ public sealed class GetProductCategoryByIdQueryHandler : IRequestHandler<GetProd
             Id = category.Id,
             Name = category.Name,
             IsEnabled = category.IsEnabled,
+            CreatedAtUtc = category.CreatedAtUtc,
+            ProductCount = category.Products.Count,
+            SubcategoryCount = category.Subcategories.Count,
             Icon = category.Icon
         };
     }

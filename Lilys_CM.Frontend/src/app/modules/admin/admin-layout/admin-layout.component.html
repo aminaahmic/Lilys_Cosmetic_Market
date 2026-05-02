@@ -70,6 +70,11 @@
         <span matListItemTitle>{{ 'ADMIN_PANEL.MENU.CATEGORIES' | translate }}</span>
       </a>
 
+      <a mat-list-item routerLink="/admin/subcategories" routerLinkActive="active">
+        <mat-icon matListItemIcon>account_tree</mat-icon>
+        <span matListItemTitle>Potkategorije</span>
+      </a>
+
       <a mat-list-item routerLink="/admin/products" routerLinkActive="active">
         <mat-icon matListItemIcon>inventory_2</mat-icon>
         <span matListItemTitle>{{ 'ADMIN_PANEL.MENU.PRODUCTS' | translate }}</span>
@@ -106,9 +111,9 @@
       </a>
     </mat-nav-list>
     <!--end of sidebar-->
-          <div class="sidebar-illustration">
-        <img src="assets/images/sidebar-cosmetics.png" alt="Cosmetics illustration" />
-      </div>
+    <div class="sidebar-illustration">
+      <img src="assets/images/sidebar-cosmetics.png" alt="Cosmetics illustration" />
+    </div>
   </mat-sidenav>
 
   <!-- MAIN CONTENT -->

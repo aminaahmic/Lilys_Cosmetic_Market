@@ -30,15 +30,7 @@
         </mat-select>
       </mat-form-field>
 
-      <mat-form-field appearance="outline">
-        <mat-label>Podkategorija</mat-label>
-        <mat-select [(ngModel)]="request.subcategory" (ngModelChange)="onSubcategoryChanged()">
-          <mat-option [value]="null">Sve podkategorije</mat-option>
-          <mat-option *ngFor="let subcategory of subcategories" [value]="subcategory">
-            {{ subcategory }}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
+
 
       <mat-form-field appearance="outline">
         <mat-label>Kategorija</mat-label>
@@ -46,6 +38,16 @@
           <mat-option [value]="null">Sve kategorije</mat-option>
           <mat-option *ngFor="let category of categories" [value]="category.id">
             {{ category.name }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Potkategorija</mat-label>
+        <mat-select [(ngModel)]="request.subcategory" (ngModelChange)="onSubcategoryChanged()">
+          <mat-option [value]="null">Sve potkategorije</mat-option>
+          <mat-option *ngFor="let subcategory of subcategories" [value]="subcategory">
+            {{ subcategory }}
           </mat-option>
         </mat-select>
       </mat-form-field>

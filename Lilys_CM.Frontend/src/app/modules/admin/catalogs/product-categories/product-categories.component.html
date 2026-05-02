@@ -80,8 +80,20 @@
       <div class="category-info">
         <div class="name">{{ item.name }}</div>
 
-        <div class="status" [class.active]="item.isEnabled" [class.inactive]="!item.isEnabled">
-          {{ item.isEnabled ? 'Aktivna' : 'Neaktivna' }}
+        <div class="meta-row">
+          <span class="status" [class.active]="item.isEnabled" [class.inactive]="!item.isEnabled">
+            {{ item.isEnabled ? 'Aktivna' : 'Neaktivna' }}
+          </span>
+
+          <span class="count-badge subcategory-badge">
+            {{ item.subcategoryCount }}
+            {{ item.subcategoryCount === 1 ? 'potkategorija' : 'potkategorije' }}
+          </span>
+
+          <span class="count-badge product-badge">
+            {{ item.productCount }}
+            {{ item.productCount === 1 ? 'proizvod' : 'proizvoda' }}
+          </span>
         </div>
       </div>
 

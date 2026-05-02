@@ -1,4 +1,5 @@
-import { SubcategoriesApiService, SubcategoryDto } from '../../../../../api-services/subcategories/subcategories-api.service';
+import { SubcategoriesApiService } from '../../../../../api-services/subcategories/subcategories-api.service';
+import { SubcategoryDto } from '../../../../../api-services/subcategories/subcategories-api.models';
 import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin } from 'rxjs';

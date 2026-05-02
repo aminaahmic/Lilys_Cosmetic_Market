@@ -10,6 +10,7 @@ import {
   ListProductCategoriesQueryDto,
 } from '../../../../api-services/product-categories/product-categories-api.model';
 import { ProductCategoryUpsertComponent } from './product-category-upsert/product-category-upsert.component';
+import { ProductCategoryDeleteDialogComponent } from './product-category-delete-dialog/product-category-delete-dialog.component';
 type SortOption = 'name_asc' | 'name_desc' | 'status_asc' | 'status_desc';
 
 @Component({
@@ -78,7 +79,7 @@ export class ProductCategoriesComponent
 
     this.request.sortBy = this.sortBy;
 
-     this.loadPagedData();
+    this.loadPagedData();
   }
   ngOnInit(): void {
     this.request.sortBy = this.sortBy;
@@ -89,7 +90,7 @@ export class ProductCategoriesComponent
   onSearch() {
     this.request.search = this.search;
     this.request.sortBy = this.sortBy;
-     this.loadPagedData();
+    this.loadPagedData();
   }
 
   protected loadPagedData(): void {
@@ -173,10 +174,20 @@ export class ProductCategoriesComponent
   }
 
   onDelete(category: ListProductCategoriesQueryDto): void {
-    this.dialogHelper.productCategory.confirmDelete(category.name).subscribe(result => {
-      if (result && result.button === DialogButton.DELETE) {
-        this.performDelete(category);
+    const dialogRef = this.dialog.open(ProductCategoryDeleteDialogComponent, {
+      width: '380px',
+      panelClass: 'product-category-delete-dialog-panel',
+      autoFocus: false,
+      disableClose: false,
+      data: category
+    });
+
+    dialogRef.afterClosed().subscribe((confirmed: boolean) => {
+      if (!confirmed) {
+        return;
       }
+
+      this.performDelete(category);
     });
   }
 

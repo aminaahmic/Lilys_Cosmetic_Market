@@ -1,0 +1,50 @@
+<div class="delete-dialog">
+  <div class="icon-circle">
+    <mat-icon>delete_forever</mat-icon>
+  </div>
+
+  <h2>Potvrdi Brisanje</h2>
+
+  <p>
+    Da li ste sigurni da želite obrisati kategoriju
+    <strong>"{{ data.name }}"</strong>?
+  </p>
+
+  <p class="warning" *ngIf="hasSubcategories && hasProducts">
+    Ova kategorija ima {{ data.subcategoryCount }}
+    {{ data.subcategoryCount === 1 ? 'potkategoriju' : 'potkategorije' }}
+    i {{ data.productCount }}
+    {{ data.productCount === 1 ? 'proizvod' : 'proizvoda' }}
+    i ne može se obrisati.
+  </p>
+
+  <p class="warning" *ngIf="hasSubcategories && !hasProducts">
+    Ova kategorija ima {{ data.subcategoryCount }}
+    {{ data.subcategoryCount === 1 ? 'potkategoriju' : 'potkategorije' }}
+    i ne može se obrisati.
+  </p>
+
+  <p class="warning" *ngIf="!hasSubcategories && hasProducts">
+    Ova kategorija ima {{ data.productCount }}
+    {{ data.productCount === 1 ? 'proizvod' : 'proizvoda' }}
+    i ne može se obrisati.
+  </p>
+
+  <div class="actions">
+    <button mat-stroked-button type="button" (click)="cancel()">
+      <mat-icon>close</mat-icon>
+      OTKAŽI
+    </button>
+
+    <button
+      mat-raised-button
+      color="warn"
+      type="button"
+      [disabled]="cannotDelete"
+      (click)="confirm()"
+    >
+      <mat-icon>delete</mat-icon>
+      OBRIŠI
+    </button>
+  </div>
+</div>

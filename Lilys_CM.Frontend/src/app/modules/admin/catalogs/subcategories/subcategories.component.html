@@ -1,0 +1,110 @@
+<div class="container">
+  <div class="page-header">
+    <div class="header-left">
+      <h1>Potkategorije</h1>
+      <p>Upravljajte potkategorijama i njihovim statusom</p>
+    </div>
+
+    <button class="primary-btn" type="button" (click)="openCreateDialog()">
+      <mat-icon>add</mat-icon>
+      Nova potkategorija
+    </button>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <mat-icon>account_tree</mat-icon>
+      <div>
+        <div class="stat-number">{{ subcategories.length }}</div>
+        <div class="stat-label">Ukupno potkategorija</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <mat-icon>check_circle</mat-icon>
+      <div>
+        <div class="stat-number">{{ activeCount }}</div>
+        <div class="stat-label">Aktivne</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <mat-icon>cancel</mat-icon>
+      <div>
+        <div class="stat-number">{{ inactiveCount }}</div>
+        <div class="stat-label">Neaktivne</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="filters-bar">
+    <mat-form-field appearance="outline" class="filter-item">
+      <mat-label>Pretraži potkategorije</mat-label>
+      <input matInput [(ngModel)]="search" (keyup.enter)="applyFilters()" />
+      <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="filter-item">
+      <mat-label>Kategorija</mat-label>
+      <mat-select [(ngModel)]="selectedCategoryId" (selectionChange)="applyFilters()">
+        <mat-option [value]="null">Sve kategorije</mat-option>
+        <mat-option *ngFor="let c of categories" [value]="c.id">
+          {{ c.name }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="filter-item">
+      <mat-label>Status</mat-label>
+      <mat-select [(ngModel)]="selectedStatus" (selectionChange)="applyFilters()">
+        <mat-option [value]="null">Sve</mat-option>
+        <mat-option [value]="true">Aktivne</mat-option>
+        <mat-option [value]="false">Neaktivne</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <div class="categories-list" *ngIf="subcategories.length > 0">
+    <div class="category-card" *ngFor="let item of subcategories">
+      <div class="category-icon">
+        <mat-icon>sell</mat-icon>
+      </div>
+
+      <div class="category-info">
+        <div class="name">{{ item.name }}</div>
+
+        <div class="meta-row">
+          <span class="category-chip">
+            {{ item.categoryName }}
+          </span>
+
+          <span
+            class="status"
+            [class.active]="item.isEnabled"
+            [class.inactive]="!item.isEnabled"
+          >
+            {{ item.isEnabled ? 'Aktivna' : 'Neaktivna' }}
+          </span>
+
+          <span class="product-count">
+            {{ item.productCount }} {{ item.productCount === 1 ? 'proizvod' : 'proizvoda' }}
+          </span>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button mat-icon-button type="button" (click)="openEditDialog(item)">
+          <mat-icon>edit</mat-icon>
+        </button>
+
+        <button mat-icon-button color="warn" type="button" (click)="openDeleteDialog(item)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <p class="empty" *ngIf="!isLoading && subcategories.length === 0">
+    Nema potkategorija za prikaz.
+  </p>
+</div>
