@@ -7,9 +7,11 @@ import { ProductFormService } from '../services/product-form.service';
 import { BaseFormComponent } from '../../../../../core/components/base-classes/base-form-component';
 import {
   AdjustProductStockCommand,
+  CreateProductVariantCommand,
   GetProductByIdQueryDto,
   ListProductStockMovementsRequest,
   ProductStockMovementDto,
+  ProductVariantDto,
   UpdateProductCommand
 } from '../../../../../api-services/products/products-api.models';
 import { ProductsApiService } from '../../../../../api-services/products/products-api.service';
@@ -48,67 +50,111 @@ export class ProductsEditComponent
   images: any[] = [];
   selectedFile: File | null = null;
   subcategories: SubcategoryDto[] = [];
+  variants: ProductVariantDto[] = [];
 
+  variantName = '';
+  variantValue = '';
+  variantPrice: number | null = null;
+  variantStock: number | null = null;
+  isVariantBusy = false;
   private subApi = inject(SubcategoriesApiService);
   ngOnInit(): void {
     this.productId = +this.route.snapshot.params['id'];
     this.initForm(true);
     this.loadImages();
+    this.loadVariants();
   }
 
   protected loadData(): void {
-  this.startLoading();
+    this.startLoading();
 
-  const categoriesRequest = new ListProductCategoriesRequest();
-  categoriesRequest.onlyEnabled = true;
-  categoriesRequest.paging.pageSize = 100;
+    const categoriesRequest = new ListProductCategoriesRequest();
+    categoriesRequest.onlyEnabled = true;
+    categoriesRequest.paging.pageSize = 100;
 
-  const movementsRequest = new ListProductStockMovementsRequest();
-  movementsRequest.paging.pageSize = 8;
+    const movementsRequest = new ListProductStockMovementsRequest();
+    movementsRequest.paging.pageSize = 8;
 
-  forkJoin({
-    product: this.api.getById(this.productId),
-    categories: this.categoriesApi.list(categoriesRequest),
-    movements: this.api.getStockMovements(this.productId, movementsRequest)
-  }).subscribe({
-    next: ({ product, categories, movements }) => {
-      this.model = product;
-      this.categories = categories.items.filter(x => x.isEnabled);
-      this.stockMovements = movements.items;
-      this.form = this.formService.createProductForm(product);
+    forkJoin({
+      product: this.api.getById(this.productId),
+      categories: this.categoriesApi.list(categoriesRequest),
+      movements: this.api.getStockMovements(this.productId, movementsRequest)
+    }).subscribe({
+      next: ({ product, categories, movements }) => {
+        this.model = product;
+        this.categories = categories.items.filter(x => x.isEnabled);
+        this.stockMovements = movements.items;
+        this.form = this.formService.createProductForm(product);
 
-      if (product.categoryId) {
-        this.subApi.getByCategory(product.categoryId).subscribe((res: SubcategoryDto[]) => {
-          this.subcategories = res;
-        });
+        if (product.categoryId) {
+          this.subApi.getByCategory(product.categoryId).subscribe((res: SubcategoryDto[]) => {
+            this.subcategories = res;
+          });
+        }
+
+        this.stopLoading();
+      },
+      error: (err) => {
+        this.stopLoading('Failed to load product');
+        this.toaster.error('Product not found');
+        console.error('Load product error:', err);
+        this.router.navigate(['/admin/products']);
       }
+    });
+  }
 
-      this.stopLoading();
-    },
-    error: (err) => {
-      this.stopLoading('Failed to load product');
-      this.toaster.error('Product not found');
-      console.error('Load product error:', err);
-      this.router.navigate(['/admin/products']);
-    }
-  });
-}
-
-  protected save(): void {
+  protected override save(): void {
     if (this.form.invalid || this.isLoading) {
+      this.form.markAllAsTouched();
       return;
     }
 
     this.startLoading();
 
+    const value = this.form.getRawValue();
+
+    const price = Number(value.price);
+    const compareAtPrice = value.compareAtPrice
+      ? Number(value.compareAtPrice)
+      : null;
+
+    if (compareAtPrice !== null && compareAtPrice < price) {
+      this.stopLoading();
+      this.toaster.warning('Stara cijena mora biti veća ili jednaka trenutnoj cijeni.');
+      return;
+    }
+
     const command: UpdateProductCommand = {
-      name: this.form.value.name,
-      description: this.form.value.description,
-      brand: this.form.value.brand,
-      subcategoryId: this.form.value.subcategoryId,
-      price: this.form.value.price,
-      isEnabled: this.form.value.isEnabled,
-      categoryId: this.form.value.categoryId
+      name: value.name,
+      sku: value.sku,
+
+      slug: value.slug || null,
+      imageUrl: value.imageUrl || null,
+
+      shortDescription: value.shortDescription || null,
+      description: value.description || null,
+      ingredients: value.ingredients || null,
+      howToUse: value.howToUse || null,
+      benefits: value.benefits || null,
+
+      brand: value.brand || null,
+      size: value.size || null,
+      countryOfOrigin: value.countryOfOrigin || null,
+      barcode: value.barcode || null,
+
+      price,
+      compareAtPrice,
+
+      stockQuantity: Number(value.stockQuantity ?? 0),
+
+      isEnabled: Boolean(value.isEnabled),
+      isFeatured: Boolean(value.isFeatured),
+
+      seoTitle: value.seoTitle || null,
+      seoDescription: value.seoDescription || null,
+
+      categoryId: Number(value.categoryId),
+      subcategoryId: value.subcategoryId ? Number(value.subcategoryId) : null
     };
 
     this.api.update(this.productId, command).subscribe({
@@ -119,6 +165,7 @@ export class ProductsEditComponent
       },
       error: (err) => {
         this.stopLoading('Failed to update product');
+        this.toaster.error('Failed to update product');
         console.error('Update product error:', err);
       }
     });
@@ -163,6 +210,11 @@ export class ProductsEditComponent
       next: ({ product, movements }) => {
         this.model = product;
         this.stockMovements = movements.items;
+
+        this.form.patchValue({
+          stockQuantity: product.stockQuantity
+        });
+
         this.isStockBusy = false;
       },
       error: (err) => {
@@ -189,6 +241,130 @@ export class ProductsEditComponent
 
   isPricingStepValid(): boolean {
     return !!this.form.get('price')?.valid && !!this.form.get('categoryId')?.valid;
+  }
+  loadVariants(): void {
+    if (!this.productId) {
+      return;
+    }
+
+    this.api.getVariants(this.productId).subscribe({
+      next: (response) => {
+        this.variants = response;
+      },
+      error: (err) => {
+        this.toaster.error('Greška prilikom učitavanja varijanti.');
+        console.error('Load variants error:', err);
+      }
+    });
+  }
+  addVariant(): void {
+    if (this.isVariantBusy) {
+      return;
+    }
+
+    const optionName = this.variantName.trim();
+    const optionValue = this.variantValue.trim();
+
+    const productPrice = Number(this.form.get('price')?.value ?? 0);
+    const productStock = Number(this.form.get('stockQuantity')?.value ?? 0);
+
+    const price = this.variantPrice !== null
+      ? Number(this.variantPrice)
+      : productPrice;
+
+    const stock = this.variantStock !== null
+      ? Number(this.variantStock)
+      : productStock;
+
+    if (Number.isNaN(price) || Number.isNaN(stock)) {
+      this.toaster.warning('Cijena i stanje varijante moraju biti validni brojevi.');
+      return;
+    }
+
+    if (!optionName || !optionValue) {
+      this.toaster.warning('Unesite naziv opcije i vrijednost opcije.');
+      return;
+    }
+
+    if (price < 0) {
+      this.toaster.warning('Cijena varijante ne može biti negativna.');
+      return;
+    }
+
+    if (stock < 0) {
+      this.toaster.warning('Stanje varijante ne može biti negativno.');
+      return;
+    }
+
+    const alreadyExists = this.variants.some(variant =>
+      variant.options.some(option =>
+        option.optionName.toLowerCase() === optionName.toLowerCase() &&
+        option.value.toLowerCase() === optionValue.toLowerCase()
+      )
+    );
+
+    if (alreadyExists) {
+      this.toaster.warning('Ova varijanta već postoji.');
+      return;
+    }
+
+    const command: CreateProductVariantCommand = {
+      price,
+      stock,
+      options: [
+        {
+          optionName,
+          value: optionValue
+        }
+      ]
+    };
+
+    this.isVariantBusy = true;
+
+    this.api.createVariant(this.productId, command).subscribe({
+      next: () => {
+        this.toaster.success('Varijanta je uspješno dodana.');
+        this.variantName = '';
+        this.variantValue = '';
+        this.variantPrice = null;
+        this.variantStock = null;
+        this.isVariantBusy = false;
+        this.loadVariants();
+      },
+      error: (err) => {
+        this.isVariantBusy = false;
+        this.toaster.error('Greška prilikom dodavanja varijante.');
+        console.error('Create variant error:', err);
+      }
+    });
+  }
+
+
+  deleteVariant(variantId: number): void {
+    if (!this.productId || this.isVariantBusy) {
+      return;
+    }
+
+    const confirmed = confirm('Da li ste sigurni da želite obrisati ovu varijantu?');
+
+    if (!confirmed) {
+      return;
+    }
+
+    this.isVariantBusy = true;
+
+    this.api.deleteVariant(this.productId, variantId).subscribe({
+      next: () => {
+        this.toaster.success('Varijanta je obrisana.');
+        this.isVariantBusy = false;
+        this.loadVariants();
+      },
+      error: (err) => {
+        this.isVariantBusy = false;
+        this.toaster.error('Greška prilikom brisanja varijante.');
+        console.error('Delete variant error:', err);
+      }
+    });
   }
   loadImages(): void {
     if (!this.productId) return;

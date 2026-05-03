@@ -1,4 +1,5 @@
 ﻿using Lilys_CM.Application.Abstractions;
+using Lilys_CM.Domain.Catalog;
 using Lilys_CM.Domain.Entities;
 using Lilys_CM.Domain.Entities.Catalog;
 using Lilys_CM.Domain.Entities.Identity;
@@ -20,7 +21,7 @@ namespace Lilys_CM.Infrastructure.Database
     {
         private readonly TimeProvider _timeProvider;
 
-        // ✅ Jedini konstruktor (koristi TimeProvider iz DI)
+
         public DatabaseContext(DbContextOptions<DatabaseContext> options, TimeProvider timeProvider)
             : base(options)
         {
@@ -33,9 +34,9 @@ namespace Lilys_CM.Infrastructure.Database
         public DbSet<SubcategoryEntity> Subcategories => Set<SubcategoryEntity>();
         public DbSet<ProductVariantEntity> ProductVariants => Set<ProductVariantEntity>();
         public DbSet<VariantOptionEntity> VariantOptionEntities => Set<VariantOptionEntity>();
+        public DbSet<OptionEntity> Options => Set<OptionEntity>();
         public DbSet<ProductImageEntity> ProductImages => Set<ProductImageEntity>();
-        public DbSet<OptionValueEntity> OptionValueEntities => Set<OptionValueEntity>();
-        public DbSet<ProductStockMovementEntity> ProductStockMovements => Set<ProductStockMovementEntity>();
+        public DbSet<OptionValueEntity> OptionValueEntities => Set<OptionValueEntity>(); public DbSet<ProductStockMovementEntity> ProductStockMovements => Set<ProductStockMovementEntity>();
         public DbSet<UserEntity> Users => Set<UserEntity>();
         public DbSet<RoleEntity> Roles => Set<RoleEntity>();
         public DbSet<AddressEntity> Addresses => Set<AddressEntity>();

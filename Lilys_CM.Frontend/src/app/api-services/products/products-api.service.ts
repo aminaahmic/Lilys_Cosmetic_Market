@@ -11,8 +11,11 @@ import {
   AdjustProductStockCommand,
   ListProductStockMovementsResponse,
   ListProductStockMovementsRequest,
-  ProductFilterOptionsDto
+  ProductFilterOptionsDto,
+  CreateProductVariantCommand,
+  ProductVariantDto
 } from './products-api.models';
+
 import { buildHttpParams } from '../../core/models/build-http-params';
 
 @Injectable({
@@ -29,7 +32,24 @@ export class ProductsApiService {
       params,
     });
   }
+  getVariants(productId: number) {
+    return this.http.get<ProductVariantDto[]>(
+      `${environment.apiUrl}/api/products/${productId}/variants`
+    );
+  }
 
+  createVariant(productId: number, command: CreateProductVariantCommand) {
+    return this.http.post<number>(
+      `${environment.apiUrl}/api/products/${productId}/variants`,
+      command
+    );
+  }
+
+  deleteVariant(productId: number, variantId: number) {
+    return this.http.delete<void>(
+      `${environment.apiUrl}/api/products/${productId}/variants/${variantId}`
+    );
+  }
   getById(id: number): Observable<GetProductByIdQueryDto> {
     return this.http.get<GetProductByIdQueryDto>(`${this.baseUrl}/${id}`);
   }
@@ -49,23 +69,24 @@ export class ProductsApiService {
   adjustStock(id: number, payload: AdjustProductStockCommand): Observable<void> {
     return this.http.put<void>(`${this.baseUrl}/${id}/stock/adjust`, payload);
   }
+
   uploadImage(productId: number, file: File) {
     const formData = new FormData();
     formData.append('file', file);
 
-    return this.http.post<any>(`/api/products/${productId}/images`, formData);
+    return this.http.post<any>(`${environment.apiUrl}/api/products/${productId}/images`, formData);
   }
 
   getImages(productId: number) {
-    return this.http.get<any[]>(`/api/products/${productId}/images`);
+    return this.http.get<any[]>(`${environment.apiUrl}/api/products/${productId}/images`);
   }
 
   setMainImage(productId: number, imageId: number) {
-    return this.http.put(`/api/products/${productId}/images/${imageId}/main`, {});
+    return this.http.put(`${environment.apiUrl}/api/products/${productId}/images/${imageId}/main`, {});
   }
 
   deleteImage(productId: number, imageId: number) {
-    return this.http.delete(`/api/products/${productId}/images/${imageId}`);
+    return this.http.delete(`${environment.apiUrl}/api/products/${productId}/images/${imageId}`);
   }
 
   getStockMovements(

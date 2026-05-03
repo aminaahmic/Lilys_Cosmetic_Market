@@ -40,15 +40,37 @@ export interface ListProductsQueryDto {
  */
 export interface GetProductByIdQueryDto {
   id: number;
+
   name: string;
+  sku?: string | null;
+  slug?: string | null;
+
+  imageUrl?: string | null;
+
+  shortDescription?: string | null;
   description?: string | null;
+  ingredients?: string | null;
+  howToUse?: string | null;
+  benefits?: string | null;
+
   brand?: string | null;
+  size?: string | null;
+  countryOfOrigin?: string | null;
+  barcode?: string | null;
+
   subcategory?: string | null;
+  subcategoryId?: number | null;
+
   price: number;
+  compareAtPrice?: number | null;
+
   stockQuantity: number;
+
   categoryName: string;
   categoryId: number;
+
   isEnabled: boolean;
+  isFeatured?: boolean;
 }
 
 /**
@@ -56,7 +78,7 @@ export interface GetProductByIdQueryDto {
  */
 export type ListProductsResponse = PageResult<ListProductsQueryDto>;
 
-export class ListProductStockMovementsRequest extends BasePagedQuery {}
+export class ListProductStockMovementsRequest extends BasePagedQuery { }
 
 export interface ProductFilterOptionsDto {
   brands: string[];
@@ -71,12 +93,34 @@ export interface ProductFilterOptionsDto {
  */
 export interface CreateProductCommand {
   name: string;
+  sku: string;
+  slug?: string | null;
+
+  imageUrl?: string | null;
+  shortDescription?: string | null;
   description?: string | null;
+  ingredients?: string | null;
+  howToUse?: string | null;
+  benefits?: string | null;
+
   brand?: string | null;
-  subcategory?: string | null;
+  size?: string | null;
+  countryOfOrigin?: string | null;
+  barcode?: string | null;
+
   price: number;
+  compareAtPrice?: number | null;
+
+  stockQuantity: number;
+
   isEnabled: boolean;
+  isFeatured: boolean;
+
+  seoTitle?: string | null;
+  seoDescription?: string | null;
+
   categoryId: number;
+  subcategoryId?: number | null;
 }
 
 /**
@@ -85,11 +129,33 @@ export interface CreateProductCommand {
  */
 export interface UpdateProductCommand {
   name: string;
+  sku: string;
+  slug?: string | null;
+
+  imageUrl?: string | null;
+
+  shortDescription?: string | null;
   description?: string | null;
+  ingredients?: string | null;
+  howToUse?: string | null;
+  benefits?: string | null;
+
   brand?: string | null;
-  subcategory?: string | null;
+  size?: string | null;
+  countryOfOrigin?: string | null;
+  barcode?: string | null;
+
   price: number;
+  compareAtPrice?: number | null;
+
+  stockQuantity: number;
+
   isEnabled: boolean;
+  isFeatured: boolean;
+
+  seoTitle?: string | null;
+  seoDescription?: string | null;
+
   categoryId: number;
   subcategoryId?: number | null;
 }
@@ -109,5 +175,29 @@ export interface ProductStockMovementDto {
   note?: string | null;
   createdAtUtc: string;
 }
+export interface CreateProductVariantCommand {
+  price: number;
+  stock: number;
+  options: CreateProductVariantOptionCommand[];
+}
 
+export interface CreateProductVariantOptionCommand {
+  optionName: string;
+  value: string;
+}
+
+export interface ProductVariantDto {
+  id: number;
+  productId: number;
+  price: number;
+  stock: number;
+  options: ProductVariantOptionDto[];
+}
+
+export interface ProductVariantOptionDto {
+  optionId: number;
+  optionName: string;
+  optionValueId: number;
+  value: string;
+}
 export type ListProductStockMovementsResponse = PageResult<ProductStockMovementDto>;

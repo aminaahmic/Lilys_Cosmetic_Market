@@ -1,21 +1,32 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { of, switchMap } from 'rxjs';
+import { forkJoin } from 'rxjs';
+
 import { ProductFormService } from '../services/product-form.service';
 import {
-  AdjustProductStockCommand,
   CreateProductCommand,
+  CreateProductVariantCommand,
   GetProductByIdQueryDto
 } from '../../../../../api-services/products/products-api.models';
+
 import { BaseFormComponent } from '../../../../../core/components/base-classes/base-form-component';
 import { ProductsApiService } from '../../../../../api-services/products/products-api.service';
 import { ProductCategoriesApiService } from '../../../../../api-services/product-categories/product-categories-api.service';
 import { ToasterService } from '../../../../../core/services/toaster.service';
+
 import {
   ListProductCategoriesQueryDto,
   ListProductCategoriesRequest
 } from '../../../../../api-services/product-categories/product-categories-api.model';
+
 import { SubcategoriesApiService } from '../../../../../api-services/subcategories/subcategories-api.service';
+
+type ProductVariantDraft = {
+  optionName: string;
+  optionValue: string;
+  price: number;
+  stock: number;
+};
 
 @Component({
   selector: 'app-products-add',
@@ -30,29 +41,39 @@ export class ProductsAddComponent
 
   private api = inject(ProductsApiService);
   private categoriesApi = inject(ProductCategoriesApiService);
-  subcategories: any[] = [];
-
   private subApi = inject(SubcategoriesApiService);
   private formService = inject(ProductFormService);
   private router = inject(Router);
   private toaster = inject(ToasterService);
 
   categories: ListProductCategoriesQueryDto[] = [];
-  initialStock = 0;
-  initialStockReason = 'Initial stock load';
+  subcategories: any[] = [];
+
+  selectedImages: File[] = [];
+
+  protected variantName = '';
+  protected variantValue = '';
+  protected variantPrice: number | null = null;
+  protected variantStock: number | null = null;
+
+  protected variants: ProductVariantDraft[] = [];
 
   ngOnInit(): void {
     this.initForm(false);
     this.loadCategories();
-    this.form.get('categoryId')?.valueChanges.subscribe(val => {
-      if (val) {
-        this.onCategoryChanged(val);
+
+    this.form.get('categoryId')?.valueChanges.subscribe(categoryId => {
+      if (categoryId) {
+        this.onCategoryChanged(Number(categoryId));
+      } else {
+        this.subcategories = [];
+        this.form.get('subcategoryId')?.setValue(null);
       }
     });
   }
 
   protected loadData(): void {
-    // not used in add mode
+    // Nije potrebno u add mode-u.
   }
 
   protected override initForm(isEdit: boolean): void {
@@ -60,50 +81,194 @@ export class ProductsAddComponent
     this.form = this.formService.createProductForm();
   }
 
-  protected save(): void {
+  override save(): void {
+    this.onSubmit();
+  }
+
+  override onSubmit(): void {
     if (this.form.invalid || this.isLoading) {
+      this.form.markAllAsTouched();
+      this.toaster.warning('Popunite obavezna polja prije kreiranja proizvoda.');
       return;
     }
 
     this.startLoading();
 
+    const value = this.form.getRawValue();
+
     const command: CreateProductCommand = {
-      name: this.form.value.name,
-      description: this.form.value.description,
-      brand: this.form.value.brand,
-      subcategory: this.form.value.subcategory,
-      price: this.form.value.price,
-      isEnabled: this.form.value.isEnabled,
-      categoryId: this.form.value.categoryId
+      name: value.name,
+      sku: value.sku,
+      slug: value.slug || null,
+
+      shortDescription: value.shortDescription || null,
+      description: value.description || null,
+      ingredients: value.ingredients || null,
+      howToUse: value.howToUse || null,
+      benefits: value.benefits || null,
+
+      brand: value.brand || null,
+      size: value.size || null,
+      countryOfOrigin: value.countryOfOrigin || null,
+      barcode: value.barcode || null,
+
+      price: Number(value.price),
+      compareAtPrice: value.compareAtPrice ? Number(value.compareAtPrice) : null,
+
+      stockQuantity: Number(value.stockQuantity ?? 0),
+
+      isEnabled: Boolean(value.isEnabled),
+      isFeatured: Boolean(value.isFeatured),
+
+      seoTitle: value.seoTitle || null,
+      seoDescription: value.seoDescription || null,
+
+      categoryId: Number(value.categoryId),
+      subcategoryId: value.subcategoryId ? Number(value.subcategoryId) : null
     };
 
-    this.api.create(command)
-      .pipe(
-        switchMap((productId) => {
-          if (this.initialStock <= 0) {
-            return of(null);
+    this.api.create(command).subscribe({
+      next: (productId) => {
+        this.createVariantsAfterCreate(productId);
+      },
+      error: (err) => {
+        this.stopLoading('Greška prilikom kreiranja proizvoda.');
+        this.toaster.error('Greška prilikom kreiranja proizvoda.');
+        console.error('Create product error:', err);
+      }
+    });
+  }
+
+  protected onImagesSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+
+    if (!input.files || input.files.length === 0) {
+      return;
+    }
+
+    this.selectedImages = Array.from(input.files);
+  }
+
+  protected addVariant(): void {
+    const optionName = this.variantName.trim();
+    const optionValue = this.variantValue.trim();
+
+    const defaultPrice = Number(this.form.get('price')?.value ?? 0);
+    const defaultStock = Number(this.form.get('stockQuantity')?.value ?? 0);
+
+    const price = this.variantPrice !== null
+      ? Number(this.variantPrice)
+      : defaultPrice;
+
+    const stock = this.variantStock !== null
+      ? Number(this.variantStock)
+      : defaultStock;
+
+    if (!optionName || !optionValue) {
+      this.toaster.warning('Unesite naziv opcije i vrijednost opcije.');
+      return;
+    }
+
+    if (price < 0) {
+      this.toaster.warning('Cijena varijante ne može biti negativna.');
+      return;
+    }
+
+    if (stock < 0) {
+      this.toaster.warning('Stanje varijante ne može biti negativno.');
+      return;
+    }
+
+    const alreadyExists = this.variants.some(variant =>
+      variant.optionName.toLowerCase() === optionName.toLowerCase() &&
+      variant.optionValue.toLowerCase() === optionValue.toLowerCase()
+    );
+
+    if (alreadyExists) {
+      this.toaster.warning('Ova varijanta je već dodana.');
+      return;
+    }
+
+    this.variants = [
+      ...this.variants,
+      {
+        optionName,
+        optionValue,
+        price,
+        stock
+      }
+    ];
+
+    this.variantName = '';
+    this.variantValue = '';
+    this.variantPrice = null;
+    this.variantStock = null;
+  }
+
+  protected removeVariant(index: number): void {
+    this.variants = this.variants.filter((_, i) => i !== index);
+  }
+
+  private createVariantsAfterCreate(productId: number): void {
+    if (this.variants.length === 0) {
+      this.uploadImagesAfterCreate(productId);
+      return;
+    }
+
+    const requests = this.variants.map(variant => {
+      const command: CreateProductVariantCommand = {
+        price: Number(variant.price),
+        stock: Number(variant.stock),
+        options: [
+          {
+            optionName: variant.optionName,
+            value: variant.optionValue
           }
+        ]
+      };
 
-          const stockPayload: AdjustProductStockCommand = {
-            quantityDelta: this.initialStock,
-            reason: this.initialStockReason.trim() || 'Initial stock load',
-            note: 'Set during product creation'
-          };
+      return this.api.createVariant(productId, command);
+    });
 
-          return this.api.adjustStock(productId, stockPayload);
-        })
-      )
-      .subscribe({
-        next: () => {
-          this.stopLoading();
-          this.toaster.success('Product created successfully');
-          this.router.navigate(['/admin/products']);
-        },
-        error: (err) => {
-          this.stopLoading('Failed to create product');
-          console.error('Create product error:', err);
-        }
-      });
+    forkJoin(requests).subscribe({
+      next: () => {
+        this.uploadImagesAfterCreate(productId);
+      },
+      error: (err) => {
+        this.stopLoading('Proizvod je kreiran, ali varijante nisu spašene.');
+        this.toaster.error('Proizvod je kreiran, ali varijante nisu spašene.');
+        console.error('Create variants error:', err);
+      }
+    });
+  }
+
+  private uploadImagesAfterCreate(productId: number): void {
+    if (this.selectedImages.length === 0) {
+      this.finishCreate();
+      return;
+    }
+
+    const uploads = this.selectedImages.map(file =>
+      this.api.uploadImage(productId, file)
+    );
+
+    forkJoin(uploads).subscribe({
+      next: () => {
+        this.finishCreate();
+      },
+      error: (err) => {
+        this.stopLoading();
+        this.toaster.warning('Proizvod je kreiran, ali neke slike nisu uploadovane.');
+        console.error('Upload images error:', err);
+        this.router.navigate(['/admin/products']);
+      }
+    });
+  }
+
+  private finishCreate(): void {
+    this.stopLoading();
+    this.toaster.success('Proizvod, varijante i slike su uspješno obrađeni.');
+    this.router.navigate(['/admin/products']);
   }
 
   private loadCategories(): void {
@@ -116,32 +281,45 @@ export class ProductsAddComponent
         this.categories = response.items.filter(x => x.isEnabled);
       },
       error: (err) => {
-        this.toaster.error('Failed to load categories');
+        this.toaster.error('Greška prilikom učitavanja kategorija.');
         console.error('Load categories error:', err);
       }
     });
   }
-  onCategoryChanged(categoryId: number) {
-    this.subApi.getByCategory(categoryId).subscribe(res => {
-      this.subcategories = res;
+
+  protected onCategoryChanged(categoryId: number): void {
+    this.subApi.getByCategory(categoryId).subscribe({
+      next: (response) => {
+        this.subcategories = response;
+        this.form.get('subcategoryId')?.setValue(null);
+      },
+      error: (err) => {
+        this.subcategories = [];
+        this.toaster.error('Greška prilikom učitavanja potkategorija.');
+        console.error('Load subcategories error:', err);
+      }
     });
   }
 
-  onCancel(): void {
+  protected onCancel(): void {
     this.router.navigate(['/admin/products']);
   }
 
-  getErrorMessage(controlName: string): string {
+  protected getErrorMessage(controlName: string): string {
     return this.formService.getErrorMessage(this.form, controlName);
   }
 
-  isBasicStepValid(): boolean {
-    return !this.form.get('name')?.invalid &&
-      !this.form.get('brand')?.invalid &&
-      !this.form.get('description')?.invalid;
+  protected isBasicStepValid(): boolean {
+    return !!this.form.get('name')?.valid &&
+      !!this.form.get('sku')?.valid &&
+      !!this.form.get('brand')?.valid &&
+      !!this.form.get('shortDescription')?.valid &&
+      !!this.form.get('description')?.valid;
   }
 
-  isPricingStepValid(): boolean {
-    return !!this.form.get('price')?.valid && !!this.form.get('categoryId')?.valid;
+  protected isPricingStepValid(): boolean {
+    return !!this.form.get('categoryId')?.valid &&
+      !!this.form.get('price')?.valid &&
+      !!this.form.get('stockQuantity')?.valid;
   }
 }

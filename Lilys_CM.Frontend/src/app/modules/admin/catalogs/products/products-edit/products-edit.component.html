@@ -3,168 +3,602 @@
     <div>
       <p class="kicker">Catalog</p>
       <h1>Uredi proizvod</h1>
-      <p class="subtitle">Ažuriraj detalje i upravljaj zalihom s jednog mjesta.</p>
+      <p class="subtitle">
+        Ažuriraj podatke, slike, varijante i zalihe proizvoda na jednom mjestu.
+      </p>
     </div>
+
     <button type="button" mat-stroked-button (click)="onCancel()">
       <mat-icon>arrow_back</mat-icon>
-      Natrag na proizvode
+      Nazad na proizvode
     </button>
   </header>
 
-  <div class="layout-grid" *ngIf="form; else loadingState">
-    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="editor-card">
-      <mat-stepper [linear]="false" class="beauty-stepper">
-        <mat-step label="Basics">
+  <form
+    *ngIf="form; else loadingState"
+    [formGroup]="form"
+    (ngSubmit)="onSubmit()"
+    class="editor-card"
+  >
+    <mat-stepper [linear]="false" class="beauty-stepper">
+
+      <!-- STEP 1: OSNOVNO -->
+      <mat-step>
+        <ng-template matStepLabel>Osnovno</ng-template>
+
+        <div class="step-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>Naziv proizvoda</mat-label>
+            <input matInput formControlName="name" placeholder="Hydrating Face Cream" />
+            <mat-error *ngIf="hasError('name')">
+              {{ getErrorMessage('name') }}
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>SKU</mat-label>
+            <input matInput formControlName="sku" placeholder="LILY-FACE-001" />
+            <mat-error *ngIf="hasError('sku')">
+              {{ getErrorMessage('sku') }}
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Brend</mat-label>
+            <input matInput formControlName="brand" placeholder="Lily Glow" />
+            <mat-error *ngIf="hasError('brand')">
+              {{ getErrorMessage('brand') }}
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Kratki opis</mat-label>
+            <input
+              matInput
+              formControlName="shortDescription"
+              placeholder="Kratki opis za karticu proizvoda"
+            />
+            <mat-error *ngIf="hasError('shortDescription')">
+              {{ getErrorMessage('shortDescription') }}
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="wide">
+            <mat-label>Opis proizvoda</mat-label>
+            <textarea
+              matInput
+              rows="4"
+              formControlName="description"
+              placeholder="Detaljan opis proizvoda"
+            ></textarea>
+            <mat-error *ngIf="hasError('description')">
+              {{ getErrorMessage('description') }}
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="step-actions">
+          <button type="button" mat-stroked-button (click)="onCancel()">
+            Odustani
+          </button>
+
+          <button type="button" mat-raised-button color="primary" matStepperNext>
+            Nastavi
+          </button>
+        </div>
+      </mat-step>
+
+      <!-- STEP 2: KATALOG I CIJENA -->
+      <mat-step>
+        <ng-template matStepLabel>Katalog i cijena</ng-template>
+
+        <div class="step-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>Kategorija</mat-label>
+            <mat-select formControlName="categoryId" (selectionChange)="onCategoryChanged($event.value)">
+              <mat-option *ngFor="let category of categories" [value]="category.id">
+                {{ category.name }}
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="hasError('categoryId')">
+              {{ getErrorMessage('categoryId') }}
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Potkategorija</mat-label>
+            <mat-select formControlName="subcategoryId">
+              <mat-option [value]="null">Bez potkategorije</mat-option>
+
+              <mat-option *ngFor="let sub of subcategories" [value]="sub.id">
+                {{ sub.name }}
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="hasError('subcategoryId')">
+              {{ getErrorMessage('subcategoryId') }}
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Cijena</mat-label>
+            <input matInput type="number" step="0.01" formControlName="price" />
+            <span matTextPrefix>KM&nbsp;</span>
+            <mat-error *ngIf="hasError('price')">
+              {{ getErrorMessage('price') }}
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Stara cijena</mat-label>
+            <input matInput type="number" step="0.01" formControlName="compareAtPrice" />
+            <span matTextPrefix>KM&nbsp;</span>
+            <mat-hint>Unosi se samo ako je proizvod na popustu.</mat-hint>
+            <mat-error *ngIf="hasError('compareAtPrice')">
+              {{ getErrorMessage('compareAtPrice') }}
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Ukupna količina</mat-label>
+            <input matInput type="number" formControlName="stockQuantity" />
+            <mat-error *ngIf="hasError('stockQuantity')">
+              {{ getErrorMessage('stockQuantity') }}
+            </mat-error>
+          </mat-form-field>
+
+          <div class="toggle-wrap">
+            <mat-slide-toggle formControlName="isEnabled" color="primary">
+              Proizvod je aktivan
+            </mat-slide-toggle>
+
+            <mat-slide-toggle formControlName="isFeatured" color="primary">
+              Istaknuti proizvod
+            </mat-slide-toggle>
+          </div>
+        </div>
+
+        <div class="step-actions">
+          <button type="button" mat-stroked-button matStepperPrevious>
+            Nazad
+          </button>
+
+          <button type="button" mat-raised-button color="primary" matStepperNext>
+            Nastavi
+          </button>
+        </div>
+      </mat-step>
+
+      <!-- STEP 3: DETALJI -->
+      <mat-step>
+        <ng-template matStepLabel>Detalji</ng-template>
+
+        <div class="step-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>Veličina / volumen</mat-label>
+            <input matInput formControlName="size" placeholder="50 ml" />
+            <mat-error *ngIf="hasError('size')">
+              {{ getErrorMessage('size') }}
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Zemlja porijekla</mat-label>
+            <input matInput formControlName="countryOfOrigin" placeholder="Bosna i Hercegovina" />
+            <mat-error *ngIf="hasError('countryOfOrigin')">
+              {{ getErrorMessage('countryOfOrigin') }}
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Barkod</mat-label>
+            <input matInput formControlName="barcode" placeholder="3870000000000" />
+            <mat-error *ngIf="hasError('barcode')">
+              {{ getErrorMessage('barcode') }}
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="wide">
+            <mat-label>Sastojci</mat-label>
+            <textarea
+              matInput
+              rows="3"
+              formControlName="ingredients"
+              placeholder="Aqua, glycerin, niacinamide..."
+            ></textarea>
+            <mat-error *ngIf="hasError('ingredients')">
+              {{ getErrorMessage('ingredients') }}
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="wide">
+            <mat-label>Način upotrebe</mat-label>
+            <textarea
+              matInput
+              rows="3"
+              formControlName="howToUse"
+              placeholder="Nanesite malu količinu na čistu kožu..."
+            ></textarea>
+            <mat-error *ngIf="hasError('howToUse')">
+              {{ getErrorMessage('howToUse') }}
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="wide">
+            <mat-label>Benefiti</mat-label>
+            <textarea
+              matInput
+              rows="3"
+              formControlName="benefits"
+              placeholder="Hidratizira, omekšava i štiti kožu..."
+            ></textarea>
+            <mat-error *ngIf="hasError('benefits')">
+              {{ getErrorMessage('benefits') }}
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="step-actions">
+          <button type="button" mat-stroked-button matStepperPrevious>
+            Nazad
+          </button>
+
+          <button type="button" mat-raised-button color="primary" matStepperNext>
+            Nastavi
+          </button>
+        </div>
+      </mat-step>
+
+      <!-- STEP 4: SLIKE -->
+      <mat-step>
+        <ng-template matStepLabel>Slike</ng-template>
+
+        <div class="media-panel">
+          <div class="media-upload-card">
+            <div class="media-icon">
+              <mat-icon>cloud_upload</mat-icon>
+            </div>
+
+            <div class="media-copy">
+              <h3>Dodaj novu sliku proizvoda</h3>
+              <p>
+                Odaberite sliku i kliknite upload. Slike možete označiti kao glavne ili obrisati.
+              </p>
+            </div>
+
+            <input type="file" accept="image/png,image/jpeg,image/webp" (change)="onFileSelected($event)" />
+
+            <button
+              type="button"
+              mat-raised-button
+              color="primary"
+              (click)="uploadImage()"
+              [disabled]="!selectedFile"
+            >
+              <mat-icon>upload</mat-icon>
+              Upload slike
+            </button>
+          </div>
+
+          <div class="image-empty" *ngIf="images.length === 0">
+            <mat-icon>image_not_supported</mat-icon>
+            <h4>Nema dodanih slika</h4>
+            <p>Dodajte barem jednu sliku kako bi proizvod izgledao kompletno u katalogu.</p>
+          </div>
+
+          <div class="image-grid" *ngIf="images.length > 0">
+            <div *ngFor="let img of images" class="image-card">
+              <img [src]="img.imageUrl" alt="Slika proizvoda" />
+
+              <div class="main-badge" *ngIf="img.isMain">
+                Glavna
+              </div>
+
+              <div class="image-actions">
+                <button type="button" mat-stroked-button (click)="setMain(img.id)">
+                  <mat-icon>star</mat-icon>
+                  Glavna
+                </button>
+
+                <button type="button" mat-stroked-button color="warn" (click)="deleteImage(img.id)">
+                  <mat-icon>delete</mat-icon>
+                  Obriši
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step-actions">
+          <button type="button" mat-stroked-button matStepperPrevious>
+            Nazad
+          </button>
+
+          <button type="button" mat-raised-button color="primary" matStepperNext>
+            Nastavi
+          </button>
+        </div>
+      </mat-step>
+
+      <!-- STEP 5: VARIJANTE -->
+      <mat-step>
+        <ng-template matStepLabel>Varijante</ng-template>
+
+        <div class="variant-intro">
+          <div>
+            <h3>Varijante proizvoda</h3>
+            <p>
+              Upravljajte varijantama kao što su nijansa, veličina, volumen ili miris.
+              Svaka varijanta ima svoju cijenu i stanje.
+            </p>
+          </div>
+
+          <mat-icon>tune</mat-icon>
+        </div>
+
+        <div class="step-grid variant-form">
+          <mat-form-field appearance="outline">
+            <mat-label>Naziv opcije</mat-label>
+            <input
+              matInput
+              [(ngModel)]="variantName"
+              [ngModelOptions]="{ standalone: true }"
+              placeholder="Nijansa / Veličina / Volumen"
+            />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Vrijednost opcije</mat-label>
+            <input
+              matInput
+              [(ngModel)]="variantValue"
+              [ngModelOptions]="{ standalone: true }"
+              placeholder="Light / 50 ml / Vanilla"
+            />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Cijena varijante</mat-label>
+            <input
+              matInput
+              type="number"
+              step="0.01"
+              [(ngModel)]="variantPrice"
+              [ngModelOptions]="{ standalone: true }"
+              placeholder="Ako je prazno, koristi se cijena proizvoda"
+            />
+            <span matTextPrefix>KM&nbsp;</span>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Stanje varijante</mat-label>
+            <input
+              matInput
+              type="number"
+              [(ngModel)]="variantStock"
+              [ngModelOptions]="{ standalone: true }"
+              placeholder="Ako je prazno, koristi se stanje proizvoda"
+            />
+          </mat-form-field>
+
+          <div class="variant-add-action">
+            <button
+              type="button"
+              mat-raised-button
+              color="primary"
+              (click)="addVariant()"
+              [disabled]="isVariantBusy"
+            >
+              <mat-icon>add</mat-icon>
+              Dodaj varijantu
+            </button>
+          </div>
+        </div>
+
+        <div class="variant-empty" *ngIf="variants.length === 0">
+          <mat-icon>inventory_2</mat-icon>
+          <h4>Nema varijanti</h4>
+          <p>
+            Ako proizvod nema različite verzije, ovaj dio možete ostaviti prazan.
+          </p>
+        </div>
+
+        <div class="variant-list" *ngIf="variants.length > 0">
+          <div class="variant-list-header">
+            <h4>Postojeće varijante</h4>
+            <span>{{ variants.length }} ukupno</span>
+          </div>
+
+          <div class="variant-chip" *ngFor="let variant of variants">
+            <div>
+              <strong>
+                <ng-container *ngFor="let option of variant.options; let last = last">
+                  {{ option.optionName }}: {{ option.value }}<span *ngIf="!last">, </span>
+                </ng-container>
+              </strong>
+
+              <span>
+                {{ variant.price }} KM · stanje: {{ variant.stock }}
+              </span>
+            </div>
+
+            <button
+              type="button"
+              mat-icon-button
+              color="warn"
+              (click)="deleteVariant(variant.id)"
+              [disabled]="isVariantBusy"
+              aria-label="Obriši varijantu"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </div>
+
+        <div class="step-actions">
+          <button type="button" mat-stroked-button matStepperPrevious>
+            Nazad
+          </button>
+
+          <button type="button" mat-raised-button color="primary" matStepperNext>
+            Nastavi
+          </button>
+        </div>
+      </mat-step>
+
+      <!-- STEP 6: ZALIHE -->
+      <mat-step>
+        <ng-template matStepLabel>Zalihe</ng-template>
+
+        <div class="stock-panel">
+          <div class="stock-summary">
+            <div>
+              <p class="kicker">Trenutno stanje</p>
+              <h3>{{ model?.stockQuantity ?? 0 }}</h3>
+              <p>Ukupna količina proizvoda na stanju.</p>
+            </div>
+
+            <mat-icon>inventory</mat-icon>
+          </div>
+
           <div class="step-grid">
             <mat-form-field appearance="outline">
-              <mat-label>Naziv</mat-label>
-              <input matInput formControlName="name" />
-              <mat-error *ngIf="hasError('name')">{{ getErrorMessage('name') }}</mat-error>
+              <mat-label>Promijeni količinu</mat-label>
+              <input
+                matInput
+                type="number"
+                [(ngModel)]="stockDelta"
+                [ngModelOptions]="{ standalone: true }"
+              />
+              <mat-hint>Pozitivno povećava, negativno smanjuje zalihe.</mat-hint>
             </mat-form-field>
 
             <mat-form-field appearance="outline">
-              <mat-label>Brend</mat-label>
-              <input matInput formControlName="brand" />
-              <mat-error *ngIf="hasError('brand')">{{ getErrorMessage('brand') }}</mat-error>
+              <mat-label>Razlog</mat-label>
+              <input
+                matInput
+                [(ngModel)]="stockReason"
+                [ngModelOptions]="{ standalone: true }"
+              />
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="wide">
-              <mat-label>Opis</mat-label>
-              <textarea matInput rows="4" formControlName="description"></textarea>
-              <mat-error *ngIf="hasError('description')">{{ getErrorMessage('description') }}</mat-error>
+              <mat-label>Bilješka</mat-label>
+              <textarea
+                matInput
+                rows="2"
+                [(ngModel)]="stockNote"
+                [ngModelOptions]="{ standalone: true }"
+              ></textarea>
             </mat-form-field>
           </div>
 
-          <div class="step-actions">
-            <button type="button" mat-stroked-button (click)="onCancel()">Nazad</button>
-            <button type="button" mat-raised-button color="primary" matStepperNext [disabled]="!isBasicStepValid()">
-              Nastavi
+          <div class="stock-actions">
+            <button
+              type="button"
+              mat-raised-button
+              color="accent"
+              (click)="applyStockChange()"
+              [disabled]="isStockBusy || stockDelta === 0"
+            >
+              <mat-icon>sync_alt</mat-icon>
+              Primijeni promjenu zaliha
             </button>
           </div>
-        </mat-step>
 
-        <mat-step label="Price & Placement">
-          <div class="step-grid">
-            <mat-form-field appearance="outline">
-              <mat-label>Kategorija</mat-label>
-              <mat-select formControlName="categoryId">
-                <mat-option *ngFor="let category of categories" [value]="category.id">
-                  {{ category.name }}
-                </mat-option>
-              </mat-select>
-              <mat-error *ngIf="hasError('categoryId')">{{ getErrorMessage('categoryId') }}</mat-error>
-            </mat-form-field>
-
-            <mat-form-field appearance="outline">
-              <mat-label>Podkategorija</mat-label>
-              <mat-form-field appearance="outline">
-                <mat-label>Subcategory</mat-label>
-                <mat-select formControlName="subcategoryId">
-                  <mat-option *ngFor="let sub of subcategories" [value]="sub.id">
-                    {{ sub.name }}
-                  </mat-option>
-                </mat-select>
-              </mat-form-field>
-              <mat-error *ngIf="hasError('subcategory')">{{ getErrorMessage('subcategory') }}</mat-error>
-            </mat-form-field>
-
-            <mat-form-field appearance="outline">
-              <mat-label>Cijena</mat-label>
-              <input matInput type="number" step="0.01" formControlName="price" />
-              <span matTextPrefix>KM&nbsp;</span>
-              <mat-error *ngIf="hasError('price')">{{ getErrorMessage('price') }}</mat-error>
-            </mat-form-field>
-
-            <div class="toggle-wrap">
-              <mat-slide-toggle formControlName="isEnabled" color="primary">
-                Product is active
-              </mat-slide-toggle>
+          <div class="movement-list">
+            <div class="movement-header">
+              <h3>Posljednje promjene zaliha</h3>
             </div>
-          </div>
 
-          <div class="step-actions">
-            <button type="button" mat-stroked-button matStepperPrevious>Nazad</button>
-            <button type="button" mat-raised-button color="primary" matStepperNext [disabled]="!isPricingStepValid()">
-              Nastavi
-            </button>
-          </div>
-        </mat-step>
+            <div class="movement-empty" *ngIf="stockMovements.length === 0">
+              <p>Nema evidentiranih promjena zaliha.</p>
+            </div>
 
-        <mat-step label="Save">
-          <div class="summary-card">
-            <h3>Sačuvaj promjene</h3>
-            <p>Editovano: {{ form.value.name || 'this product' }}.</p>
-          </div>
-
-          <div class="step-actions">
-            <button type="button" mat-stroked-button matStepperPrevious>Nazad </button>
-            <button type="submit" mat-raised-button color="primary" [disabled]="form.invalid || isLoading">
-              <mat-icon>Spremi</mat-icon>
-              Sačuvaj proizvod
-            </button>
-          </div>
-          <div class="image-upload">
-            <input type="file" (change)="onFileSelected($event)" />
-            <button type="button" mat-raised-button (click)="uploadImage()">Ažuriraj</button>
-          </div>
-
-          <div class="image-grid">
-            <div *ngFor="let img of images" class="image-card">
-              <img [src]="img.imageUrl" />
-
-              <div class="image-actions">
-                <button type="button" mat-button (click)="setMain(img.id)">Main</button>
-                <button type="button" mat-button color="warn" (click)="deleteImage(img.id)">Izbriši</button>
+            <div class="movement-item" *ngFor="let movement of stockMovements">
+              <div>
+                <p class="movement-main">
+                  {{ movement.quantityDelta > 0 ? '+' : '' }}{{ movement.quantityDelta }}
+                  ({{ movement.reason }})
+                </p>
+                <p class="movement-note">
+                  {{ movement.note || 'Bez bilješke' }}
+                </p>
               </div>
 
-              <div *ngIf="img.isMain" class="main-badge">Main</div>
+              <span class="movement-result">
+                {{ movement.previousQuantity }} → {{ movement.newQuantity }}
+              </span>
             </div>
           </div>
-
-        </mat-step>
-
-      </mat-stepper>
-    </form>
-
-    <aside class="stock-card">
-      <h2>Količina na stanju</h2>
-      <p class="stock-now">Trenutno: {{ model?.stockQuantity ?? 0 }}</p>
-
-      <mat-form-field appearance="outline">
-        <mat-label>Promijeni količinu</mat-label>
-        <input matInput type="number" [(ngModel)]="stockDelta" [ngModelOptions]="{ standalone: true }" />
-        <mat-hint>Koristite pozitivne vrijednosti za povećanje zaliha, negativne za smanjenje.</mat-hint>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline">
-        <mat-label>Razlog</mat-label>
-        <input matInput [(ngModel)]="stockReason" [ngModelOptions]="{ standalone: true }" />
-      </mat-form-field>
-
-      <mat-form-field appearance="outline">
-        <mat-label>Bilješka</mat-label>
-        <textarea matInput rows="2" [(ngModel)]="stockNote" [ngModelOptions]="{ standalone: true }"></textarea>
-      </mat-form-field>
-
-      <button type="button" mat-raised-button color="accent" (click)="applyStockChange()"
-        [disabled]="isStockBusy || stockDelta === 0">
-        Primijeni promjenu zaliha
-      </button>
-
-      <div class="movement-list">
-        <h3> Posljednje u zalihi</h3>
-        <div class="movement-item" *ngFor="let movement of stockMovements">
-          <div>
-            <p class="movement-main">
-              {{ movement.quantityDelta > 0 ? '+' : '' }}{{ movement.quantityDelta }} ({{ movement.reason }})
-            </p>
-            <p class="movement-note">{{ movement.note || 'No note' }}</p>
-          </div>
-          <span class="movement-result">{{ movement.previousQuantity }} -> {{ movement.newQuantity }}</span>
         </div>
-      </div>
-    </aside>
-  </div>
+
+        <div class="step-actions">
+          <button type="button" mat-stroked-button matStepperPrevious>
+            Nazad
+          </button>
+
+          <button type="button" mat-raised-button color="primary" matStepperNext>
+            Nastavi
+          </button>
+        </div>
+      </mat-step>
+
+      <!-- STEP 7: SPREMI -->
+      <mat-step>
+        <ng-template matStepLabel>Spremi</ng-template>
+
+        <div class="summary-card">
+          <h3>Pregled prije spremanja</h3>
+
+          <p>
+            <strong>Naziv:</strong>
+            {{ form.value.name || 'Bez naziva' }}
+          </p>
+
+          <p>
+            <strong>SKU:</strong>
+            {{ form.value.sku || 'Bez SKU' }}
+          </p>
+
+          <p>
+            <strong>Cijena:</strong>
+            {{ form.value.price || 0 }} KM
+          </p>
+
+          <p>
+            <strong>Status:</strong>
+            {{ form.value.isEnabled ? 'Aktivan' : 'Neaktivan' }}
+          </p>
+
+          <p>
+            <strong>Slike:</strong>
+            {{ images.length }}
+          </p>
+
+          <p>
+            <strong>Varijante:</strong>
+            {{ variants.length }}
+          </p>
+        </div>
+
+        <div class="step-actions">
+          <button type="button" mat-stroked-button matStepperPrevious>
+            Nazad
+          </button>
+
+          <button
+            type="submit"
+            mat-raised-button
+            color="primary"
+            [disabled]="form.invalid || isLoading"
+          >
+            <mat-icon>save</mat-icon>
+            Sačuvaj proizvod
+          </button>
+        </div>
+      </mat-step>
+    </mat-stepper>
+  </form>
 
   <ng-template #loadingState>
     <div class="loading-wrap">
