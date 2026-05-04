@@ -1,0 +1,271 @@
+<section class="brands-page">
+  <header class="page-header">
+    <div>
+      <p class="kicker">Catalog</p>
+      <h1>Brendovi</h1>
+      <p class="subtitle">
+        Upravljajte brendovima koji se koriste u katalogu proizvoda.
+      </p>
+    </div>
+
+    <button type="button" mat-raised-button class="primary-btn" (click)="startCreate()">
+      <mat-icon>add</mat-icon>
+      Novi brend
+    </button>
+  </header>
+
+  <section class="stats-grid">
+    <article class="stat-card">
+      <div class="stat-icon total">
+        <mat-icon>sell</mat-icon>
+      </div>
+      <div>
+        <p>Ukupno brendova</p>
+        <h3>{{ brands.length }}</h3>
+        <span>Svi brendovi u sistemu</span>
+      </div>
+    </article>
+
+    <article class="stat-card">
+      <div class="stat-icon active">
+        <mat-icon>check_circle</mat-icon>
+      </div>
+      <div>
+        <p>Aktivni brendovi</p>
+        <h3>{{ activeBrandsCount }}</h3>
+        <span>Dostupni za proizvode</span>
+      </div>
+    </article>
+
+    <article class="stat-card">
+      <div class="stat-icon inactive">
+        <mat-icon>pause_circle</mat-icon>
+      </div>
+      <div>
+        <p>Neaktivni</p>
+        <h3>{{ disabledBrandsCount }}</h3>
+        <span>Sakriveni iz odabira</span>
+      </div>
+    </article>
+
+    <article class="stat-card">
+      <div class="stat-icon products">
+        <mat-icon>inventory_2</mat-icon>
+      </div>
+      <div>
+        <p>Povezani proizvodi</p>
+        <h3>{{ totalProductsAttached }}</h3>
+        <span>Ukupno veza s proizvodima</span>
+      </div>
+    </article>
+  </section>
+
+  <form class="brand-form-panel" *ngIf="showBrandForm" (ngSubmit)="saveBrand()">
+    <div class="form-header">
+      <div>
+        <p class="kicker">{{ editingBrandId === null ? 'Create' : 'Edit' }}</p>
+        <h2>{{ editingBrandId === null ? 'Novi brend' : 'Uredi brend' }}</h2>
+        <p>
+          Unesite osnovne podatke brenda i po želji dodajte logo sliku.
+        </p>
+      </div>
+
+      <button type="button" mat-stroked-button class="close-form-btn" (click)="cancelEdit()">
+        <mat-icon>close</mat-icon>
+        Zatvori
+      </button>
+    </div>
+
+    <div class="brand-form-grid">
+      <div class="logo-upload-box">
+        <div class="logo-preview">
+          <img *ngIf="logoPreviewUrl; else noLogoPreview" [src]="logoPreviewUrl" alt="Logo brenda" />
+
+          <ng-template #noLogoPreview>
+            <mat-icon>image</mat-icon>
+          </ng-template>
+        </div>
+
+        <div class="logo-copy">
+          <h4>Logo brenda</h4>
+          <p>Odaberite sliku sa računara. Dozvoljeni formati: JPG, PNG i WEBP.</p>
+
+          <input
+            type="file"
+            accept="image/png,image/jpeg,image/webp"
+            (change)="onLogoSelected($event)"
+          />
+        </div>
+      </div>
+
+      <div class="brand-fields">
+        <mat-form-field appearance="outline">
+          <mat-label>Naziv brenda</mat-label>
+          <input
+            matInput
+            name="brandName"
+            [(ngModel)]="form.name"
+            placeholder="L'Oréal Paris"
+            required
+          />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Slug</mat-label>
+          <input
+            matInput
+            name="brandSlug"
+            [(ngModel)]="form.slug"
+            placeholder="loreal-paris"
+          />
+          <mat-hint>Ako ostane prazno, backend ga generiše iz naziva.</mat-hint>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="wide">
+          <mat-label>Opis</mat-label>
+          <textarea
+            matInput
+            rows="3"
+            name="brandDescription"
+            [(ngModel)]="form.description"
+            placeholder="Kratki opis brenda..."
+          ></textarea>
+        </mat-form-field>
+
+        <div class="brand-form-footer">
+          <div class="toggle-box">
+            <mat-slide-toggle name="brandIsEnabled" [(ngModel)]="form.isEnabled" color="primary">
+              Brend je aktivan
+            </mat-slide-toggle>
+          </div>
+
+          <button type="submit" mat-raised-button color="primary" class="save-btn" [disabled]="isSaving">
+            <mat-icon>{{ editingBrandId === null ? 'add' : 'save' }}</mat-icon>
+            {{ editingBrandId === null ? 'Kreiraj brend' : 'Sačuvaj brend' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <section class="brands-card">
+    <div class="table-toolbar">
+      <div>
+        <h2>Lista brendova</h2>
+        <p>Pretražite, filtrirajte i upravljajte postojećim brendovima.</p>
+      </div>
+
+      <button type="button" mat-stroked-button class="reset-btn" (click)="resetFilters()">
+        <mat-icon>restart_alt</mat-icon>
+        Resetuj
+      </button>
+    </div>
+
+    <div class="filters-row">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Pretraži brendove</mat-label>
+        <mat-icon matPrefix>search</mat-icon>
+        <input matInput [(ngModel)]="search" (ngModelChange)="onSearchChanged()" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Status</mat-label>
+        <mat-select [(ngModel)]="statusFilter" (ngModelChange)="onStatusChanged()">
+          <mat-option [value]="null">Svi statusi</mat-option>
+          <mat-option [value]="true">Aktivni</mat-option>
+          <mat-option [value]="false">Neaktivni</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <div class="state-message" *ngIf="isLoading">
+      Učitavanje brendova...
+    </div>
+
+    <div class="empty-state" *ngIf="!isLoading && filteredBrands.length === 0">
+      <mat-icon>sell</mat-icon>
+      <h3>Nema brendova</h3>
+      <p>Dodajte prvi brend kako bi ga kasnije mogli povezati s proizvodima.</p>
+    </div>
+
+    <div class="brands-table-wrap" *ngIf="!isLoading && filteredBrands.length > 0">
+      <table class="brands-table">
+        <thead>
+          <tr>
+            <th>Brend</th>
+            <th>Slug</th>
+            <th>Opis</th>
+            <th>Proizvodi</th>
+            <th>Status</th>
+            <th>Akcije</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let brand of filteredBrands">
+            <td>
+              <div class="brand-main-cell">
+                <div class="brand-logo">
+                  <img *ngIf="brand.logoUrl; else logoPlaceholder" [src]="brand.logoUrl" [alt]="brand.name" />
+
+                  <ng-template #logoPlaceholder>
+                    <mat-icon>sell</mat-icon>
+                  </ng-template>
+                </div>
+
+                <div>
+                  <strong>{{ brand.name }}</strong>
+                  <span>{{ brand.logoUrl ? 'Logo dodan' : 'Bez loga' }}</span>
+                </div>
+              </div>
+            </td>
+
+            <td>
+              <span class="slug-pill">
+                {{ brand.slug || 'Bez sluga' }}
+              </span>
+            </td>
+
+            <td>
+              <p class="description-cell">
+                {{ brand.description || 'Nema opisa za ovaj brend.' }}
+              </p>
+            </td>
+
+            <td>
+              <span class="products-count">
+                <mat-icon>inventory_2</mat-icon>
+                {{ brand.productsCount }}
+              </span>
+            </td>
+
+            <td>
+              <span class="status-pill" [class.enabled]="brand.isEnabled" [class.disabled]="!brand.isEnabled">
+                {{ brand.isEnabled ? 'Aktivan' : 'Neaktivan' }}
+              </span>
+            </td>
+
+            <td>
+              <div class="brand-actions">
+                <button type="button" mat-icon-button class="edit-btn" (click)="startEdit(brand)" matTooltip="Uredi">
+                  <mat-icon>edit</mat-icon>
+                </button>
+
+                <button
+                  type="button"
+                  mat-icon-button
+                  class="delete-btn"
+                  (click)="deleteBrand(brand)"
+                  [disabled]="brand.productsCount > 0"
+                  matTooltip="Obriši"
+                >
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</section>

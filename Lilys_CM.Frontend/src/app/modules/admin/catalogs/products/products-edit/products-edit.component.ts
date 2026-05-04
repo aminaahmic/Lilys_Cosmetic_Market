@@ -10,6 +10,8 @@ import { ProductCategoriesApiService } from '../../../../../api-services/product
 import { ToasterService } from '../../../../../core/services/toaster.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ProductVariantDeleteDialogComponent } from '../product-variant-delete-dialog/product-variant-delete-dialog.component';
+import { BrandsApiService } from '../../../../../api-services/brands/brands-api.service';
+import { BrandDto } from '../../../../../api-services/brands/brands-api.models';
 import {
   ListProductCategoriesQueryDto,
   ListProductCategoriesRequest
@@ -42,6 +44,8 @@ export class ProductsEditComponent
   private router = inject(Router);
   private toaster = inject(ToasterService);
   private dialog = inject(MatDialog);
+  private brandsApi = inject(BrandsApiService);
+  brands: BrandDto[] = [];
 
   productId!: number;
   categories: ListProductCategoriesQueryDto[] = [];
@@ -68,6 +72,7 @@ export class ProductsEditComponent
     this.initForm(true);
     this.loadImages();
     this.loadVariants();
+    this.loadBrands();
   }
 
   protected loadData(): void {
@@ -107,6 +112,27 @@ export class ProductsEditComponent
       }
     });
   }
+  private loadBrands(): void {
+    this.brandsApi.getAll(true, null).subscribe({
+      next: (response) => {
+        this.brands = response;
+      },
+      error: (err) => {
+        this.toaster.error('Greška prilikom učitavanja brendova.');
+        console.error('Load brands error:', err);
+      }
+    });
+  }
+
+  getSelectedBrandName(): string {
+    const brandId = this.form.get('brandId')?.value;
+
+    if (!brandId) {
+      return 'Bez brenda';
+    }
+
+    return this.brands.find(x => x.id === Number(brandId))?.name ?? 'Bez brenda';
+  }
 
   protected override save(): void {
     if (this.form.invalid || this.isLoading) {
@@ -142,7 +168,8 @@ export class ProductsEditComponent
       howToUse: value.howToUse || null,
       benefits: value.benefits || null,
 
-      brand: value.brand || null,
+      brand: null,
+      brandId: value.brandId ? Number(value.brandId) : null,
       size: value.size || null,
       countryOfOrigin: value.countryOfOrigin || null,
       barcode: value.barcode || null,
@@ -240,7 +267,7 @@ export class ProductsEditComponent
 
   isBasicStepValid(): boolean {
     return !this.form.get('name')?.invalid &&
-      !this.form.get('brand')?.invalid &&
+      !this.form.get('brandId')?.invalid &&
       !this.form.get('description')?.invalid;
   }
 

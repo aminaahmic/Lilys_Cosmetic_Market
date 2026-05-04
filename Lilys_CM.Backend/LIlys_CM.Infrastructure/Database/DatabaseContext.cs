@@ -30,6 +30,7 @@ namespace Lilys_CM.Infrastructure.Database
 
         // 🔹 DbSet-ovi (tvoje entitete)
         public DbSet<ProductEntity> Products => Set<ProductEntity>();
+        public DbSet<BrandEntity> Brands => Set<BrandEntity>();
         public DbSet<CategoryEntity> Categories => Set<CategoryEntity>();
         public DbSet<SubcategoryEntity> Subcategories => Set<SubcategoryEntity>();
         public DbSet<ProductVariantEntity> ProductVariants => Set<ProductVariantEntity>();

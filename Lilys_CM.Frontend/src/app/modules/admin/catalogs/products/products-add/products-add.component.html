@@ -39,10 +39,16 @@
           </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>Brand</mat-label>
-            <input matInput formControlName="brand" placeholder="Lily Glow" />
-            <mat-error *ngIf="hasError('brand')">
-              {{ getErrorMessage('brand') }}
+            <mat-label>Brend</mat-label>
+            <mat-select formControlName="brandId">
+              <mat-option [value]="null">Bez brenda</mat-option>
+
+              <mat-option *ngFor="let brand of brands" [value]="brand.id">
+                {{ brand.name }}
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="hasError('brandId')">
+              {{ getErrorMessage('brandId') }}
             </mat-error>
           </mat-form-field>
 
@@ -226,124 +232,94 @@
       </mat-step>
 
       <!-- STEP 4: VARIANTS -->
-    <!-- STEP 4: VARIANTS -->
-<mat-step>
-  <ng-template matStepLabel>Varijante</ng-template>
+      <!-- STEP 4: VARIANTS -->
+      <mat-step>
+        <ng-template matStepLabel>Varijante</ng-template>
 
-  <div class="variant-intro">
-    <div>
-      <h3>Varijante proizvoda</h3>
-      <p>
-        Dodajte stvarne varijante proizvoda. Svaka varijanta će biti spašena
-        u bazu nakon kreiranja proizvoda.
-      </p>
-    </div>
+        <div class="variant-intro">
+          <div>
+            <h3>Varijante proizvoda</h3>
+            <p>
+              Dodajte stvarne varijante proizvoda. Svaka varijanta će biti spašena
+              u bazu nakon kreiranja proizvoda.
+            </p>
+          </div>
 
-    <mat-icon>tune</mat-icon>
-  </div>
+          <mat-icon>tune</mat-icon>
+        </div>
 
-  <div class="step-grid variant-form">
-    <mat-form-field appearance="outline">
-      <mat-label>Naziv opcije</mat-label>
-      <input
-        matInput
-        [(ngModel)]="variantName"
-        [ngModelOptions]="{ standalone: true }"
-        placeholder="Nijansa / Veličina / Volumen"
-      />
-    </mat-form-field>
+        <div class="step-grid variant-form">
+          <mat-form-field appearance="outline">
+            <mat-label>Naziv opcije</mat-label>
+            <input matInput [(ngModel)]="variantName" [ngModelOptions]="{ standalone: true }"
+              placeholder="Nijansa / Veličina / Volumen" />
+          </mat-form-field>
 
-    <mat-form-field appearance="outline">
-      <mat-label>Vrijednost opcije</mat-label>
-      <input
-        matInput
-        [(ngModel)]="variantValue"
-        [ngModelOptions]="{ standalone: true }"
-        placeholder="Light / 50 ml / Vanilla"
-      />
-    </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Vrijednost opcije</mat-label>
+            <input matInput [(ngModel)]="variantValue" [ngModelOptions]="{ standalone: true }"
+              placeholder="Light / 50 ml / Vanilla" />
+          </mat-form-field>
 
-    <mat-form-field appearance="outline">
-      <mat-label>Cijena varijante</mat-label>
-      <input
-        matInput
-        type="number"
-        step="0.01"
-        [(ngModel)]="variantPrice"
-        [ngModelOptions]="{ standalone: true }"
-        placeholder="Ako je prazno, koristi se cijena proizvoda"
-      />
-      <span matTextPrefix>KM&nbsp;</span>
-    </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Cijena varijante</mat-label>
+            <input matInput type="number" step="0.01" [(ngModel)]="variantPrice" [ngModelOptions]="{ standalone: true }"
+              placeholder="Ako je prazno, koristi se cijena proizvoda" />
+            <span matTextPrefix>KM&nbsp;</span>
+          </mat-form-field>
 
-    <mat-form-field appearance="outline">
-      <mat-label>Stanje varijante</mat-label>
-      <input
-        matInput
-        type="number"
-        [(ngModel)]="variantStock"
-        [ngModelOptions]="{ standalone: true }"
-        placeholder="Ako je prazno, koristi se stanje proizvoda"
-      />
-    </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Stanje varijante</mat-label>
+            <input matInput type="number" [(ngModel)]="variantStock" [ngModelOptions]="{ standalone: true }"
+              placeholder="Ako je prazno, koristi se stanje proizvoda" />
+          </mat-form-field>
 
-    <div class="variant-add-action">
-      <button
-        type="button"
-        mat-raised-button
-        color="primary"
-        (click)="addVariant()"
-      >
-        <mat-icon>add</mat-icon>
-        Dodaj varijantu
-      </button>
-    </div>
-  </div>
+          <div class="variant-add-action">
+            <button type="button" mat-raised-button color="primary" (click)="addVariant()">
+              <mat-icon>add</mat-icon>
+              Dodaj varijantu
+            </button>
+          </div>
+        </div>
 
-  <div class="variant-empty" *ngIf="variants.length === 0">
-    <mat-icon>inventory_2</mat-icon>
-    <h4>Nema dodanih varijanti</h4>
-    <p>
-      Ako proizvod nema varijante, možete nastaviti dalje bez dodavanja.
-    </p>
-  </div>
+        <div class="variant-empty" *ngIf="variants.length === 0">
+          <mat-icon>inventory_2</mat-icon>
+          <h4>Nema dodanih varijanti</h4>
+          <p>
+            Ako proizvod nema varijante, možete nastaviti dalje bez dodavanja.
+          </p>
+        </div>
 
-  <div class="variant-list" *ngIf="variants.length > 0">
-    <div class="variant-list-header">
-      <h4>Dodane varijante</h4>
-      <span>{{ variants.length }} ukupno</span>
-    </div>
+        <div class="variant-list" *ngIf="variants.length > 0">
+          <div class="variant-list-header">
+            <h4>Dodane varijante</h4>
+            <span>{{ variants.length }} ukupno</span>
+          </div>
 
-    <div class="variant-chip" *ngFor="let variant of variants; let i = index">
-      <div>
-        <strong>{{ variant.optionName }}: {{ variant.optionValue }}</strong>
-        <span>
-          {{ variant.price }} KM · stanje: {{ variant.stock }}
-        </span>
-      </div>
+          <div class="variant-chip" *ngFor="let variant of variants; let i = index">
+            <div>
+              <strong>{{ variant.optionName }}: {{ variant.optionValue }}</strong>
+              <span>
+                {{ variant.price }} KM · stanje: {{ variant.stock }}
+              </span>
+            </div>
 
-      <button
-        type="button"
-        mat-icon-button
-        color="warn"
-        (click)="removeVariant(i)"
-        aria-label="Ukloni varijantu"
-      >
-        <mat-icon>delete</mat-icon>
-      </button>
-    </div>
-  </div>
+            <button type="button" mat-icon-button color="warn" (click)="removeVariant(i)" aria-label="Ukloni varijantu">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </div>
 
-  <div class="step-actions">
-    <button type="button" mat-stroked-button matStepperPrevious>
-      Nazad
-    </button>
+        <div class="step-actions">
+          <button type="button" mat-stroked-button matStepperPrevious>
+            Nazad
+          </button>
 
-    <button type="button" mat-raised-button color="primary" matStepperNext>
-      Nastavi
-    </button>
-  </div>
-</mat-step>
+          <button type="button" mat-raised-button color="primary" matStepperNext>
+            Nastavi
+          </button>
+        </div>
+      </mat-step>
       <!-- STEP 5: IMAGES AND REVIEW -->
       <mat-step>
         <ng-template matStepLabel>Fotografije i pregled</ng-template>
@@ -384,8 +360,8 @@
           </p>
 
           <p>
-            <strong>Brand:</strong>
-            {{ form.value.brand || 'No brand' }}
+            <strong>Brend:</strong>
+            {{ getSelectedBrandName() }}
           </p>
 
           <p>

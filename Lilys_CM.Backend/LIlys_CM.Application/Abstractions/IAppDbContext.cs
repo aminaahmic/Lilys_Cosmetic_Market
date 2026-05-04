@@ -8,6 +8,7 @@ using Lilys_CM.Domain.Entities.Localization;
 using Lilys_CM.Domain.Localization;
 using Lilys_CM.Domain.Entities;
 using Lilys_CM.Domain.Catalog;
+using Lilys_CM.Domain.Entities.Catalog;
 
 namespace Lilys_CM.Application.Abstractions
 {
@@ -15,6 +16,7 @@ namespace Lilys_CM.Application.Abstractions
     {
         // 🔹 Catalog
         DbSet<ProductEntity> Products { get; }
+        DbSet<BrandEntity> Brands { get; }
         DbSet<CategoryEntity> Categories { get; }
         DbSet<SubcategoryEntity> Subcategories { get; }
         DbSet<ProductVariantEntity> ProductVariants { get; }

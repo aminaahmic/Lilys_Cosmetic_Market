@@ -40,9 +40,16 @@
 
           <mat-form-field appearance="outline">
             <mat-label>Brend</mat-label>
-            <input matInput formControlName="brand" placeholder="Lily Glow" />
-            <mat-error *ngIf="hasError('brand')">
-              {{ getErrorMessage('brand') }}
+            <mat-select formControlName="brandId">
+              <mat-option [value]="null">Bez brenda</mat-option>
+
+              <mat-option *ngFor="let brand of brands" [value]="brand.id">
+                {{ brand.name }}
+              </mat-option>
+            </mat-select>
+
+            <mat-error *ngIf="hasError('brandId')">
+              {{ getErrorMessage('brandId') }}
             </mat-error>
           </mat-form-field>
 
@@ -500,7 +507,10 @@
             <strong>Status:</strong>
             {{ form.value.isEnabled ? 'Aktivan' : 'Neaktivan' }}
           </p>
-
+          <p>
+            <strong>Brend:</strong>
+            {{ getSelectedBrandName() }}
+          </p>
           <p>
             <strong>Slike:</strong>
             {{ images.length }}

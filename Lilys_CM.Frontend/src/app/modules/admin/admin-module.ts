@@ -15,6 +15,8 @@ import {SharedModule} from '../shared/shared-module';
 import { OrderDetailsDialogComponent } from './orders/admin-orders-details-dialog/order-details-dialog.component';
 import { ChangeStatusDialogComponent } from './orders/change-status-dialog/change-status-dialog.component';
 import { ProductVariantDeleteDialogComponent } from './catalogs/products/product-variant-delete-dialog/product-variant-delete-dialog.component';
+import { BrandsComponent } from './catalogs/brands/brands.component';
+import { BrandDeleteDialogComponent } from './catalogs/brands/brand-delete-dialog/brand-delete-dialog.component';
 
 
 @NgModule({
@@ -30,6 +32,8 @@ import { ProductVariantDeleteDialogComponent } from './catalogs/products/product
     OrderDetailsDialogComponent,
     ChangeStatusDialogComponent,
     ProductVariantDeleteDialogComponent,
+    BrandsComponent,
+    BrandDeleteDialogComponent,
   ],
   imports: [
     AdminRoutingModule,

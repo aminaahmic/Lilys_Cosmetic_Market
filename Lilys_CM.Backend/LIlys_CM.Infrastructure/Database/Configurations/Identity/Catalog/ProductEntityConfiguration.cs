@@ -45,6 +45,7 @@ public sealed class ProductEntityConfiguration : IEntityTypeConfiguration<Produc
         b.Property(x => x.Brand)
             .HasMaxLength(120);
 
+
         b.Property(x => x.Size)
             .HasMaxLength(50);
 
@@ -93,6 +94,11 @@ public sealed class ProductEntityConfiguration : IEntityTypeConfiguration<Produc
         b.HasOne(x => x.Subcategory)
             .WithMany(s => s.Products)
             .HasForeignKey(x => x.SubcategoryId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        b.HasOne(x => x.BrandEntity)
+            .WithMany(x => x.Products)
+            .HasForeignKey(x => x.BrandId)
             .OnDelete(DeleteBehavior.SetNull);
     }
 }

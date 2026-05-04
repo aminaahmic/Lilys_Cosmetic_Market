@@ -69,7 +69,8 @@ public partial class Program
             app.UseMiddleware<RequestResponseLoggingMiddleware>();
 
             app.UseHttpsRedirection();
-
+            app.UseStaticFiles();
+            
             app.UseAuthentication();
             app.UseAuthorization();
 

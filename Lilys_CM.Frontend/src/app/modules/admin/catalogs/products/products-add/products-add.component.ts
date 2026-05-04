@@ -13,6 +13,8 @@ import { BaseFormComponent } from '../../../../../core/components/base-classes/b
 import { ProductsApiService } from '../../../../../api-services/products/products-api.service';
 import { ProductCategoriesApiService } from '../../../../../api-services/product-categories/product-categories-api.service';
 import { ToasterService } from '../../../../../core/services/toaster.service';
+import { BrandsApiService } from '../../../../../api-services/brands/brands-api.service';
+import { BrandDto } from '../../../../../api-services/brands/brands-api.models';
 
 import {
   ListProductCategoriesQueryDto,
@@ -41,6 +43,9 @@ export class ProductsAddComponent
 
   private api = inject(ProductsApiService);
   private categoriesApi = inject(ProductCategoriesApiService);
+  private brandsApi = inject(BrandsApiService);
+
+  brands: BrandDto[] = [];
   private subApi = inject(SubcategoriesApiService);
   private formService = inject(ProductFormService);
   private router = inject(Router);
@@ -61,6 +66,7 @@ export class ProductsAddComponent
   ngOnInit(): void {
     this.initForm(false);
     this.loadCategories();
+    this.loadBrands();
 
     this.form.get('categoryId')?.valueChanges.subscribe(categoryId => {
       if (categoryId) {
@@ -107,7 +113,7 @@ export class ProductsAddComponent
       howToUse: value.howToUse || null,
       benefits: value.benefits || null,
 
-      brand: value.brand || null,
+      brandId: value.brandId ? Number(value.brandId) : null,
       size: value.size || null,
       countryOfOrigin: value.countryOfOrigin || null,
       barcode: value.barcode || null,
@@ -138,7 +144,17 @@ export class ProductsAddComponent
       }
     });
   }
-
+  private loadBrands(): void {
+    this.brandsApi.getAll(true, null).subscribe({
+      next: (response) => {
+        this.brands = response;
+      },
+      error: (err) => {
+        this.toaster.error('Greška prilikom učitavanja brendova.');
+        console.error('Load brands error:', err);
+      }
+    });
+  }
   protected onImagesSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
 
@@ -312,9 +328,18 @@ export class ProductsAddComponent
   protected isBasicStepValid(): boolean {
     return !!this.form.get('name')?.valid &&
       !!this.form.get('sku')?.valid &&
-      !!this.form.get('brand')?.valid &&
+      !!this.form.get('brandId')?.valid &&
       !!this.form.get('shortDescription')?.valid &&
       !!this.form.get('description')?.valid;
+  }
+  protected getSelectedBrandName(): string {
+    const brandId = this.form.get('brandId')?.value;
+
+    if (!brandId) {
+      return 'Bez brenda';
+    }
+
+    return this.brands.find(x => x.id === Number(brandId))?.name ?? 'Bez brenda';
   }
 
   protected isPricingStepValid(): boolean {

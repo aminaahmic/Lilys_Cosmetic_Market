@@ -9,6 +9,8 @@ import { BaseListPagedComponent } from '../../../../core/components/base-classes
 import { DialogHelperService } from '../../../shared/services/dialog-helper.service';
 import { DialogButton } from '../../../shared/models/dialog-config.model';
 import { ProductCategoriesApiService } from '../../../../api-services/product-categories/product-categories-api.service';
+import { BrandsApiService } from '../../../../api-services/brands/brands-api.service';
+import { BrandDto } from '../../../../api-services/brands/brands-api.models';
 import {
   ListProductCategoriesQueryDto,
   ListProductCategoriesRequest
@@ -26,22 +28,22 @@ export class ProductsComponent
   statsItems: ListProductsQueryDto[] = [];
   private api = inject(ProductsApiService);
   private categoriesApi = inject(ProductCategoriesApiService);
+  private brandsApi = inject(BrandsApiService);
   private router = inject(Router);
   private dialogHelper = inject(DialogHelperService);
 
   displayedColumns: string[] = [
-    'name',
+    'product',
+    'catalog',
     'brand',
-    'subcategory',
-    'categoryName',
     'price',
-    'stockQuantity',
-    'isEnabled',
+    'stock',
+    'status',
     'actions'
   ];
 
   categories: ListProductCategoriesQueryDto[] = [];
-  brands: string[] = [];
+  brands: BrandDto[] = [];
   subcategories: string[] = [];
   private filterDebounceTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -56,6 +58,7 @@ export class ProductsComponent
     this.initList();
     this.loadCategories();
     this.loadFilterOptions();
+    this.loadBrands();
     this.loadStats();
   }
 
@@ -77,6 +80,23 @@ export class ProductsComponent
       error: (err) => {
         this.stopLoading('Failed to load products');
         console.error('Load products error:', err);
+      }
+    });
+  }
+  private loadBrands(): void {
+    this.brandsApi.getAll(true, null).subscribe({
+      next: (response) => {
+        this.brands = response;
+
+        if (
+          this.request.brand &&
+          !this.brands.some(brand => brand.name === this.request.brand)
+        ) {
+          this.request.brand = null;
+        }
+      },
+      error: (err) => {
+        console.error('Load brands error:', err);
       }
     });
   }
@@ -175,6 +195,7 @@ export class ProductsComponent
     this.request.isEnabled = null;
     this.request.paging.page = 1;
     this.loadFilterOptions();
+    this.loadBrands();
     this.loadPagedData();
     this.loadStats();
   }
@@ -197,13 +218,9 @@ export class ProductsComponent
   private loadFilterOptions(): void {
     this.api.getFilterOptions(this.request.categoryId).subscribe({
       next: (response) => {
-        this.brands = response.brands;
         this.subcategories = response.subcategories;
 
-        if (this.request.brand && !this.brands.includes(this.request.brand)) {
-          this.request.brand = null;
-        }
-
+      
         if (this.request.subcategory && !this.subcategories.includes(this.request.subcategory)) {
           this.request.subcategory = null;
         }
@@ -246,6 +263,49 @@ export class ProductsComponent
     this.filterDebounceTimer = setTimeout(() => {
       this.onApplyFilters();
     }, 300);
+  }
+  getProductSku(product: ListProductsQueryDto): string {
+    return (product as any).sku || 'SKU nije unesen';
+  }
+
+  getProductImage(product: ListProductsQueryDto): string | null {
+    return (product as any).imageUrl || null;
+  }
+
+  getCompareAtPrice(product: ListProductsQueryDto): number | null {
+    return (product as any).compareAtPrice ?? null;
+  }
+
+  getCategoryLabel(product: ListProductsQueryDto): string {
+    return product.categoryName || 'Bez kategorije';
+  }
+
+  getSubcategoryLabel(product: ListProductsQueryDto): string {
+    return product.subcategory || 'Bez potkategorije';
+  }
+
+  getStockLabel(product: ListProductsQueryDto): string {
+    if (product.stockQuantity <= 0) {
+      return 'Nema zalihe';
+    }
+
+    if (product.stockQuantity <= 10) {
+      return 'Niska zaliha';
+    }
+
+    return 'Na stanju';
+  }
+
+  getStockClass(product: ListProductsQueryDto): string {
+    if (product.stockQuantity <= 0) {
+      return 'out';
+    }
+
+    if (product.stockQuantity <= 10) {
+      return 'low';
+    }
+
+    return 'ok';
   }
 
 }

@@ -46,6 +46,10 @@ public sealed class CreateProductCommandValidator : AbstractValidator<CreateProd
             .MaximumLength(120)
             .When(x => !string.IsNullOrWhiteSpace(x.Brand));
 
+        RuleFor(x => x.BrandId)
+            .GreaterThan(0)
+            .When(x => x.BrandId.HasValue);
+
         RuleFor(x => x.Size)
             .MaximumLength(50)
             .When(x => !string.IsNullOrWhiteSpace(x.Size));

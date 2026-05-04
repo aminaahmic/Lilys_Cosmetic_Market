@@ -16,6 +16,7 @@ public sealed class GetProductByIdQueryHandler : IRequestHandler<GetProductByIdQ
         var product = await _context.Products
             .Include(p => p.Category)
             .Include(p => p.Subcategory)
+            .Include(p => p.BrandEntity)
             .FirstOrDefaultAsync(p => p.Id == request.Id && p.IsEnabled, cancellationToken);
 
         if (product is null)
@@ -37,6 +38,9 @@ public sealed class GetProductByIdQueryHandler : IRequestHandler<GetProductByIdQ
             Benefits = product.Benefits,
 
             Brand = product.Brand,
+            BrandId = product.BrandId,
+            BrandName = product.BrandEntity != null ? product.BrandEntity.Name : product.Brand,
+            BrandLogoUrl = product.BrandEntity != null ? product.BrandEntity.LogoUrl : null,
             Size = product.Size,
             CountryOfOrigin = product.CountryOfOrigin,
             Barcode = product.Barcode,

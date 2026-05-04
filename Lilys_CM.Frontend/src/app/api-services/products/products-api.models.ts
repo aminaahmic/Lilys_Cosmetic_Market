@@ -10,6 +10,9 @@ import { BasePagedQuery } from '../../core/models/paging/base-paged-query';
 export class ListProductsRequest extends BasePagedQuery {
   search?: string | null;
   brand?: string | null;
+  brandId?: number | null;
+  brandName?: string | null;
+  brandLogoUrl?: string | null;
   subcategory?: string | null;
   categoryId?: number | null;
   priceMin?: number | null;
@@ -26,6 +29,9 @@ export interface ListProductsQueryDto {
   name: string;
   description?: string | null;
   brand?: string | null;
+  brandId?: number | null;
+  brandName?: string | null;
+  brandLogoUrl?: string | null;
   subcategory?: string | null;
   price: number;
   stockQuantity: number;
@@ -54,6 +60,9 @@ export interface GetProductByIdQueryDto {
   benefits?: string | null;
 
   brand?: string | null;
+  brandId?: number | null;
+  brandName?: string | null;
+  brandLogoUrl?: string | null;
   size?: string | null;
   countryOfOrigin?: string | null;
   barcode?: string | null;
@@ -71,6 +80,8 @@ export interface GetProductByIdQueryDto {
 
   isEnabled: boolean;
   isFeatured?: boolean;
+  seoTitle?: string | null;
+  seoDescription?: string | null;
 }
 
 /**
@@ -103,7 +114,8 @@ export interface CreateProductCommand {
   howToUse?: string | null;
   benefits?: string | null;
 
-  brand?: string | null;
+
+  brandId?: number | null;
   size?: string | null;
   countryOfOrigin?: string | null;
   barcode?: string | null;
@@ -141,6 +153,7 @@ export interface UpdateProductCommand {
   benefits?: string | null;
 
   brand?: string | null;
+  brandId?: number | null;
   size?: string | null;
   countryOfOrigin?: string | null;
   barcode?: string | null;

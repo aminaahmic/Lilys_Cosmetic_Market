@@ -18,6 +18,7 @@ public class GetProductsQueryHandler : IRequestHandler<GetProductsQuery, PageRes
         var query = _context.Products
             .Include(p => p.Category)
             .Include(p => p.Subcategory)
+            .Include(p => p.BrandEntity)
             .Where(p => !p.IsDeleted)
             .AsQueryable();
 
@@ -26,10 +27,17 @@ public class GetProductsQueryHandler : IRequestHandler<GetProductsQuery, PageRes
             query = query.Where(p => p.CategoryId == request.CategoryId.Value);
         }
 
-        if (!string.IsNullOrWhiteSpace(request.Brand))
+        if (request.BrandId.HasValue)
+        {
+            query = query.Where(p => p.BrandId == request.BrandId.Value);
+        }
+        else if (!string.IsNullOrWhiteSpace(request.Brand))
         {
             var brand = request.Brand.Trim().ToLower();
-            query = query.Where(p => p.Brand != null && p.Brand.ToLower().Contains(brand));
+
+            query = query.Where(p =>
+                (p.BrandEntity != null && p.BrandEntity.Name.ToLower().Contains(brand)) ||
+                (p.Brand != null && p.Brand.ToLower().Contains(brand)));
         }
 
         if (!string.IsNullOrWhiteSpace(request.Subcategory))
@@ -52,7 +60,7 @@ public class GetProductsQueryHandler : IRequestHandler<GetProductsQuery, PageRes
         {
             query = query.Where(x => x.IsEnabled == request.IsEnabled.Value);
         }
-        
+
         if (!string.IsNullOrWhiteSpace(request.Search))
         {
             var search = request.Search.Trim().ToLower();
@@ -61,6 +69,7 @@ public class GetProductsQueryHandler : IRequestHandler<GetProductsQuery, PageRes
                 p.Name.ToLower().Contains(search) ||
                 p.Sku.ToLower().Contains(search) ||
                 p.Slug.ToLower().Contains(search) ||
+                (p.BrandEntity != null && p.BrandEntity.Name.ToLower().Contains(search)) ||
                 (p.Brand != null && p.Brand.ToLower().Contains(search)) ||
                 (p.Subcategory != null && p.Subcategory.Name.ToLower().Contains(search)) ||
                 (p.Description != null && p.Description.ToLower().Contains(search)) ||
@@ -90,6 +99,9 @@ public class GetProductsQueryHandler : IRequestHandler<GetProductsQuery, PageRes
                 Benefits = p.Benefits,
 
                 Brand = p.Brand,
+                BrandId = p.BrandId,
+                BrandName = p.BrandEntity != null ? p.BrandEntity.Name : p.Brand,
+                BrandLogoUrl = p.BrandEntity != null ? p.BrandEntity.LogoUrl : null,
                 Size = p.Size,
                 CountryOfOrigin = p.CountryOfOrigin,
                 Barcode = p.Barcode,

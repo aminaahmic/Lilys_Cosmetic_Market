@@ -16,6 +16,9 @@ public sealed class GetProductByIdDto
     public string? Benefits { get; set; }
 
     public string? Brand { get; set; }
+    public int? BrandId { get; set; }
+    public string? BrandName { get; set; }
+    public string? BrandLogoUrl { get; set; }
     public string? Size { get; set; }
     public string? CountryOfOrigin { get; set; }
     public string? Barcode { get; set; }

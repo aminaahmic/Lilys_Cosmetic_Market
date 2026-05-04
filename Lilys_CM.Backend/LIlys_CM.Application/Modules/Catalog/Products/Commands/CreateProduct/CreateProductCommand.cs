@@ -14,6 +14,7 @@ public sealed class CreateProductCommand : IRequest<int>
     public string? Benefits { get; init; }
 
     public string? Brand { get; init; }
+    public int? BrandId { get; init; }
     public string? Size { get; init; }
     public string? CountryOfOrigin { get; init; }
     public string? Barcode { get; init; }

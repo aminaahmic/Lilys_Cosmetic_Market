@@ -48,6 +48,10 @@ public sealed class UpdateProductCommandValidator : AbstractValidator<UpdateProd
         RuleFor(x => x.Brand)
             .MaximumLength(120)
             .When(x => !string.IsNullOrWhiteSpace(x.Brand));
+            
+        RuleFor(x => x.BrandId)
+            .GreaterThan(0)
+            .When(x => x.BrandId.HasValue);
 
         RuleFor(x => x.Size)
             .MaximumLength(50)

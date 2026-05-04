@@ -38,6 +38,23 @@ public sealed class UpdateProductCommandHandler : IRequestHandler<UpdateProductC
             if (subcategory.CategoryId != request.CategoryId)
                 throw new Lilys_CMConflictException("Selected subcategory does not belong to the selected category.");
         }
+        BrandEntity? brand = null;
+
+        if (request.BrandId.HasValue)
+        {
+            brand = await _context.Brands
+                .FirstOrDefaultAsync(x => x.Id == request.BrandId.Value, cancellationToken);
+
+            if (brand is null)
+            {
+                throw new Lilys_CMNotFoundException("Brand not found.");
+            }
+
+            if (!brand.IsEnabled)
+            {
+                throw new Lilys_CMConflictException("Selected brand is not active.");
+            }
+        }
 
         var normalizedSku = request.Sku.Trim();
         var normalizedSlug = string.IsNullOrWhiteSpace(request.Slug)
@@ -73,7 +90,8 @@ public sealed class UpdateProductCommandHandler : IRequestHandler<UpdateProductC
         product.HowToUse = string.IsNullOrWhiteSpace(request.HowToUse) ? null : request.HowToUse.Trim();
         product.Benefits = string.IsNullOrWhiteSpace(request.Benefits) ? null : request.Benefits.Trim();
 
-        product.Brand = string.IsNullOrWhiteSpace(request.Brand) ? null : request.Brand.Trim();
+        product.Brand = brand?.Name ?? (string.IsNullOrWhiteSpace(request.Brand) ? null : request.Brand.Trim());
+        product.BrandId = request.BrandId;
         product.Size = string.IsNullOrWhiteSpace(request.Size) ? null : request.Size.Trim();
         product.CountryOfOrigin = string.IsNullOrWhiteSpace(request.CountryOfOrigin) ? null : request.CountryOfOrigin.Trim();
         product.Barcode = string.IsNullOrWhiteSpace(request.Barcode) ? null : request.Barcode.Trim();

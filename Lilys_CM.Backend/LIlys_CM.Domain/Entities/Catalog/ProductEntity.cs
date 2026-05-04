@@ -14,6 +14,9 @@ public class ProductEntity : BaseEntity
     public string? Benefits { get; set; }
 
     public string? Brand { get; set; }
+    public int? BrandId { get; set; }
+
+    public BrandEntity? BrandEntity { get; set; }
     public string? Size { get; set; }
     public string? CountryOfOrigin { get; set; }
     public string? Barcode { get; set; }
@@ -34,7 +37,6 @@ public class ProductEntity : BaseEntity
 
     public int? SubcategoryId { get; set; }
     public SubcategoryEntity? Subcategory { get; set; }
-     public ICollection<ProductStockMovementEntity> StockMovements { get; set; }=new List<ProductStockMovementEntity>();
+    public ICollection<ProductStockMovementEntity> StockMovements { get; set; } = new List<ProductStockMovementEntity>();
 }
-   
-   
+

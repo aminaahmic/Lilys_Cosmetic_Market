@@ -9,6 +9,7 @@ import { ProductCategoriesComponent } from './catalogs/product-categories/produc
 import { AdminOrdersComponent } from './orders/admin-orders.component';
 import { AdminSettingsComponent } from './admin-settings/admin-settings.component';
 import { SubcategoriesComponent } from './catalogs/subcategories/subcategories.component';
+import { BrandsComponent } from './catalogs/brands/brands.component';
 const routes: Routes = [
   {
     path: '',
@@ -33,12 +34,15 @@ const routes: Routes = [
         path: 'product-categories',
         component: ProductCategoriesComponent,
       },
-      
+
       {
         path: 'subcategories',
         component: SubcategoriesComponent,
       },
-
+      {
+        path: 'brands',
+        component: BrandsComponent,
+      },
       {
         path: 'orders',
         component: AdminOrdersComponent,

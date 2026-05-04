@@ -1,0 +1,60 @@
+.delete-dialog {
+  width: min(420px, 92vw);
+  padding: 6px 2px 2px;
+}
+
+.dialog-icon {
+  width: 54px;
+  height: 54px;
+  margin: 0 auto 8px;
+  display: grid;
+  place-items: center;
+  border-radius: 18px;
+  background: rgba(244, 67, 54, 0.1);
+  color: #d32f2f;
+
+  mat-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 32px;
+  }
+}
+
+h2 {
+  margin: 0;
+  text-align: center;
+  color: #2f1722;
+  font-weight: 800;
+}
+
+mat-dialog-content {
+  text-align: center;
+  color: #7d5261;
+
+  p {
+    margin: 10px 0;
+    line-height: 1.5;
+  }
+}
+
+.brand-preview {
+  margin: 14px 0;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: #fff3f6;
+  color: #3b1f2b;
+  font-weight: 800;
+}
+
+.warning-text {
+  color: #b3261e;
+  font-size: 13px;
+}
+
+mat-dialog-actions {
+  padding-top: 14px;
+
+  button {
+    border-radius: 999px;
+  }
+}
