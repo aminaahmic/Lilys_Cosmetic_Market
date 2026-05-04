@@ -185,7 +185,16 @@ export interface CreateProductVariantOptionCommand {
   optionName: string;
   value: string;
 }
+export interface UpdateProductVariantCommand {
+  price: number;
+  stock: number;
+  options: UpdateProductVariantOptionCommand[];
+}
 
+export interface UpdateProductVariantOptionCommand {
+  optionName: string;
+  value: string;
+}
 export interface ProductVariantDto {
   id: number;
   productId: number;

@@ -14,12 +14,7 @@
     </button>
   </header>
 
-  <form
-    *ngIf="form; else loadingState"
-    [formGroup]="form"
-    (ngSubmit)="onSubmit()"
-    class="editor-card"
-  >
+  <form *ngIf="form; else loadingState" [formGroup]="form" (ngSubmit)="onSubmit()" class="editor-card">
     <mat-stepper [linear]="false" class="beauty-stepper">
 
       <!-- STEP 1: OSNOVNO -->
@@ -53,11 +48,7 @@
 
           <mat-form-field appearance="outline">
             <mat-label>Kratki opis</mat-label>
-            <input
-              matInput
-              formControlName="shortDescription"
-              placeholder="Kratki opis za karticu proizvoda"
-            />
+            <input matInput formControlName="shortDescription" placeholder="Kratki opis za karticu proizvoda" />
             <mat-error *ngIf="hasError('shortDescription')">
               {{ getErrorMessage('shortDescription') }}
             </mat-error>
@@ -65,12 +56,7 @@
 
           <mat-form-field appearance="outline" class="wide">
             <mat-label>Opis proizvoda</mat-label>
-            <textarea
-              matInput
-              rows="4"
-              formControlName="description"
-              placeholder="Detaljan opis proizvoda"
-            ></textarea>
+            <textarea matInput rows="4" formControlName="description" placeholder="Detaljan opis proizvoda"></textarea>
             <mat-error *ngIf="hasError('description')">
               {{ getErrorMessage('description') }}
             </mat-error>
@@ -199,12 +185,8 @@
 
           <mat-form-field appearance="outline" class="wide">
             <mat-label>Sastojci</mat-label>
-            <textarea
-              matInput
-              rows="3"
-              formControlName="ingredients"
-              placeholder="Aqua, glycerin, niacinamide..."
-            ></textarea>
+            <textarea matInput rows="3" formControlName="ingredients"
+              placeholder="Aqua, glycerin, niacinamide..."></textarea>
             <mat-error *ngIf="hasError('ingredients')">
               {{ getErrorMessage('ingredients') }}
             </mat-error>
@@ -212,12 +194,8 @@
 
           <mat-form-field appearance="outline" class="wide">
             <mat-label>Način upotrebe</mat-label>
-            <textarea
-              matInput
-              rows="3"
-              formControlName="howToUse"
-              placeholder="Nanesite malu količinu na čistu kožu..."
-            ></textarea>
+            <textarea matInput rows="3" formControlName="howToUse"
+              placeholder="Nanesite malu količinu na čistu kožu..."></textarea>
             <mat-error *ngIf="hasError('howToUse')">
               {{ getErrorMessage('howToUse') }}
             </mat-error>
@@ -225,12 +203,8 @@
 
           <mat-form-field appearance="outline" class="wide">
             <mat-label>Benefiti</mat-label>
-            <textarea
-              matInput
-              rows="3"
-              formControlName="benefits"
-              placeholder="Hidratizira, omekšava i štiti kožu..."
-            ></textarea>
+            <textarea matInput rows="3" formControlName="benefits"
+              placeholder="Hidratizira, omekšava i štiti kožu..."></textarea>
             <mat-error *ngIf="hasError('benefits')">
               {{ getErrorMessage('benefits') }}
             </mat-error>
@@ -267,13 +241,7 @@
 
             <input type="file" accept="image/png,image/jpeg,image/webp" (change)="onFileSelected($event)" />
 
-            <button
-              type="button"
-              mat-raised-button
-              color="primary"
-              (click)="uploadImage()"
-              [disabled]="!selectedFile"
-            >
+            <button type="button" mat-raised-button color="primary" (click)="uploadImage()" [disabled]="!selectedFile">
               <mat-icon>upload</mat-icon>
               Upload slike
             </button>
@@ -338,58 +306,39 @@
         <div class="step-grid variant-form">
           <mat-form-field appearance="outline">
             <mat-label>Naziv opcije</mat-label>
-            <input
-              matInput
-              [(ngModel)]="variantName"
-              [ngModelOptions]="{ standalone: true }"
-              placeholder="Nijansa / Veličina / Volumen"
-            />
+            <input matInput [(ngModel)]="variantName" [ngModelOptions]="{ standalone: true }"
+              placeholder="Nijansa / Veličina / Volumen" />
           </mat-form-field>
 
           <mat-form-field appearance="outline">
             <mat-label>Vrijednost opcije</mat-label>
-            <input
-              matInput
-              [(ngModel)]="variantValue"
-              [ngModelOptions]="{ standalone: true }"
-              placeholder="Light / 50 ml / Vanilla"
-            />
+            <input matInput [(ngModel)]="variantValue" [ngModelOptions]="{ standalone: true }"
+              placeholder="Light / 50 ml / Vanilla" />
           </mat-form-field>
 
           <mat-form-field appearance="outline">
             <mat-label>Cijena varijante</mat-label>
-            <input
-              matInput
-              type="number"
-              step="0.01"
-              [(ngModel)]="variantPrice"
-              [ngModelOptions]="{ standalone: true }"
-              placeholder="Ako je prazno, koristi se cijena proizvoda"
-            />
+            <input matInput type="number" step="0.01" [(ngModel)]="variantPrice" [ngModelOptions]="{ standalone: true }"
+              placeholder="Ako je prazno, koristi se cijena proizvoda" />
             <span matTextPrefix>KM&nbsp;</span>
           </mat-form-field>
 
           <mat-form-field appearance="outline">
             <mat-label>Stanje varijante</mat-label>
-            <input
-              matInput
-              type="number"
-              [(ngModel)]="variantStock"
-              [ngModelOptions]="{ standalone: true }"
-              placeholder="Ako je prazno, koristi se stanje proizvoda"
-            />
+            <input matInput type="number" [(ngModel)]="variantStock" [ngModelOptions]="{ standalone: true }"
+              placeholder="Ako je prazno, koristi se stanje proizvoda" />
           </mat-form-field>
 
           <div class="variant-add-action">
-            <button
-              type="button"
-              mat-raised-button
-              color="primary"
-              (click)="addVariant()"
-              [disabled]="isVariantBusy"
-            >
-              <mat-icon>add</mat-icon>
-              Dodaj varijantu
+            <button type="button" mat-raised-button color="primary" (click)="saveVariant()" [disabled]="isVariantBusy">
+              <mat-icon>{{ editingVariantId === null ? 'add' : 'save' }}</mat-icon>
+              {{ editingVariantId === null ? 'Dodaj varijantu' : 'Sačuvaj varijantu' }}
+            </button>
+
+            <button *ngIf="editingVariantId !== null" type="button" mat-stroked-button color="warn"
+              (click)="cancelVariantEdit()" [disabled]="isVariantBusy">
+              <mat-icon>close</mat-icon>
+              Odustani
             </button>
           </div>
         </div>
@@ -421,16 +370,17 @@
               </span>
             </div>
 
-            <button
-              type="button"
-              mat-icon-button
-              color="warn"
-              (click)="deleteVariant(variant.id)"
-              [disabled]="isVariantBusy"
-              aria-label="Obriši varijantu"
-            >
-              <mat-icon>delete</mat-icon>
-            </button>
+            <div class="variant-actions">
+              <button type="button" mat-icon-button color="primary" (click)="startEditVariant(variant)"
+                [disabled]="isVariantBusy" aria-label="Uredi varijantu">
+                <mat-icon>edit</mat-icon>
+              </button>
+
+              <button type="button" mat-icon-button color="warn" (click)="deleteVariant(variant.id)"
+                [disabled]="isVariantBusy" aria-label="Obriši varijantu">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -463,43 +413,24 @@
           <div class="step-grid">
             <mat-form-field appearance="outline">
               <mat-label>Promijeni količinu</mat-label>
-              <input
-                matInput
-                type="number"
-                [(ngModel)]="stockDelta"
-                [ngModelOptions]="{ standalone: true }"
-              />
+              <input matInput type="number" [(ngModel)]="stockDelta" [ngModelOptions]="{ standalone: true }" />
               <mat-hint>Pozitivno povećava, negativno smanjuje zalihe.</mat-hint>
             </mat-form-field>
 
             <mat-form-field appearance="outline">
               <mat-label>Razlog</mat-label>
-              <input
-                matInput
-                [(ngModel)]="stockReason"
-                [ngModelOptions]="{ standalone: true }"
-              />
+              <input matInput [(ngModel)]="stockReason" [ngModelOptions]="{ standalone: true }" />
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="wide">
               <mat-label>Bilješka</mat-label>
-              <textarea
-                matInput
-                rows="2"
-                [(ngModel)]="stockNote"
-                [ngModelOptions]="{ standalone: true }"
-              ></textarea>
+              <textarea matInput rows="2" [(ngModel)]="stockNote" [ngModelOptions]="{ standalone: true }"></textarea>
             </mat-form-field>
           </div>
 
           <div class="stock-actions">
-            <button
-              type="button"
-              mat-raised-button
-              color="accent"
-              (click)="applyStockChange()"
-              [disabled]="isStockBusy || stockDelta === 0"
-            >
+            <button type="button" mat-raised-button color="accent" (click)="applyStockChange()"
+              [disabled]="isStockBusy || stockDelta === 0">
               <mat-icon>sync_alt</mat-icon>
               Primijeni promjenu zaliha
             </button>
@@ -586,12 +517,7 @@
             Nazad
           </button>
 
-          <button
-            type="submit"
-            mat-raised-button
-            color="primary"
-            [disabled]="form.invalid || isLoading"
-          >
+          <button type="submit" mat-raised-button color="primary" [disabled]="form.invalid || isLoading">
             <mat-icon>save</mat-icon>
             Sačuvaj proizvod
           </button>

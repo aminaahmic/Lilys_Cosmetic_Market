@@ -13,6 +13,7 @@ import {
   ListProductStockMovementsRequest,
   ProductFilterOptionsDto,
   CreateProductVariantCommand,
+  UpdateProductVariantCommand,
   ProductVariantDto
 } from './products-api.models';
 
@@ -44,7 +45,12 @@ export class ProductsApiService {
       command
     );
   }
-
+  updateVariant(productId: number, variantId: number, command: UpdateProductVariantCommand) {
+    return this.http.put<void>(
+      `${environment.apiUrl}/api/products/${productId}/variants/${variantId}`,
+      command
+    );
+  }
   deleteVariant(productId: number, variantId: number) {
     return this.http.delete<void>(
       `${environment.apiUrl}/api/products/${productId}/variants/${variantId}`

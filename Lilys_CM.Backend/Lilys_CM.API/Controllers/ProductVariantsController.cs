@@ -1,7 +1,7 @@
 using Lilys_CM.Application.Modules.Catalog.ProductVariants.Commands.CreateProductVariant;
 using Lilys_CM.Application.Modules.Catalog.ProductVariants.Commands.DeleteProductVariant;
 using Lilys_CM.Application.Modules.Catalog.ProductVariants.Queries.GetProductVariants;
-
+using Lilys_CM.Application.Modules.Catalog.ProductVariants.Commands.UpdateProductVariant;
 [ApiController]
 [Route("api/products/{productId:int}/variants")]
 public sealed class ProductVariantsController : ControllerBase
@@ -36,6 +36,21 @@ public sealed class ProductVariantsController : ControllerBase
         var id = await _mediator.Send(command);
 
         return Ok(id);
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpPut("{variantId:int}")]
+    public async Task<IActionResult> Update(
+        int productId,
+        int variantId,
+        [FromBody] UpdateProductVariantCommand command)
+    {
+        command.ProductId = productId;
+        command.VariantId = variantId;
+
+        await _mediator.Send(command);
+
+        return NoContent();
     }
 
     [Authorize(Roles = "Admin")]

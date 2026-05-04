@@ -5,6 +5,15 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { ProductFormService } from '../services/product-form.service';
 import { BaseFormComponent } from '../../../../../core/components/base-classes/base-form-component';
+import { ProductsApiService } from '../../../../../api-services/products/products-api.service';
+import { ProductCategoriesApiService } from '../../../../../api-services/product-categories/product-categories-api.service';
+import { ToasterService } from '../../../../../core/services/toaster.service';
+import { MatDialog } from '@angular/material/dialog';
+import { ProductVariantDeleteDialogComponent } from '../product-variant-delete-dialog/product-variant-delete-dialog.component';
+import {
+  ListProductCategoriesQueryDto,
+  ListProductCategoriesRequest
+} from '../../../../../api-services/product-categories/product-categories-api.model';
 import {
   AdjustProductStockCommand,
   CreateProductVariantCommand,
@@ -12,16 +21,9 @@ import {
   ListProductStockMovementsRequest,
   ProductStockMovementDto,
   ProductVariantDto,
-  UpdateProductCommand
+  UpdateProductCommand,
+  UpdateProductVariantCommand
 } from '../../../../../api-services/products/products-api.models';
-import { ProductsApiService } from '../../../../../api-services/products/products-api.service';
-import { ProductCategoriesApiService } from '../../../../../api-services/product-categories/product-categories-api.service';
-import { ToasterService } from '../../../../../core/services/toaster.service';
-import {
-  ListProductCategoriesQueryDto,
-  ListProductCategoriesRequest
-} from '../../../../../api-services/product-categories/product-categories-api.model';
-
 @Component({
   selector: 'app-products-edit',
   standalone: false,
@@ -39,6 +41,7 @@ export class ProductsEditComponent
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private toaster = inject(ToasterService);
+  private dialog = inject(MatDialog);
 
   productId!: number;
   categories: ListProductCategoriesQueryDto[] = [];
@@ -57,6 +60,8 @@ export class ProductsEditComponent
   variantPrice: number | null = null;
   variantStock: number | null = null;
   isVariantBusy = false;
+  editingVariantId: number | null = null;
+
   private subApi = inject(SubcategoriesApiService);
   ngOnInit(): void {
     this.productId = +this.route.snapshot.params['id'];
@@ -338,32 +343,149 @@ export class ProductsEditComponent
       }
     });
   }
+  startEditVariant(variant: ProductVariantDto): void {
+    const firstOption = variant.options[0];
 
-
-  deleteVariant(variantId: number): void {
-    if (!this.productId || this.isVariantBusy) {
+    if (!firstOption) {
+      this.toaster.warning('Ova varijanta nema opciju za uređivanje.');
       return;
     }
 
-    const confirmed = confirm('Da li ste sigurni da želite obrisati ovu varijantu?');
+    this.editingVariantId = variant.id;
+    this.variantName = firstOption.optionName;
+    this.variantValue = firstOption.value;
+    this.variantPrice = variant.price;
+    this.variantStock = variant.stock;
+  }
 
-    if (!confirmed) {
+  cancelVariantEdit(): void {
+    this.editingVariantId = null;
+    this.variantName = '';
+    this.variantValue = '';
+    this.variantPrice = null;
+    this.variantStock = null;
+  }
+  saveVariant(): void {
+    if (this.editingVariantId === null) {
+      this.addVariant();
       return;
     }
+
+    if (this.isVariantBusy) {
+      return;
+    }
+
+    const optionName = this.variantName.trim();
+    const optionValue = this.variantValue.trim();
+
+    const productPrice = Number(this.form.get('price')?.value ?? 0);
+    const productStock = Number(this.form.get('stockQuantity')?.value ?? 0);
+
+    const price = this.variantPrice !== null
+      ? Number(this.variantPrice)
+      : productPrice;
+
+    const stock = this.variantStock !== null
+      ? Number(this.variantStock)
+      : productStock;
+
+    if (!optionName || !optionValue) {
+      this.toaster.warning('Unesite naziv opcije i vrijednost opcije.');
+      return;
+    }
+
+    if (Number.isNaN(price) || Number.isNaN(stock)) {
+      this.toaster.warning('Cijena i stanje varijante moraju biti validni brojevi.');
+      return;
+    }
+
+    if (price < 0) {
+      this.toaster.warning('Cijena varijante ne može biti negativna.');
+      return;
+    }
+
+    if (stock < 0) {
+      this.toaster.warning('Stanje varijante ne može biti negativno.');
+      return;
+    }
+
+    const alreadyExists = this.variants.some(variant =>
+      variant.id !== this.editingVariantId &&
+      variant.options.some(option =>
+        option.optionName.toLowerCase() === optionName.toLowerCase() &&
+        option.value.toLowerCase() === optionValue.toLowerCase()
+      )
+    );
+
+    if (alreadyExists) {
+      this.toaster.warning('Ova varijanta već postoji.');
+      return;
+    }
+
+    const command: UpdateProductVariantCommand = {
+      price,
+      stock,
+      options: [
+        {
+          optionName,
+          value: optionValue
+        }
+      ]
+    };
 
     this.isVariantBusy = true;
 
-    this.api.deleteVariant(this.productId, variantId).subscribe({
+    this.api.updateVariant(this.productId, this.editingVariantId, command).subscribe({
       next: () => {
-        this.toaster.success('Varijanta je obrisana.');
+        this.toaster.success('Varijanta je uspješno ažurirana.');
+        this.cancelVariantEdit();
         this.isVariantBusy = false;
         this.loadVariants();
       },
       error: (err) => {
         this.isVariantBusy = false;
-        this.toaster.error('Greška prilikom brisanja varijante.');
-        console.error('Delete variant error:', err);
+        this.toaster.error('Greška prilikom ažuriranja varijante.');
+        console.error('Update variant error:', err);
       }
+    });
+  }
+  deleteVariant(variantId: number): void {
+    if (!this.productId || this.isVariantBusy) {
+      return;
+    }
+
+    const variant = this.variants.find(x => x.id === variantId);
+
+    const variantLabel = variant?.options?.length
+      ? variant.options.map(option => `${option.optionName}: ${option.value}`).join(', ')
+      : 'Varijanta proizvoda';
+
+    const dialogRef = this.dialog.open(ProductVariantDeleteDialogComponent, {
+      width: '440px',
+      data: {
+        variantLabel
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(confirmed => {
+      if (!confirmed) {
+        return;
+      }
+
+      this.isVariantBusy = true;
+
+      this.api.deleteVariant(this.productId, variantId).subscribe({
+        next: () => {
+          this.toaster.success('Varijanta je obrisana.');
+          this.isVariantBusy = false;
+          this.loadVariants();
+        },
+        error: (err) => {
+          this.isVariantBusy = false;
+          this.toaster.error('Greška prilikom brisanja varijante.');
+          console.error('Delete variant error:', err);
+        }
+      });
     });
   }
   loadImages(): void {
