@@ -11,6 +11,7 @@ import { ToasterService } from '../../../../../core/services/toaster.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ProductVariantDeleteDialogComponent } from '../product-variant-delete-dialog/product-variant-delete-dialog.component';
 import { BrandsApiService } from '../../../../../api-services/brands/brands-api.service';
+import { environment } from '../../../../../../environments/environment';
 import { BrandDto } from '../../../../../api-services/brands/brands-api.models';
 import {
   ListProductCategoriesQueryDto,
@@ -533,6 +534,17 @@ export class ProductsEditComponent
     this.subApi.getByCategory(categoryId).subscribe((res: SubcategoryDto[]) => {
       this.subcategories = res;
     });
+  }
+  getImageUrl(imageUrl: string | null | undefined): string | null {
+    if (!imageUrl) {
+      return null;
+    }
+
+    if (imageUrl.startsWith('http')) {
+      return imageUrl;
+    }
+
+    return `${environment.apiUrl}${imageUrl}`;
   }
   uploadImage(): void {
     if (!this.selectedFile || !this.productId) return;

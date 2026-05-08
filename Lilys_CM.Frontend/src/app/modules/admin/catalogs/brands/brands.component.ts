@@ -10,6 +10,7 @@ import { environment } from '../../../../../environments/environment';
 import { MatDialog } from '@angular/material/dialog';
 import { BrandDeleteDialogComponent } from './brand-delete-dialog/brand-delete-dialog.component';
 
+
 @Component({
   selector: 'app-brands',
   standalone: false,
@@ -162,7 +163,17 @@ export class BrandsComponent implements OnInit {
     this.selectedLogoFile = file;
     this.logoPreviewUrl = URL.createObjectURL(file);
   }
+  getBrandLogoUrl(brand: BrandDto): string | null {
+    if (!brand.logoUrl) {
+      return null;
+    }
 
+    if (brand.logoUrl.startsWith('http')) {
+      return brand.logoUrl;
+    }
+
+    return `${environment.apiUrl}${brand.logoUrl}`;
+  }
   saveBrand(): void {
     const name = this.form.name.trim();
 
@@ -247,35 +258,35 @@ export class BrandsComponent implements OnInit {
     });
   }
   deleteBrand(brand: BrandDto): void {
-  if (brand.productsCount > 0) {
-    this.toaster.warning('Brend se ne može obrisati jer ima povezane proizvode.');
-    return;
-  }
-
-  const dialogRef = this.dialog.open(BrandDeleteDialogComponent, {
-    width: '440px',
-    data: {
-      brandName: brand.name
-    }
-  });
-
-  dialogRef.afterClosed().subscribe(confirmed => {
-    if (!confirmed) {
+    if (brand.productsCount > 0) {
+      this.toaster.warning('Brend se ne može obrisati jer ima povezane proizvode.');
       return;
     }
 
-    this.api.delete(brand.id).subscribe({
-      next: () => {
-        this.toaster.success('Brend je obrisan.');
-        this.loadBrands();
-      },
-      error: (err) => {
-        this.toaster.error('Greška prilikom brisanja brenda.');
-        console.error('Delete brand error:', err);
+    const dialogRef = this.dialog.open(BrandDeleteDialogComponent, {
+      width: '440px',
+      data: {
+        brandName: brand.name
       }
     });
-  });
-}
+
+    dialogRef.afterClosed().subscribe(confirmed => {
+      if (!confirmed) {
+        return;
+      }
+
+      this.api.delete(brand.id).subscribe({
+        next: () => {
+          this.toaster.success('Brend je obrisan.');
+          this.loadBrands();
+        },
+        error: (err) => {
+          this.toaster.error('Greška prilikom brisanja brenda.');
+          console.error('Delete brand error:', err);
+        }
+      });
+    });
+  }
 
   get activeBrandsCount(): number {
     return this.brands.filter(x => x.isEnabled).length;

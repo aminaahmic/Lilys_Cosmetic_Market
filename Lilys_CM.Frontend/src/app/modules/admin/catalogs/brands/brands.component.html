@@ -90,46 +90,26 @@
           <h4>Logo brenda</h4>
           <p>Odaberite sliku sa računara. Dozvoljeni formati: JPG, PNG i WEBP.</p>
 
-          <input
-            type="file"
-            accept="image/png,image/jpeg,image/webp"
-            (change)="onLogoSelected($event)"
-          />
+          <input type="file" accept="image/png,image/jpeg,image/webp" (change)="onLogoSelected($event)" />
         </div>
       </div>
 
       <div class="brand-fields">
         <mat-form-field appearance="outline">
           <mat-label>Naziv brenda</mat-label>
-          <input
-            matInput
-            name="brandName"
-            [(ngModel)]="form.name"
-            placeholder="L'Oréal Paris"
-            required
-          />
+          <input matInput name="brandName" [(ngModel)]="form.name" placeholder="L'Oréal Paris" required />
         </mat-form-field>
 
         <mat-form-field appearance="outline">
           <mat-label>Slug</mat-label>
-          <input
-            matInput
-            name="brandSlug"
-            [(ngModel)]="form.slug"
-            placeholder="loreal-paris"
-          />
+          <input matInput name="brandSlug" [(ngModel)]="form.slug" placeholder="loreal-paris" />
           <mat-hint>Ako ostane prazno, backend ga generiše iz naziva.</mat-hint>
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="wide">
           <mat-label>Opis</mat-label>
-          <textarea
-            matInput
-            rows="3"
-            name="brandDescription"
-            [(ngModel)]="form.description"
-            placeholder="Kratki opis brenda..."
-          ></textarea>
+          <textarea matInput rows="3" name="brandDescription" [(ngModel)]="form.description"
+            placeholder="Kratki opis brenda..."></textarea>
         </mat-form-field>
 
         <div class="brand-form-footer">
@@ -206,7 +186,8 @@
             <td>
               <div class="brand-main-cell">
                 <div class="brand-logo">
-                  <img *ngIf="brand.logoUrl; else logoPlaceholder" [src]="brand.logoUrl" [alt]="brand.name" />
+                  <img *ngIf="getBrandLogoUrl(brand); else logoPlaceholder" [src]="getBrandLogoUrl(brand)"
+                    [alt]="brand.name" />
 
                   <ng-template #logoPlaceholder>
                     <mat-icon>sell</mat-icon>
@@ -251,14 +232,8 @@
                   <mat-icon>edit</mat-icon>
                 </button>
 
-                <button
-                  type="button"
-                  mat-icon-button
-                  class="delete-btn"
-                  (click)="deleteBrand(brand)"
-                  [disabled]="brand.productsCount > 0"
-                  matTooltip="Obriši"
-                >
+                <button type="button" mat-icon-button class="delete-btn" (click)="deleteBrand(brand)"
+                  [disabled]="brand.productsCount > 0" matTooltip="Obriši">
                   <mat-icon>delete</mat-icon>
                 </button>
               </div>

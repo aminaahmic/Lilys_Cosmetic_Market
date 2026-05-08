@@ -262,7 +262,7 @@
 
           <div class="image-grid" *ngIf="images.length > 0">
             <div *ngFor="let img of images" class="image-card">
-              <img [src]="img.imageUrl" alt="Slika proizvoda" />
+              <img [src]="getImageUrl(img.imageUrl)" alt="Slika proizvoda" />
 
               <div class="main-badge" *ngIf="img.isMain">
                 Glavna

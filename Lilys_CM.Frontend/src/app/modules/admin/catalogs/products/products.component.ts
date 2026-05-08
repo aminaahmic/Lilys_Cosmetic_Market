@@ -11,6 +11,7 @@ import { DialogButton } from '../../../shared/models/dialog-config.model';
 import { ProductCategoriesApiService } from '../../../../api-services/product-categories/product-categories-api.service';
 import { BrandsApiService } from '../../../../api-services/brands/brands-api.service';
 import { BrandDto } from '../../../../api-services/brands/brands-api.models';
+import { environment } from '../../../../../environments/environment';
 import {
   ListProductCategoriesQueryDto,
   ListProductCategoriesRequest
@@ -220,7 +221,7 @@ export class ProductsComponent
       next: (response) => {
         this.subcategories = response.subcategories;
 
-      
+
         if (this.request.subcategory && !this.subcategories.includes(this.request.subcategory)) {
           this.request.subcategory = null;
         }
@@ -269,8 +270,23 @@ export class ProductsComponent
   }
 
   getProductImage(product: ListProductsQueryDto): string | null {
-    return (product as any).imageUrl || null;
+    const imageUrl =
+      (product as any).imageUrl ||
+      (product as any).mainImageUrl ||
+      (product as any).imageUrls?.[0] ||
+      null;
+
+    if (!imageUrl) {
+      return null;
+    }
+
+    if (imageUrl.startsWith('http')) {
+      return imageUrl;
+    }
+
+    return `${environment.apiUrl}${imageUrl}`;
   }
+
 
   getCompareAtPrice(product: ListProductsQueryDto): number | null {
     return (product as any).compareAtPrice ?? null;
