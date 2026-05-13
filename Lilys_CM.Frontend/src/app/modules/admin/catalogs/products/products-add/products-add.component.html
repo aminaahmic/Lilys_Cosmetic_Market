@@ -59,6 +59,23 @@
               {{ getErrorMessage('shortDescription') }}
             </mat-error>
           </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>SEO naslov</mat-label>
+            <input matInput formControlName="seoTitle" placeholder="Npr. Maybelline Fit Me puder" />
+            <mat-error *ngIf="hasError('seoTitle')">
+              {{ getErrorMessage('seoTitle') }}
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="wide">
+            <mat-label>SEO opis</mat-label>
+            <textarea matInput rows="3" formControlName="seoDescription"
+              placeholder="Kratki opis proizvoda za Google pretragu">
+            </textarea>
+            <mat-error *ngIf="hasError('seoDescription')">
+              {{ getErrorMessage('seoDescription') }}
+            </mat-error>
+          </mat-form-field>
 
           <mat-form-field appearance="outline" class="wide">
             <mat-label>Detaljni opis</mat-label>
