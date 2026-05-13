@@ -269,10 +269,10 @@
           <mat-form-field appearance="outline">
             <mat-label>Naziv opcije</mat-label>
 
-            <mat-select [(ngModel)]="variantName" [ngModelOptions]="{ standalone: true }">
-              <mat-option value="">Odaberite opciju</mat-option>
+            <mat-select [(ngModel)]="variantOptionId" [ngModelOptions]="{ standalone: true }">
+              <mat-option [value]="null">Odaberite opciju</mat-option>
 
-              <mat-option *ngFor="let option of options" [value]="option.name">
+              <mat-option *ngFor="let option of options" [value]="option.id">
                 {{ option.name }}
               </mat-option>
             </mat-select>

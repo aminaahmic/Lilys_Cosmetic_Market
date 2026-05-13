@@ -45,7 +45,7 @@ export class ProductsComponent
 
   categories: ListProductCategoriesQueryDto[] = [];
   brands: BrandDto[] = [];
-  subcategories: string[] = [];
+  subcategories: { id: number; name: string }[] = [];
   private filterDebounceTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor() {
@@ -179,6 +179,7 @@ export class ProductsComponent
 
   onCategoryChanged(): void {
     this.request.subcategory = null;
+    this.request.subcategoryId = null;
     this.loadFilterOptions();
     this.onApplyFilters();
   }
@@ -192,6 +193,7 @@ export class ProductsComponent
     this.request.brand = null;
     this.request.brandId = null;
     this.request.subcategory = null;
+    this.request.subcategoryId = null;
     this.request.categoryId = null;
     this.request.priceMin = null;
     this.request.priceMax = null;
@@ -219,13 +221,21 @@ export class ProductsComponent
   }
 
   private loadFilterOptions(): void {
+    if (!this.request.categoryId) {
+      this.subcategories = [];
+      this.request.subcategoryId = null;
+      return;
+    }
+
     this.api.getFilterOptions(this.request.categoryId).subscribe({
       next: (response) => {
-        this.subcategories = response.subcategories;
+      this.subcategories = response.subcategories;
 
-
-        if (this.request.subcategory && !this.subcategories.includes(this.request.subcategory)) {
-          this.request.subcategory = null;
+        if (
+          this.request.subcategoryId &&
+          !this.subcategories.some(x => x.id === this.request.subcategoryId)
+        ) {
+          this.request.subcategoryId = null;
         }
       },
       error: (err) => {
@@ -299,8 +309,8 @@ export class ProductsComponent
   }
 
   getSubcategoryLabel(product: ListProductsQueryDto): string {
-  return product.subcategoryName || product.subcategory || 'Bez potkategorije';
-}
+    return product.subcategoryName || product.subcategory || 'Bez potkategorije';
+  }
   getStockLabel(product: ListProductsQueryDto): string {
     if (product.stockQuantity <= 0) {
       return 'Nema zalihe';

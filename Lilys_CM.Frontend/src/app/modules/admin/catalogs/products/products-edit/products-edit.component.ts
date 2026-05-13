@@ -28,6 +28,7 @@ import {
   UpdateProductCommand,
   UpdateProductVariantCommand
 } from '../../../../../api-services/products/products-api.models';
+
 @Component({
   selector: 'app-products-edit',
   standalone: false,
@@ -47,21 +48,27 @@ export class ProductsEditComponent
   private toaster = inject(ToasterService);
   private dialog = inject(MatDialog);
   private brandsApi = inject(BrandsApiService);
-  brands: BrandDto[] = [];
   private optionsApi = inject(OptionsApiService);
-  options: OptionDto[] = [];
+  private subApi = inject(SubcategoriesApiService);
+
   productId!: number;
+
+  brands: BrandDto[] = [];
+  options: OptionDto[] = [];
   categories: ListProductCategoriesQueryDto[] = [];
+  subcategories: SubcategoryDto[] = [];
+
   stockMovements: ProductStockMovementDto[] = [];
   stockDelta = 0;
   stockReason = 'Manual correction';
   stockNote = '';
   isStockBusy = false;
+
   images: any[] = [];
   selectedFile: File | null = null;
-  subcategories: SubcategoryDto[] = [];
-  variants: ProductVariantDto[] = [];
 
+  variants: ProductVariantDto[] = [];
+  variantOptionId: number | null = null;
   variantName = '';
   variantValue = '';
   variantPrice: number | null = null;
@@ -69,7 +76,6 @@ export class ProductsEditComponent
   isVariantBusy = false;
   editingVariantId: number | null = null;
 
-  private subApi = inject(SubcategoriesApiService);
   ngOnInit(): void {
     this.productId = +this.route.snapshot.params['id'];
     this.initForm(true);
@@ -116,6 +122,7 @@ export class ProductsEditComponent
       }
     });
   }
+
   private loadOptions(): void {
     this.optionsApi.getAll().subscribe({
       next: (response) => {
@@ -127,6 +134,7 @@ export class ProductsEditComponent
       }
     });
   }
+
   private loadBrands(): void {
     this.brandsApi.getAll(true, null).subscribe({
       next: (response) => {
@@ -173,7 +181,6 @@ export class ProductsEditComponent
     const command: UpdateProductCommand = {
       name: value.name,
       sku: value.sku,
-
       slug: value.slug || null,
       imageUrl: value.imageUrl || null,
 
@@ -191,7 +198,6 @@ export class ProductsEditComponent
 
       price,
       compareAtPrice,
-
       stockQuantity: Number(value.stockQuantity ?? 0),
 
       isEnabled: Boolean(value.isEnabled),
@@ -289,6 +295,7 @@ export class ProductsEditComponent
   isPricingStepValid(): boolean {
     return !!this.form.get('price')?.valid && !!this.form.get('categoryId')?.valid;
   }
+
   loadVariants(): void {
     if (!this.productId) {
       return;
@@ -304,12 +311,15 @@ export class ProductsEditComponent
       }
     });
   }
+
   addVariant(): void {
     if (this.isVariantBusy) {
       return;
     }
 
-    const optionName = this.variantName.trim();
+    const optionId = Number(this.variantOptionId);
+    const selectedOption = this.options.find(option => option.id === optionId);
+    const optionName = selectedOption?.name?.trim() ?? '';
     const optionValue = this.variantValue.trim();
 
     const productPrice = Number(this.form.get('price')?.value ?? 0);
@@ -323,13 +333,13 @@ export class ProductsEditComponent
       ? Number(this.variantStock)
       : productStock;
 
-    if (Number.isNaN(price) || Number.isNaN(stock)) {
-      this.toaster.warning('Cijena i stanje varijante moraju biti validni brojevi.');
+    if (!optionId || !selectedOption || !optionValue) {
+      this.toaster.warning('Odaberite naziv opcije i unesite vrijednost opcije.');
       return;
     }
 
-    if (!optionName || !optionValue) {
-      this.toaster.warning('Unesite naziv opcije i vrijednost opcije.');
+    if (Number.isNaN(price) || Number.isNaN(stock)) {
+      this.toaster.warning('Cijena i stanje varijante moraju biti validni brojevi.');
       return;
     }
 
@@ -360,7 +370,7 @@ export class ProductsEditComponent
       stock,
       options: [
         {
-          optionName,
+          optionId,
           value: optionValue
         }
       ]
@@ -371,6 +381,8 @@ export class ProductsEditComponent
     this.api.createVariant(this.productId, command).subscribe({
       next: () => {
         this.toaster.success('Varijanta je uspješno dodana.');
+
+        this.variantOptionId = null;
         this.variantName = '';
         this.variantValue = '';
         this.variantPrice = null;
@@ -385,6 +397,7 @@ export class ProductsEditComponent
       }
     });
   }
+
   startEditVariant(variant: ProductVariantDto): void {
     const firstOption = variant.options[0];
 
@@ -393,7 +406,12 @@ export class ProductsEditComponent
       return;
     }
 
+    const selectedOption = this.options.find(
+      option => option.name.toLowerCase() === firstOption.optionName.toLowerCase()
+    );
+
     this.editingVariantId = variant.id;
+    this.variantOptionId = selectedOption?.id ?? null;
     this.variantName = firstOption.optionName;
     this.variantValue = firstOption.value;
     this.variantPrice = variant.price;
@@ -402,11 +420,13 @@ export class ProductsEditComponent
 
   cancelVariantEdit(): void {
     this.editingVariantId = null;
+    this.variantOptionId = null;
     this.variantName = '';
     this.variantValue = '';
     this.variantPrice = null;
     this.variantStock = null;
   }
+
   saveVariant(): void {
     if (this.editingVariantId === null) {
       this.addVariant();
@@ -417,7 +437,9 @@ export class ProductsEditComponent
       return;
     }
 
-    const optionName = this.variantName.trim();
+    const optionId = Number(this.variantOptionId);
+    const selectedOption = this.options.find(option => option.id === optionId);
+    const optionName = selectedOption?.name?.trim() ?? '';
     const optionValue = this.variantValue.trim();
 
     const productPrice = Number(this.form.get('price')?.value ?? 0);
@@ -431,8 +453,8 @@ export class ProductsEditComponent
       ? Number(this.variantStock)
       : productStock;
 
-    if (!optionName || !optionValue) {
-      this.toaster.warning('Unesite naziv opcije i vrijednost opcije.');
+    if (!optionId || !selectedOption || !optionValue) {
+      this.toaster.warning('Odaberite naziv opcije i unesite vrijednost opcije.');
       return;
     }
 
@@ -469,7 +491,7 @@ export class ProductsEditComponent
       stock,
       options: [
         {
-          optionName,
+          optionId,
           value: optionValue
         }
       ]
@@ -491,6 +513,7 @@ export class ProductsEditComponent
       }
     });
   }
+
   deleteVariant(variantId: number): void {
     if (!this.productId || this.isVariantBusy) {
       return;
@@ -530,8 +553,11 @@ export class ProductsEditComponent
       });
     });
   }
+
   loadImages(): void {
-    if (!this.productId) return;
+    if (!this.productId) {
+      return;
+    }
 
     this.api.getImages(this.productId).subscribe(res => {
       this.images = res;
@@ -542,6 +568,7 @@ export class ProductsEditComponent
     const input = event.target as HTMLInputElement;
     this.selectedFile = input.files?.[0] ?? null;
   }
+
   onCategoryChanged(categoryId: number): void {
     this.form.patchValue({ subcategoryId: null });
 
@@ -549,6 +576,7 @@ export class ProductsEditComponent
       this.subcategories = res;
     });
   }
+
   getImageUrl(imageUrl: string | null | undefined): string | null {
     if (!imageUrl) {
       return null;
@@ -560,8 +588,11 @@ export class ProductsEditComponent
 
     return `${environment.apiUrl}${imageUrl}`;
   }
+
   uploadImage(): void {
-    if (!this.selectedFile || !this.productId) return;
+    if (!this.selectedFile || !this.productId) {
+      return;
+    }
 
     this.api.uploadImage(this.productId, this.selectedFile).subscribe(() => {
       this.selectedFile = null;
@@ -570,7 +601,9 @@ export class ProductsEditComponent
   }
 
   deleteImage(imageId: number): void {
-    if (!this.productId) return;
+    if (!this.productId) {
+      return;
+    }
 
     this.api.deleteImage(this.productId, imageId).subscribe(() => {
       this.loadImages();
@@ -578,7 +611,9 @@ export class ProductsEditComponent
   }
 
   setMain(imageId: number): void {
-    if (!this.productId) return;
+    if (!this.productId) {
+      return;
+    }
 
     this.api.setMainImage(this.productId, imageId).subscribe(() => {
       this.loadImages();

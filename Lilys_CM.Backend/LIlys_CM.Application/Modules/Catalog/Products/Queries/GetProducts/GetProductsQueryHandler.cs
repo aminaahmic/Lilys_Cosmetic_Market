@@ -26,6 +26,10 @@ public class GetProductsQueryHandler : IRequestHandler<GetProductsQuery, PageRes
         {
             query = query.Where(p => p.CategoryId == request.CategoryId.Value);
         }
+        if (request.SubcategoryId.HasValue)
+        {
+            query = query.Where(p => p.SubcategoryId == request.SubcategoryId.Value);
+        }
 
         if (request.BrandId.HasValue)
         {

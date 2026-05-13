@@ -19,7 +19,7 @@ public sealed class DeleteProductCommandHandler : IRequestHandler<DeleteProductC
         if (product is null)
             throw new Lilys_CMNotFoundException("Product not found.");
 
-        _context.Products.Remove(product);
+        product.MarkDeleted();
         await _context.SaveChangesAsync(cancellationToken);
 
         return Unit.Value;

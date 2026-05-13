@@ -143,23 +143,56 @@ public class ProductImagesController : ControllerBase
 
         return NoContent();
     }
+[Authorize(Roles = "Admin")]
+[HttpDelete("{imageId:int}")]
+public async Task<IActionResult> Delete(
+    int productId,
+    int imageId,
+    CancellationToken cancellationToken)
+{
+    var product = await _context.Products
+        .FirstOrDefaultAsync(x => x.Id == productId && !x.IsDeleted, cancellationToken);
 
-    [Authorize(Roles = "Admin")]
-    [HttpDelete("{imageId:int}")]
-    public async Task<IActionResult> Delete(
-        int productId,
-        int imageId,
-        CancellationToken cancellationToken)
+    if (product is null)
+        return NotFound("Product not found.");
+
+    var image = await _context.ProductImages
+        .FirstOrDefaultAsync(x => x.Id == imageId && x.ProductId == productId, cancellationToken);
+
+    if (image is null)
+        return NotFound("Image not found.");
+
+    var deletedImageUrl = image.ImageUrl;
+    var wasMainImage = image.IsMain || product.ImageUrl == image.ImageUrl;
+
+    _context.ProductImages.Remove(image);
+    await _context.SaveChangesAsync(cancellationToken);
+
+    if (wasMainImage)
     {
-        var image = await _context.ProductImages
-            .FirstOrDefaultAsync(x => x.Id == imageId && x.ProductId == productId, cancellationToken);
+        var nextMainImage = await _context.ProductImages
+            .Where(x => x.ProductId == productId)
+            .OrderBy(x => x.SortOrder)
+            .ThenBy(x => x.Id)
+            .FirstOrDefaultAsync(cancellationToken);
 
-        if (image == null)
-            return NotFound("Image not found.");
-
-        _context.ProductImages.Remove(image);
-        await _context.SaveChangesAsync(cancellationToken);
-
-        return NoContent();
+        if (nextMainImage is null)
+        {
+            product.ImageUrl = null;
+        }
+        else
+        {
+            nextMainImage.IsMain = true;
+            product.ImageUrl = nextMainImage.ImageUrl;
+        }
     }
+    else if (product.ImageUrl == deletedImageUrl)
+    {
+        product.ImageUrl = null;
+    }
+
+    await _context.SaveChangesAsync(cancellationToken);
+
+    return NoContent();
+}
 }

@@ -20,9 +20,8 @@ public sealed class CreateProductVariantCommandValidator
 
         RuleForEach(x => x.Options).ChildRules(option =>
         {
-            option.RuleFor(x => x.OptionName)
-                .NotEmpty()
-                .MaximumLength(100);
+            option.RuleFor(x => x.OptionId)
+             .GreaterThan(0);
 
             option.RuleFor(x => x.Value)
                 .NotEmpty()

@@ -19,52 +19,38 @@ public sealed class GetProductFilterOptionsQueryHandler :
     {
         var brandsRaw = await _context.Products
             .AsNoTracking()
-            .Where(p => p.IsEnabled && !string.IsNullOrWhiteSpace(p.Brand))
-            .Select(p => p.Brand!)
+            .Where(p => p.IsEnabled && !p.IsDeleted)
+            .Where(p =>
+                (p.BrandEntity != null && !string.IsNullOrWhiteSpace(p.BrandEntity.Name)) ||
+                !string.IsNullOrWhiteSpace(p.Brand))
+            .Select(p => p.BrandEntity != null ? p.BrandEntity.Name : p.Brand!)
             .ToListAsync(cancellationToken);
 
         var brands = brandsRaw
-            .Select(x => x.Trim())
-            .Where(x => !string.IsNullOrWhiteSpace(x) )
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .OrderBy(x => x)
-            .ToList();
-
-        var productSubcategoryQuery = _context.Products
-            .AsNoTracking()
-            .Where(p => p.IsEnabled &&  p.Subcategory != null && !string.IsNullOrWhiteSpace(p.Subcategory.Name));
-
-        if (request.CategoryId.HasValue)
-        {
-            productSubcategoryQuery = productSubcategoryQuery
-                .Where(p => p.CategoryId == request.CategoryId.Value);
-        }
-
-        var subcategoriesFromProducts = await productSubcategoryQuery
-            .Select(p => p.Subcategory!.Name)
-            .ToListAsync(cancellationToken);
-
-        var subcategoryTableQuery = _context.Subcategories
-            .AsNoTracking()
-            .Where(s => !string.IsNullOrWhiteSpace(s.Name));
-
-        if (request.CategoryId.HasValue)
-        {
-            subcategoryTableQuery = subcategoryTableQuery
-                .Where(s => s.CategoryId == request.CategoryId.Value);
-        }
-
-        var subcategoriesFromTable = await subcategoryTableQuery
-            .Select(s => s.Name)
-            .ToListAsync(cancellationToken);
-
-        var subcategories = subcategoriesFromProducts
-            .Concat(subcategoriesFromTable)
             .Select(x => x.Trim())
             .Where(x => !string.IsNullOrWhiteSpace(x))
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .OrderBy(x => x)
             .ToList();
+
+        var subcategoryQuery = _context.Subcategories
+            .AsNoTracking()
+            .Where(s => !s.IsDeleted && !string.IsNullOrWhiteSpace(s.Name));
+
+        if (request.CategoryId.HasValue)
+        {
+            subcategoryQuery = subcategoryQuery
+                .Where(s => s.CategoryId == request.CategoryId.Value);
+        }
+
+        var subcategories = await subcategoryQuery
+            .Select(s => new SubcategoryFilterOptionDto
+            {
+                Id = s.Id,
+                Name = s.Name
+            })
+            .OrderBy(s => s.Name)
+            .ToListAsync(cancellationToken);
 
         return new ProductFilterOptionsDto
         {

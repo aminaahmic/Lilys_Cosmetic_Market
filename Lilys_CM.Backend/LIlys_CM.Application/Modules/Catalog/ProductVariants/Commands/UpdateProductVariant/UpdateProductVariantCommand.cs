@@ -13,6 +13,6 @@ public sealed class UpdateProductVariantCommand : IRequest
 
 public sealed class UpdateProductVariantOptionCommand
 {
-    public string OptionName { get; init; } = string.Empty;
+    public int OptionId { get; init; }
     public string Value { get; init; } = string.Empty;
 }

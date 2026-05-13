@@ -12,6 +12,6 @@ public sealed class CreateProductVariantCommand : IRequest<int>
 
 public sealed class CreateProductVariantOptionCommand
 {
-    public string OptionName { get; init; } = string.Empty;
+    public int OptionId { get; init; }
     public string Value { get; init; } = string.Empty;
 }

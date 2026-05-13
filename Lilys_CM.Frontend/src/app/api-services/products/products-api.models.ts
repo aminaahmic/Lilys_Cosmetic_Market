@@ -14,6 +14,7 @@ export class ListProductsRequest extends BasePagedQuery {
   brandName?: string | null;
   brandLogoUrl?: string | null;
   subcategory?: string | null;
+  subcategoryId?: number | null;
   categoryId?: number | null;
   priceMin?: number | null;
   priceMax?: number | null;
@@ -107,7 +108,12 @@ export class ListProductStockMovementsRequest extends BasePagedQuery { }
 
 export interface ProductFilterOptionsDto {
   brands: string[];
-  subcategories: string[];
+  subcategories: ProductSubcategoryFilterOptionDto[];
+}
+
+export interface ProductSubcategoryFilterOptionDto {
+  id: number;
+  name: string;
 }
 
 // === COMMANDS (WRITE) ===
@@ -209,7 +215,7 @@ export interface CreateProductVariantCommand {
 }
 
 export interface CreateProductVariantOptionCommand {
-  optionName: string;
+  optionId: number;
   value: string;
 }
 export interface UpdateProductVariantCommand {
@@ -219,7 +225,7 @@ export interface UpdateProductVariantCommand {
 }
 
 export interface UpdateProductVariantOptionCommand {
-  optionName: string;
+  optionId: number;
   value: string;
 }
 export interface ProductVariantDto {

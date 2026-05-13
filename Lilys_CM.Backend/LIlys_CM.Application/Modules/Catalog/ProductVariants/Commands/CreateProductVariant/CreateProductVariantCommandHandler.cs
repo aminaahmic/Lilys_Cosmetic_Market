@@ -25,17 +25,18 @@ public sealed class CreateProductVariantCommandHandler
         }
 
         var normalizedOptions = request.Options
-            .Select(x => new
-            {
-                OptionName = x.OptionName.Trim(),
-                Value = x.Value.Trim()
-            })
-            .ToList();
+
+    .Select(x => new
+    {
+        x.OptionId,
+        Value = x.Value.Trim()
+    })
+    .ToList();
 
         var hasDuplicates = normalizedOptions
             .GroupBy(x => new
             {
-                OptionName = x.OptionName.ToLower(),
+                x.OptionId,
                 Value = x.Value.ToLower()
             })
             .Any(g => g.Count() > 1);
@@ -43,6 +44,21 @@ public sealed class CreateProductVariantCommandHandler
         if (hasDuplicates)
         {
             throw new Lilys_CMConflictException("Duplicate options are not allowed on the same variant.");
+        }
+
+        var optionIds = normalizedOptions
+            .Select(x => x.OptionId)
+            .Distinct()
+            .ToList();
+
+        var existingOptionIds = await _context.Options
+            .Where(x => optionIds.Contains(x.Id) && !x.IsDeleted)
+            .Select(x => x.Id)
+            .ToListAsync(cancellationToken);
+
+        if (existingOptionIds.Count != optionIds.Count)
+        {
+            throw new Lilys_CMNotFoundException("One or more options were not found.");
         }
 
         var variant = new ProductVariantEntity
@@ -57,34 +73,19 @@ public sealed class CreateProductVariantCommandHandler
 
         foreach (var optionItem in normalizedOptions)
         {
-            var option = await _context.Options
-                .FirstOrDefaultAsync(
-                    x => x.Name.ToLower() == optionItem.OptionName.ToLower(),
-                    cancellationToken);
-
-            if (option is null)
-            {
-                option = new OptionEntity
-                {
-                    Name = optionItem.OptionName
-                };
-
-                _context.Options.Add(option);
-                await _context.SaveChangesAsync(cancellationToken);
-            }
-
             var optionValue = await _context.OptionValueEntities
                 .FirstOrDefaultAsync(
                     x =>
-                        x.OptionId == option.Id &&
-                        x.Value.ToLower() == optionItem.Value.ToLower(),
+                        x.OptionId == optionItem.OptionId &&
+                        x.Value.ToLower() == optionItem.Value.ToLower() &&
+                        !x.IsDeleted,
                     cancellationToken);
 
             if (optionValue is null)
             {
                 optionValue = new OptionValueEntity
                 {
-                    OptionId = option.Id,
+                    OptionId = optionItem.OptionId,
                     Value = optionItem.Value
                 };
 
@@ -100,7 +101,6 @@ public sealed class CreateProductVariantCommandHandler
 
             _context.VariantOptionEntities.Add(variantOption);
         }
-
         await _context.SaveChangesAsync(cancellationToken);
 
         return variant.Id;

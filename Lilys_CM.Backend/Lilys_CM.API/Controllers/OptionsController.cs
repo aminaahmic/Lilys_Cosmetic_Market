@@ -35,7 +35,7 @@ public sealed class OptionsController : ControllerBase
 
         return Ok(options);
     }
-
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateOptionRequest request, CancellationToken ct)
     {
@@ -57,7 +57,7 @@ public sealed class OptionsController : ControllerBase
 
         return Ok(option.Id);
     }
-
+    [Authorize(Roles = "Admin")]
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateOptionRequest request, CancellationToken ct)
     {
@@ -82,7 +82,7 @@ public sealed class OptionsController : ControllerBase
 
         return NoContent();
     }
-
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id, CancellationToken ct)
     {

@@ -24,6 +24,7 @@ import {
 import { SubcategoriesApiService } from '../../../../../api-services/subcategories/subcategories-api.service';
 
 type ProductVariantDraft = {
+  optionId: number;
   optionName: string;
   optionValue: string;
   price: number;
@@ -57,7 +58,7 @@ export class ProductsAddComponent
 
   selectedImages: File[] = [];
 
-  protected variantName = '';
+  protected variantOptionId: number | null = null;
   protected variantValue = '';
   protected variantPrice: number | null = null;
   protected variantStock: number | null = null;
@@ -220,7 +221,9 @@ export class ProductsAddComponent
   }
 
   protected addVariant(): void {
-    const optionName = this.variantName.trim();
+    const optionId = Number(this.variantOptionId);
+    const selectedOption = this.options.find(option => option.id === optionId);
+    const optionName = selectedOption?.name?.trim() ?? '';
     const optionValue = this.variantValue.trim();
 
     const defaultPrice = Number(this.form.get('price')?.value ?? 0);
@@ -262,6 +265,8 @@ export class ProductsAddComponent
     this.variants = [
       ...this.variants,
       {
+
+        optionId,
         optionName,
         optionValue,
         price,
@@ -269,7 +274,7 @@ export class ProductsAddComponent
       }
     ];
 
-    this.variantName = '';
+    this.variantOptionId = null;
     this.variantValue = '';
     this.variantPrice = null;
     this.variantStock = null;
@@ -291,7 +296,8 @@ export class ProductsAddComponent
         stock: Number(variant.stock),
         options: [
           {
-            optionName: variant.optionName,
+
+            optionId: variant.optionId,
             value: variant.optionValue
           }
         ]
