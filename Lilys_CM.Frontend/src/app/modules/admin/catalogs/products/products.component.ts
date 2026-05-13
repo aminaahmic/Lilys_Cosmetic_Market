@@ -140,6 +140,7 @@ export class ProductsComponent
 
     statsRequest.search = null;
     statsRequest.brand = null;
+    statsRequest.brandId = null;
     statsRequest.subcategory = null;
     statsRequest.categoryId = null;
     statsRequest.priceMin = null;
@@ -189,6 +190,7 @@ export class ProductsComponent
   onResetFilters(): void {
     this.request.search = null;
     this.request.brand = null;
+    this.request.brandId = null;
     this.request.subcategory = null;
     this.request.categoryId = null;
     this.request.priceMin = null;
@@ -297,9 +299,8 @@ export class ProductsComponent
   }
 
   getSubcategoryLabel(product: ListProductsQueryDto): string {
-    return product.subcategory || 'Bez potkategorije';
-  }
-
+  return product.subcategoryName || product.subcategory || 'Bez potkategorije';
+}
   getStockLabel(product: ListProductsQueryDto): string {
     if (product.stockQuantity <= 0) {
       return 'Nema zalihe';

@@ -71,6 +71,7 @@ public class ProductsController : ControllerBase
             Benefits = command.Benefits,
 
             Brand = command.Brand,
+            BrandId = command.BrandId,
             Size = command.Size,
             CountryOfOrigin = command.CountryOfOrigin,
             Barcode = command.Barcode,

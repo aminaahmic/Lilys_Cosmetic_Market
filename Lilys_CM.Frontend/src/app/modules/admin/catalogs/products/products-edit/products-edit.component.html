@@ -313,8 +313,14 @@
         <div class="step-grid variant-form">
           <mat-form-field appearance="outline">
             <mat-label>Naziv opcije</mat-label>
-            <input matInput [(ngModel)]="variantName" [ngModelOptions]="{ standalone: true }"
-              placeholder="Nijansa / Veličina / Volumen" />
+
+            <mat-select [(ngModel)]="variantName" [ngModelOptions]="{ standalone: true }">
+              <mat-option value="">Odaberite opciju</mat-option>
+
+              <mat-option *ngFor="let option of options" [value]="option.name">
+                {{ option.name }}
+              </mat-option>
+            </mat-select>
           </mat-form-field>
 
           <mat-form-field appearance="outline">

@@ -13,6 +13,7 @@ import { ProductVariantDeleteDialogComponent } from '../product-variant-delete-d
 import { BrandsApiService } from '../../../../../api-services/brands/brands-api.service';
 import { environment } from '../../../../../../environments/environment';
 import { BrandDto } from '../../../../../api-services/brands/brands-api.models';
+import { OptionsApiService, OptionDto } from '../../../../../api-services/options/options-api.service';
 import {
   ListProductCategoriesQueryDto,
   ListProductCategoriesRequest
@@ -47,7 +48,8 @@ export class ProductsEditComponent
   private dialog = inject(MatDialog);
   private brandsApi = inject(BrandsApiService);
   brands: BrandDto[] = [];
-
+  private optionsApi = inject(OptionsApiService);
+  options: OptionDto[] = [];
   productId!: number;
   categories: ListProductCategoriesQueryDto[] = [];
   stockMovements: ProductStockMovementDto[] = [];
@@ -74,6 +76,7 @@ export class ProductsEditComponent
     this.loadImages();
     this.loadVariants();
     this.loadBrands();
+    this.loadOptions();
   }
 
   protected loadData(): void {
@@ -110,6 +113,17 @@ export class ProductsEditComponent
         this.toaster.error('Product not found');
         console.error('Load product error:', err);
         this.router.navigate(['/admin/products']);
+      }
+    });
+  }
+  private loadOptions(): void {
+    this.optionsApi.getAll().subscribe({
+      next: (response) => {
+        this.options = response;
+      },
+      error: (err) => {
+        this.toaster.error('Greška prilikom učitavanja opcija.');
+        console.error('Load options error:', err);
       }
     });
   }

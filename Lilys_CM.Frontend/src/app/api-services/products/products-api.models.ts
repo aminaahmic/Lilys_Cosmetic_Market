@@ -27,16 +27,30 @@ export class ListProductsRequest extends BasePagedQuery {
 export interface ListProductsQueryDto {
   id: number;
   name: string;
+
+  sku?: string | null;
+  slug?: string | null;
+  imageUrl?: string | null;
+
   description?: string | null;
+
   brand?: string | null;
   brandId?: number | null;
   brandName?: string | null;
   brandLogoUrl?: string | null;
+
   subcategory?: string | null;
+  subcategoryId?: number | null;
+  subcategoryName?: string | null;
+
   price: number;
+  compareAtPrice?: number | null;
+
   stockQuantity: number;
+
   categoryId: number;
   categoryName: string;
+
   isEnabled: boolean;
 }
 

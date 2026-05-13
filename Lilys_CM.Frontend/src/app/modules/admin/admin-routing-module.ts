@@ -10,6 +10,7 @@ import { AdminOrdersComponent } from './orders/admin-orders.component';
 import { AdminSettingsComponent } from './admin-settings/admin-settings.component';
 import { SubcategoriesComponent } from './catalogs/subcategories/subcategories.component';
 import { BrandsComponent } from './catalogs/brands/brands.component';
+import { OptionsComponent } from './catalogs/options/options.component';
 const routes: Routes = [
   {
     path: '',
@@ -52,7 +53,10 @@ const routes: Routes = [
         path: 'settings',
         component: AdminSettingsComponent,
       },
-
+      {
+        path: 'options',
+        component: OptionsComponent,
+      },
 
       // default admin route → /admin/products
       {

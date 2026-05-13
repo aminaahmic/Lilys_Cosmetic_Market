@@ -17,7 +17,7 @@ import { ChangeStatusDialogComponent } from './orders/change-status-dialog/chang
 import { ProductVariantDeleteDialogComponent } from './catalogs/products/product-variant-delete-dialog/product-variant-delete-dialog.component';
 import { BrandsComponent } from './catalogs/brands/brands.component';
 import { BrandDeleteDialogComponent } from './catalogs/brands/brand-delete-dialog/brand-delete-dialog.component';
-
+import { OptionsComponent } from './catalogs/options/options.component';
 
 @NgModule({
   declarations: [
@@ -34,6 +34,7 @@ import { BrandDeleteDialogComponent } from './catalogs/brands/brand-delete-dialo
     ProductVariantDeleteDialogComponent,
     BrandsComponent,
     BrandDeleteDialogComponent,
+    OptionsComponent
   ],
   imports: [
     AdminRoutingModule,

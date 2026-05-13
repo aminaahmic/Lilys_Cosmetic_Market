@@ -61,14 +61,33 @@
 
   <div class="cards" *ngIf="!isLoading && !errorMessage">
     <article class="product-card" *ngFor="let product of products">
+      <div class="product-image-wrap">
+        <img *ngIf="getProductImage(product); else productImagePlaceholder" [src]="getProductImage(product)"
+          [alt]="product.name" class="product-image" />
+
+        <ng-template #productImagePlaceholder>
+          <div class="product-image-placeholder">
+            Nema slike
+          </div>
+        </ng-template>
+      </div>
+
       <div class="badge">{{ product.categoryName }}</div>
+
       <h3>{{ product.name }}</h3>
-      <p class="meta">{{ product.brand || 'Unknown brand' }} - {{ product.subcategory || 'General' }}</p>
-      <p class="desc">{{ product.description || 'No description available.' }}</p>
+
+      <p class="meta">
+        {{ product.brandName || product.brand || 'Nepoznat brend' }}
+        -
+        {{ product.subcategoryName || product.subcategory || 'Općenito' }}
+      </p>
+
+      <p class="desc">{{ product.description || 'Opis nije dostupan.' }}</p>
+
       <div class="card-footer">
         <span class="price">{{ product.price | number : '1.2-2' }} KM</span>
         <span class="stock" [class.low]="product.stockQuantity < 5">
-          Stock: {{ product.stockQuantity }}
+          Stanje: {{ product.stockQuantity }}
         </span>
       </div>
     </article>

@@ -1,0 +1,126 @@
+<section class="options-page">
+  <header class="page-header">
+    <div>
+      <p class="kicker">Katalog</p>
+      <h1>Opcije proizvoda</h1>
+      <p class="subtitle">
+        Upravljajte nazivima opcija kao što su boja, veličina, nijansa, pakovanje i volumen.
+      </p>
+    </div>
+
+    <button type="button" mat-raised-button class="primary-btn" (click)="startCreate()">
+      <mat-icon>add</mat-icon>
+      Nova opcija
+    </button>
+  </header>
+
+  <section class="stats-grid">
+    <article class="stat-card">
+      <p>Ukupno opcija</p>
+      <h3>{{ options.length }}</h3>
+      <span>Sve opcije u sistemu</span>
+    </article>
+
+    <article class="stat-card">
+      <p>Korištenja</p>
+      <h3>{{ totalUsageCount }}</h3>
+      <span>Ukupno veza s varijantama</span>
+    </article>
+  </section>
+
+  <form class="option-form-panel" *ngIf="showForm" (ngSubmit)="saveOption()">
+    <div>
+      <p class="kicker">{{ editingOptionId === null ? 'Create' : 'Edit' }}</p>
+      <h2>{{ editingOptionId === null ? 'Nova opcija' : 'Uredi opciju' }}</h2>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline">
+        <mat-label>Naziv opcije</mat-label>
+        <input matInput name="optionName" [(ngModel)]="form.name" placeholder="Npr. Nijansa, Boja, Veličina" />
+      </mat-form-field>
+
+      <button type="submit" mat-raised-button color="primary" [disabled]="isSaving">
+        {{ editingOptionId === null ? 'Kreiraj' : 'Sačuvaj' }}
+      </button>
+
+      <button type="button" mat-stroked-button (click)="cancelForm()">
+        Odustani
+      </button>
+    </div>
+  </form>
+
+  <section class="options-card">
+    <div class="table-toolbar">
+      <div>
+        <h2>Lista opcija</h2>
+        <p>Ove opcije se prikazuju u dropdownu kod kreiranja i uređivanja varijanti.</p>
+      </div>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Pretraži opcije</mat-label>
+        <input matInput [(ngModel)]="search" (ngModelChange)="applyFilters()" />
+      </mat-form-field>
+    </div>
+
+    <div class="state-message" *ngIf="isLoading">
+      Učitavanje opcija...
+    </div>
+
+    <div class="empty-state" *ngIf="!isLoading && filteredOptions.length === 0">
+      <h3>Nema opcija</h3>
+      <p>Dodajte prvu opciju, npr. Nijansa ili Veličina.</p>
+    </div>
+
+    <div class="table-wrap" *ngIf="!isLoading && filteredOptions.length > 0">
+      <table class="options-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Naziv opcije</th>
+            <th>Korištenje</th>
+            <th>Status</th>
+            <th>Akcije</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let option of filteredOptions; let i = index">
+            <td>{{ i + 1 }}</td>
+
+            <td>
+              <strong>{{ option.name }}</strong>
+            </td>
+
+            <td>
+              <span class="usage-pill">
+                Korišteno u {{ option.usageCount }} varijanti
+              </span>
+            </td>
+
+            <td>
+              <span class="status-pill">Aktivna</span>
+            </td>
+
+            <td>
+              <div class="actions">
+                <button type="button" mat-icon-button class="edit-btn" (click)="startEdit(option)">
+                  <mat-icon>edit</mat-icon>
+                </button>
+
+                <button
+                  type="button"
+                  mat-icon-button
+                  class="delete-btn"
+                  (click)="deleteOption(option)"
+                  [disabled]="option.usageCount > 0">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</section>

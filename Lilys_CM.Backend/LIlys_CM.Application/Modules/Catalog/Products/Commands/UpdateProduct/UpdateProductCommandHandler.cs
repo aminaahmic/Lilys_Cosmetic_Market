@@ -1,6 +1,7 @@
 using Lilys_CM.Application.Common.Helpers;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 namespace Lilys_CM.Application.Modules.Catalog.Products.Commands.UpdateProduct;
 
@@ -83,7 +84,24 @@ public sealed class UpdateProductCommandHandler : IRequestHandler<UpdateProductC
         product.Sku = normalizedSku;
         product.Slug = normalizedSlug;
 
-        product.ImageUrl = string.IsNullOrWhiteSpace(request.ImageUrl) ? null : request.ImageUrl.Trim();
+        if (!string.IsNullOrWhiteSpace(request.ImageUrl))
+        {
+            product.ImageUrl = request.ImageUrl.Trim();
+        }
+        if (string.IsNullOrWhiteSpace(product.ImageUrl))
+        {
+            var mainImageUrl = await _context.ProductImages
+                .Where(x => x.ProductId == product.Id)
+                .OrderByDescending(x => x.IsMain)
+                .ThenBy(x => x.Id)
+                .Select(x => x.ImageUrl)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (!string.IsNullOrWhiteSpace(mainImageUrl))
+            {
+                product.ImageUrl = mainImageUrl;
+            }
+        }
         product.ShortDescription = string.IsNullOrWhiteSpace(request.ShortDescription) ? null : request.ShortDescription.Trim();
         product.Description = string.IsNullOrWhiteSpace(request.Description) ? null : request.Description.Trim();
         product.Ingredients = string.IsNullOrWhiteSpace(request.Ingredients) ? null : request.Ingredients.Trim();

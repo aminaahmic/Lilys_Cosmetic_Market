@@ -45,10 +45,10 @@ public class ProductImagesController : ControllerBase
         IFormFile file,
         CancellationToken cancellationToken)
     {
-        var productExists = await _context.Products
-            .AnyAsync(x => x.Id == productId && !x.IsDeleted, cancellationToken);
+        var product = await _context.Products
+            .FirstOrDefaultAsync(x => x.Id == productId && !x.IsDeleted, cancellationToken);
 
-        if (!productExists)
+        if (product is null)
             return NotFound("Product not found.");
 
         if (file == null || file.Length == 0)
@@ -92,6 +92,12 @@ public class ProductImagesController : ControllerBase
         };
 
         _context.ProductImages.Add(image);
+
+        if (!hasMainImage)
+        {
+            product.ImageUrl = image.ImageUrl;
+        }
+
         await _context.SaveChangesAsync(cancellationToken);
 
         return Ok(new
@@ -104,7 +110,6 @@ public class ProductImagesController : ControllerBase
             image.SortOrder
         });
     }
-
     [Authorize(Roles = "Admin")]
     [HttpPut("{imageId:int}/main")]
     public async Task<IActionResult> SetMain(

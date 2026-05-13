@@ -10,9 +10,9 @@ namespace Lilys_CM.Infrastructure.Database
 {
     public partial class DatabaseContext
     {
-      
 
-        // Umjesto _clock koristi sistemski UTC
+
+
         private DateTime UtcNow => DateTime.UtcNow;
 
         private void ApplyAuditAndSoftDelete()
@@ -32,18 +32,14 @@ namespace Lilys_CM.Infrastructure.Database
                         break;
 
                     case EntityState.Deleted:
-                        
-                        entry.State = EntityState.Modified;
-                        entry.Entity.IsDeleted = true;
-                        entry.Entity.ModifiedAtUtc = UtcNow;
+
                         break;
                 }
             }
         }
-
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
         {
-            
+
             configurationBuilder.Properties<decimal>().HavePrecision(18, 2);
             configurationBuilder.Properties<decimal?>().HavePrecision(18, 2);
         }
@@ -52,20 +48,20 @@ namespace Lilys_CM.Infrastructure.Database
         {
             base.OnModelCreating(modelBuilder);
 
-            
+
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(DatabaseContext).Assembly);
 
 
-            
+
             ApplyGlobalFilters(modelBuilder);
 
-            
+
             StaticDataSeeder.Seed(modelBuilder);
         }
 
         private void ApplyGlobalFilters(ModelBuilder modelBuilder)
         {
-           
+
             foreach (var entityType in modelBuilder.Model.GetEntityTypes())
             {
                 if (typeof(BaseEntity).IsAssignableFrom(entityType.ClrType))

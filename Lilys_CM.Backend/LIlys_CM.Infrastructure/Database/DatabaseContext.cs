@@ -68,6 +68,7 @@ namespace Lilys_CM.Infrastructure.Database
                 {
                     case EntityState.Added:
                         entry.Entity.CreatedAtUtc = now;
+                        entry.Entity.ModifiedAtUtc = null;
                         entry.Entity.IsDeleted = false;
                         break;
 
@@ -76,16 +77,12 @@ namespace Lilys_CM.Infrastructure.Database
                         break;
 
                     case EntityState.Deleted:
-                        entry.State = EntityState.Modified;
-                        entry.Entity.IsDeleted = true;
-                        entry.Entity.ModifiedAtUtc = now;
                         break;
                 }
             }
 
             return await base.SaveChangesAsync(cancellationToken);
         }
-
         public override int SaveChanges()
         {
             return SaveChangesAsync().GetAwaiter().GetResult();

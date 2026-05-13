@@ -8,7 +8,32 @@
   padding: 28px 24px 36px;
   color: #362826;
 }
+.product-image-wrap {
+  width: 100%;
+  height: 220px;
+  border-radius: 22px;
+  overflow: hidden;
+  background: #fff4f7;
+  border: 1px solid rgba(214, 118, 143, 0.18);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
+.product-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  padding: 14px;
+}
+
+.product-image-placeholder {
+  color: #b46b7d;
+  font-size: 14px;
+  font-weight: 600;
+}
 .hero {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 320px;

@@ -9,7 +9,7 @@ import {
   ListProductCategoriesRequest
 } from '../../../api-services/product-categories/product-categories-api.model';
 import { ProductCategoriesApiService } from '../../../api-services/product-categories/product-categories-api.service';
-
+import { environment } from '../../../../environments/environment';
 @Component({
   selector: 'app-search-products',
   standalone: false,
@@ -68,7 +68,23 @@ export class SearchProductsComponent implements OnInit {
       }
     });
   }
+  getProductImage(product: ListProductsQueryDto): string | null {
+    const imageUrl =
+      product.imageUrl ||
+      (product as any).mainImageUrl ||
+      (product as any).imageUrls?.[0] ||
+      null;
 
+    if (!imageUrl) {
+      return null;
+    }
+
+    if (imageUrl.startsWith('http')) {
+      return imageUrl;
+    }
+
+    return `${environment.apiUrl}${imageUrl}`;
+  }
   private loadCategories(): void {
     const request = new ListProductCategoriesRequest();
     request.onlyEnabled = true;

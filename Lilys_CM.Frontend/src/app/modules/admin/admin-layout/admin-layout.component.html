@@ -73,10 +73,17 @@
       <a mat-list-item routerLink="/admin/subcategories" routerLinkActive="active">
         <mat-icon matListItemIcon>account_tree</mat-icon>
         <span matListItemTitle>Potkategorije</span>
+        <span matListItemTitle>{{ 'ADMIN_PANEL.MENU.SUBCATEGORIES' | translate }}</span>
       </a>
       <a mat-list-item routerLink="/admin/brands" routerLinkActive="active">
         <mat-icon matListItemIcon>loyalty</mat-icon>
         <span matListItemTitle>Brendovi</span>
+        <span matListItemTitle>{{ 'ADMIN_PANEL.MENU.BRANDS' | translate }}</span>
+      </a>
+      <a mat-list-item routerLink="/admin/options" routerLinkActive="active">
+        <mat-icon matListItemIcon>tune</mat-icon>
+        <span matListItemTitle>Opcije proizvoda</span>
+        <span matListItemTitle>{{ 'ADMIN_PANEL.MENU.OPTIONS' | translate }}</span>
       </a>
       <a mat-list-item routerLink="/admin/products" routerLinkActive="active">
         <mat-icon matListItemIcon>inventory_2</mat-icon>

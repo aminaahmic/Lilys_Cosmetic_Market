@@ -8,7 +8,7 @@ import {
   CreateProductVariantCommand,
   GetProductByIdQueryDto
 } from '../../../../../api-services/products/products-api.models';
-
+import { OptionsApiService, OptionDto } from '../../../../../api-services/options/options-api.service';
 import { BaseFormComponent } from '../../../../../core/components/base-classes/base-form-component';
 import { ProductsApiService } from '../../../../../api-services/products/products-api.service';
 import { ProductCategoriesApiService } from '../../../../../api-services/product-categories/product-categories-api.service';
@@ -46,6 +46,7 @@ export class ProductsAddComponent
   private brandsApi = inject(BrandsApiService);
 
   brands: BrandDto[] = [];
+  options: OptionDto[] = [];
   private subApi = inject(SubcategoriesApiService);
   private formService = inject(ProductFormService);
   private router = inject(Router);
@@ -60,6 +61,7 @@ export class ProductsAddComponent
   protected variantValue = '';
   protected variantPrice: number | null = null;
   protected variantStock: number | null = null;
+  private optionsApi = inject(OptionsApiService);
 
   protected variants: ProductVariantDraft[] = [];
 
@@ -67,6 +69,7 @@ export class ProductsAddComponent
     this.initForm(false);
     this.loadCategories();
     this.loadBrands();
+    this.loadOptions();
 
     this.form.get('categoryId')?.valueChanges.subscribe(categoryId => {
       if (categoryId) {
@@ -99,8 +102,41 @@ export class ProductsAddComponent
     }
 
     this.startLoading();
-
     const value = this.form.getRawValue();
+
+    const brandId =
+      value.brandId !== null &&
+        value.brandId !== undefined &&
+        value.brandId !== ''
+        ? Number(value.brandId)
+        : null;
+
+    const subcategoryId =
+      value.subcategoryId !== null &&
+        value.subcategoryId !== undefined &&
+        value.subcategoryId !== ''
+        ? Number(value.subcategoryId)
+        : null;
+
+    const categoryId =
+      value.categoryId !== null &&
+        value.categoryId !== undefined &&
+        value.categoryId !== ''
+        ? Number(value.categoryId)
+        : null;
+
+    if (!categoryId) {
+      this.stopLoading();
+      this.toaster.warning('Odaberite kategoriju proizvoda.');
+      return;
+    }
+
+    console.log('PRODUCT FORM RAW VALUE:', value);
+    console.log('PRODUCT CREATE IDS:', {
+      brandId,
+      categoryId,
+      subcategoryId
+    });
 
     const command: CreateProductCommand = {
       name: value.name,
@@ -113,13 +149,18 @@ export class ProductsAddComponent
       howToUse: value.howToUse || null,
       benefits: value.benefits || null,
 
-      brandId: value.brandId ? Number(value.brandId) : null,
+      brandId: brandId,
       size: value.size || null,
       countryOfOrigin: value.countryOfOrigin || null,
       barcode: value.barcode || null,
 
       price: Number(value.price),
-      compareAtPrice: value.compareAtPrice ? Number(value.compareAtPrice) : null,
+      compareAtPrice:
+        value.compareAtPrice !== null &&
+          value.compareAtPrice !== undefined &&
+          value.compareAtPrice !== ''
+          ? Number(value.compareAtPrice)
+          : null,
 
       stockQuantity: Number(value.stockQuantity ?? 0),
 
@@ -129,9 +170,11 @@ export class ProductsAddComponent
       seoTitle: value.seoTitle || null,
       seoDescription: value.seoDescription || null,
 
-      categoryId: Number(value.categoryId),
-      subcategoryId: value.subcategoryId ? Number(value.subcategoryId) : null
+      categoryId: categoryId,
+      subcategoryId: subcategoryId
     };
+
+    console.log('CREATE PRODUCT PAYLOAD:', command);
 
     this.api.create(command).subscribe({
       next: (productId) => {
@@ -141,6 +184,17 @@ export class ProductsAddComponent
         this.stopLoading('Greška prilikom kreiranja proizvoda.');
         this.toaster.error('Greška prilikom kreiranja proizvoda.');
         console.error('Create product error:', err);
+      }
+    });
+  }
+  private loadOptions(): void {
+    this.optionsApi.getAll().subscribe({
+      next: (response) => {
+        this.options = response;
+      },
+      error: (err) => {
+        this.toaster.error('Greška prilikom učitavanja opcija.');
+        console.error('Load options error:', err);
       }
     });
   }
@@ -304,10 +358,14 @@ export class ProductsAddComponent
   }
 
   protected onCategoryChanged(categoryId: number): void {
+    const subcategoryControl = this.form.get('subcategoryId');
+
+    subcategoryControl?.setValue(null);
+    this.subcategories = [];
+
     this.subApi.getByCategory(categoryId).subscribe({
       next: (response) => {
         this.subcategories = response;
-        this.form.get('subcategoryId')?.setValue(null);
       },
       error: (err) => {
         this.subcategories = [];

@@ -27,6 +27,7 @@ const routes: Routes = [
     loadChildren: () =>
       import('./modules/public/public-module').then(m => m.PublicModule)
   },
+  
   // fallback 404
   { path: '**', redirectTo: '' }
 ];
