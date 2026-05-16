@@ -12,11 +12,12 @@ import { ProductCategoriesApiService } from '../../../../api-services/product-ca
 import { BrandsApiService } from '../../../../api-services/brands/brands-api.service';
 import { BrandDto } from '../../../../api-services/brands/brands-api.models';
 import { environment } from '../../../../../environments/environment';
+import { debounceTime, distinctUntilChanged, Subject, switchMap, of } from 'rxjs';
 import {
   ListProductCategoriesQueryDto,
   ListProductCategoriesRequest
 } from '../../../../api-services/product-categories/product-categories-api.model';
-
+import { Sort } from '@angular/material/sort';
 @Component({
   selector: 'app-products',
   standalone: false,
@@ -46,6 +47,8 @@ export class ProductsComponent
   categories: ListProductCategoriesQueryDto[] = [];
   brands: BrandDto[] = [];
   subcategories: { id: number; name: string }[] = [];
+  searchSuggestions: string[] = [];
+  private searchSuggestionInput$ = new Subject<string>();
   private filterDebounceTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor() {
@@ -53,16 +56,51 @@ export class ProductsComponent
     this.request = new ListProductsRequest();
     this.request.paging.pageSize = 10;
     this.request.isEnabled = null;
+    this.request.sortBy = 'name';
+    this.request.sortDirection = 'asc';
   }
 
   ngOnInit(): void {
     this.initList();
+    this.searchSuggestionInput$
+      .pipe(
+        debounceTime(250),
+        distinctUntilChanged(),
+        switchMap(search => {
+          const value = search?.trim();
+
+          if (!value || value.length < 2) {
+            return of([]);
+          }
+
+          return this.api.getSearchSuggestions(value);
+        })
+      )
+      .subscribe({
+        next: suggestions => {
+          this.searchSuggestions = suggestions;
+        },
+        error: err => {
+          this.searchSuggestions = [];
+          console.error('Search suggestions error:', err);
+        }
+      });
     this.loadCategories();
     this.loadFilterOptions();
     this.loadBrands();
     this.loadStats();
   }
+  onSearchInputChanged(value: string): void {
+    this.request.search = value;
+    this.searchSuggestionInput$.next(value);
+  }
 
+  onSuggestionSelected(value: string): void {
+    this.request.search = value;
+    this.searchSuggestions = [];
+    this.request.paging.page = 1;
+    this.loadPagedData();
+  }
   ngOnDestroy(): void {
     if (this.filterDebounceTimer) {
       clearTimeout(this.filterDebounceTimer);
@@ -160,7 +198,25 @@ export class ProductsComponent
     this.request.paging.page = 1;
     this.loadPagedData();
   }
+  get currentSortActive(): string {
+    return this.request.sortBy || 'name';
+  }
 
+  get currentSortDirection(): 'asc' | 'desc' {
+    return this.request.sortDirection === 'desc' ? 'desc' : 'asc';
+  }
+
+  onSortChanged(sort: Sort): void {
+    if (!sort.active) {
+      return;
+    }
+
+    this.request.sortBy = sort.active;
+    this.request.sortDirection = sort.direction === 'desc' ? 'desc' : 'asc';
+    this.request.paging.page = 1;
+
+    this.loadPagedData();
+  }
   onSearchChanged(): void {
     this.triggerDebouncedRefresh();
   }
@@ -189,6 +245,8 @@ export class ProductsComponent
   }
 
   onResetFilters(): void {
+    this.request.sortBy = 'name';
+    this.request.sortDirection = 'asc';
     this.request.search = null;
     this.request.brand = null;
     this.request.brandId = null;
@@ -203,6 +261,7 @@ export class ProductsComponent
     this.loadBrands();
     this.loadPagedData();
     this.loadStats();
+
   }
 
   private loadCategories(): void {
@@ -229,7 +288,7 @@ export class ProductsComponent
 
     this.api.getFilterOptions(this.request.categoryId).subscribe({
       next: (response) => {
-      this.subcategories = response.subcategories;
+        this.subcategories = response.subcategories;
 
         if (
           this.request.subcategoryId &&

@@ -2,6 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { HttpParams } from '@angular/common/http';
 import {
   ListProductsRequest,
   ListProductsResponse,
@@ -103,6 +104,13 @@ export class ProductsApiService {
     return this.http.get<ListProductStockMovementsResponse>(`${this.baseUrl}/${id}/stock-movements`, {
       params,
     });
+  }
+  getSearchSuggestions(search: string): Observable<string[]> {
+    const params = new HttpParams()
+      .set('search', search)
+      .set('take', 8);
+
+    return this.http.get<string[]>(`${this.baseUrl}/search-suggestions`, { params });
   }
 
   getFilterOptions(categoryId?: number | null): Observable<ProductFilterOptionsDto> {

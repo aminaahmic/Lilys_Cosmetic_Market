@@ -8,6 +8,16 @@ using Microsoft.EntityFrameworkCore;
 [Route("api/products/{productId:int}/images")]
 public class ProductImagesController : ControllerBase
 {
+    private const long MaxImageSizeInBytes = 5 * 1024 * 1024; // 5 MB
+
+    private static readonly string[] AllowedExtensions =
+    {
+        ".jpg",
+        ".jpeg",
+        ".png",
+        ".webp"
+    };
+
     private readonly IAppDbContext _context;
     private readonly IWebHostEnvironment _environment;
 
@@ -51,21 +61,18 @@ public class ProductImagesController : ControllerBase
         if (product is null)
             return NotFound("Product not found.");
 
-        if (file == null || file.Length == 0)
+        if (file is null || file.Length == 0)
             return BadRequest("Image file is required.");
 
-        var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+        if (file.Length > MaxImageSizeInBytes)
+            return BadRequest("Image file must be 5 MB or smaller.");
+
         var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
 
-        if (!allowedExtensions.Contains(extension))
+        if (!AllowedExtensions.Contains(extension))
             return BadRequest("Only jpg, jpeg, png and webp images are allowed.");
 
-        var root = _environment.WebRootPath;
-
-        if (string.IsNullOrWhiteSpace(root))
-        {
-            root = Path.Combine(_environment.ContentRootPath, "wwwroot");
-        }
+        var root = GetWebRootPath();
 
         var folder = Path.Combine(root, "uploads", "products", productId.ToString());
         Directory.CreateDirectory(folder);
@@ -110,6 +117,7 @@ public class ProductImagesController : ControllerBase
             image.SortOrder
         });
     }
+
     [Authorize(Roles = "Admin")]
     [HttpPut("{imageId:int}/main")]
     public async Task<IActionResult> SetMain(
@@ -123,7 +131,7 @@ public class ProductImagesController : ControllerBase
 
         var selected = images.FirstOrDefault(x => x.Id == imageId);
 
-        if (selected == null)
+        if (selected is null)
             return NotFound("Image not found.");
 
         foreach (var image in images)
@@ -134,7 +142,7 @@ public class ProductImagesController : ControllerBase
         var product = await _context.Products
             .FirstOrDefaultAsync(x => x.Id == productId && !x.IsDeleted, cancellationToken);
 
-        if (product != null)
+        if (product is not null)
         {
             product.ImageUrl = selected.ImageUrl;
         }
@@ -143,56 +151,94 @@ public class ProductImagesController : ControllerBase
 
         return NoContent();
     }
-[Authorize(Roles = "Admin")]
-[HttpDelete("{imageId:int}")]
-public async Task<IActionResult> Delete(
-    int productId,
-    int imageId,
-    CancellationToken cancellationToken)
-{
-    var product = await _context.Products
-        .FirstOrDefaultAsync(x => x.Id == productId && !x.IsDeleted, cancellationToken);
 
-    if (product is null)
-        return NotFound("Product not found.");
-
-    var image = await _context.ProductImages
-        .FirstOrDefaultAsync(x => x.Id == imageId && x.ProductId == productId, cancellationToken);
-
-    if (image is null)
-        return NotFound("Image not found.");
-
-    var deletedImageUrl = image.ImageUrl;
-    var wasMainImage = image.IsMain || product.ImageUrl == image.ImageUrl;
-
-    _context.ProductImages.Remove(image);
-    await _context.SaveChangesAsync(cancellationToken);
-
-    if (wasMainImage)
+    [Authorize(Roles = "Admin")]
+    [HttpDelete("{imageId:int}")]
+    public async Task<IActionResult> Delete(
+        int productId,
+        int imageId,
+        CancellationToken cancellationToken)
     {
-        var nextMainImage = await _context.ProductImages
-            .Where(x => x.ProductId == productId)
-            .OrderBy(x => x.SortOrder)
-            .ThenBy(x => x.Id)
-            .FirstOrDefaultAsync(cancellationToken);
+        var product = await _context.Products
+            .FirstOrDefaultAsync(x => x.Id == productId && !x.IsDeleted, cancellationToken);
 
-        if (nextMainImage is null)
+        if (product is null)
+            return NotFound("Product not found.");
+
+        var image = await _context.ProductImages
+            .FirstOrDefaultAsync(x => x.Id == imageId && x.ProductId == productId, cancellationToken);
+
+        if (image is null)
+            return NotFound("Image not found.");
+
+        var deletedImageUrl = image.ImageUrl;
+        var wasMainImage = image.IsMain || product.ImageUrl == image.ImageUrl;
+
+        var physicalFilePath = GetPhysicalFilePathFromImageUrl(image.ImageUrl);
+
+        _context.ProductImages.Remove(image);
+        await _context.SaveChangesAsync(cancellationToken);
+
+        DeletePhysicalFileIfExists(physicalFilePath);
+
+        if (wasMainImage)
+        {
+            var nextMainImage = await _context.ProductImages
+                .Where(x => x.ProductId == productId)
+                .OrderBy(x => x.SortOrder)
+                .ThenBy(x => x.Id)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (nextMainImage is null)
+            {
+                product.ImageUrl = null;
+            }
+            else
+            {
+                nextMainImage.IsMain = true;
+                product.ImageUrl = nextMainImage.ImageUrl;
+            }
+        }
+        else if (product.ImageUrl == deletedImageUrl)
         {
             product.ImageUrl = null;
         }
-        else
-        {
-            nextMainImage.IsMain = true;
-            product.ImageUrl = nextMainImage.ImageUrl;
-        }
+
+        await _context.SaveChangesAsync(cancellationToken);
+
+        return NoContent();
     }
-    else if (product.ImageUrl == deletedImageUrl)
+
+    private string GetWebRootPath()
     {
-        product.ImageUrl = null;
+        if (!string.IsNullOrWhiteSpace(_environment.WebRootPath))
+            return _environment.WebRootPath;
+
+        return Path.Combine(_environment.ContentRootPath, "wwwroot");
     }
 
-    await _context.SaveChangesAsync(cancellationToken);
+    private string GetPhysicalFilePathFromImageUrl(string? imageUrl)
+    {
+        var root = GetWebRootPath();
 
-    return NoContent();
-}
+        if (string.IsNullOrWhiteSpace(imageUrl))
+            return string.Empty;
+
+        var relativePath = imageUrl
+            .TrimStart('/')
+            .Replace('/', Path.DirectorySeparatorChar);
+
+        return Path.Combine(root, relativePath);
+    }
+
+    private static void DeletePhysicalFileIfExists(string filePath)
+    {
+        if (string.IsNullOrWhiteSpace(filePath))
+            return;
+
+        if (!System.IO.File.Exists(filePath))
+            return;
+
+        System.IO.File.Delete(filePath);
+    }
 }

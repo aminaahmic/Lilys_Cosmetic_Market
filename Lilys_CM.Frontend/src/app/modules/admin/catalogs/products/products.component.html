@@ -16,8 +16,18 @@
     <div class="filters-grid">
       <mat-form-field appearance="outline" class="search-field">
         <mat-label>Naziv proizvoda...</mat-label>
+
         <mat-icon matPrefix>search</mat-icon>
-        <input matInput [(ngModel)]="request.search" (ngModelChange)="onSearchChanged()" />
+
+        <input matInput [ngModel]="request.search" (ngModelChange)="onSearchInputChanged($event)"
+          [matAutocomplete]="productSearchAuto" placeholder="Pretraži po nazivu, brendu ili kategoriji..." />
+
+        <mat-autocomplete #productSearchAuto="matAutocomplete"
+          (optionSelected)="onSuggestionSelected($event.option.value)">
+          <mat-option *ngFor="let suggestion of searchSuggestions" [value]="suggestion">
+            {{ suggestion }}
+          </mat-option>
+        </mat-autocomplete>
       </mat-form-field>
 
       <mat-form-field appearance="outline">
@@ -141,11 +151,12 @@
   <div class="state-message error" *ngIf="!isLoading && errorMessage">{{ errorMessage }}</div>
 
   <section class="table-card products-table-card" *ngIf="!isLoading && !errorMessage">
-    <table mat-table [dataSource]="items" class="products-table">
+    <table mat-table [dataSource]="items" class="products-table" matSort [matSortActive]="currentSortActive"
+      [matSortDirection]="currentSortDirection" [matSortDisableClear]="true" (matSortChange)="onSortChanged($event)">
 
       <!-- PRODUCT -->
       <ng-container matColumnDef="product">
-        <th mat-header-cell *matHeaderCellDef>Proizvod</th>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header="name">Proizvod</th>
         <td mat-cell *matCellDef="let product">
           <div class="product-info-cell">
             <div class="product-thumb">
@@ -167,7 +178,7 @@
 
       <!-- CATALOG -->
       <ng-container matColumnDef="catalog">
-        <th mat-header-cell *matHeaderCellDef>Katalog</th>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header="categoryName">Katalog</th>
         <td mat-cell *matCellDef="let product">
           <div class="catalog-cell">
             <strong>{{ getCategoryLabel(product) }}</strong>
@@ -178,7 +189,7 @@
 
       <!-- BRAND -->
       <ng-container matColumnDef="brand">
-        <th mat-header-cell *matHeaderCellDef>Brend</th>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header="brandName">Brend</th>
         <td mat-cell *matCellDef="let product">
           <span class="brand-cell">
             {{ product.brandName || product.brand || 'Nema brenda' }}
@@ -188,7 +199,7 @@
 
       <!-- PRICE -->
       <ng-container matColumnDef="price">
-        <th mat-header-cell *matHeaderCellDef>Cijena</th>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header="price">Cijena</th>
         <td mat-cell *matCellDef="let product">
           <div class="price-cell">
             <strong>{{ product.price | number : '1.2-2' }} KM</strong>
@@ -203,7 +214,7 @@
 
       <!-- STOCK -->
       <ng-container matColumnDef="stock">
-        <th mat-header-cell *matHeaderCellDef>Zaliha</th>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header="stockQuantity">Zaliha</th>
         <td mat-cell *matCellDef="let product">
           <div class="stock-cell">
             <strong [class.stock-zero]="product.stockQuantity <= 0">
@@ -219,7 +230,7 @@
 
       <!-- STATUS -->
       <ng-container matColumnDef="status">
-        <th mat-header-cell *matHeaderCellDef>Status</th>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header="isEnabled">Status</th>
         <td mat-cell *matCellDef="let product">
           <span class="product-status" [class.enabled]="product.isEnabled" [class.disabled]="!product.isEnabled">
             {{ product.isEnabled ? 'Aktivan' : 'Neaktivan' }}

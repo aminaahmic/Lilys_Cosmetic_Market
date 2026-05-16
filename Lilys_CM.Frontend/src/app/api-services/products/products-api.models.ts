@@ -19,6 +19,8 @@ export class ListProductsRequest extends BasePagedQuery {
   priceMin?: number | null;
   priceMax?: number | null;
   isEnabled?: boolean | null;
+  sortBy?: string | null;
+  sortDirection?: 'asc' | 'desc' | null;
 }
 
 /**

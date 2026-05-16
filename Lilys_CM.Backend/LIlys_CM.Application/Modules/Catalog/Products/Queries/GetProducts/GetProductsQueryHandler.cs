@@ -1,5 +1,6 @@
 using Lilys_CM.Application.Abstractions;
 using Lilys_CM.Application.Common;
+using Lilys_CM.Domain.Entities.Catalog;
 using Microsoft.EntityFrameworkCore;
 
 namespace Lilys_CM.Application.Modules.Catalog.Products.Queries.GetProducts;
@@ -26,6 +27,7 @@ public class GetProductsQueryHandler : IRequestHandler<GetProductsQuery, PageRes
         {
             query = query.Where(p => p.CategoryId == request.CategoryId.Value);
         }
+
         if (request.SubcategoryId.HasValue)
         {
             query = query.Where(p => p.SubcategoryId == request.SubcategoryId.Value);
@@ -47,7 +49,10 @@ public class GetProductsQueryHandler : IRequestHandler<GetProductsQuery, PageRes
         if (!string.IsNullOrWhiteSpace(request.Subcategory))
         {
             var subcategory = request.Subcategory.Trim().ToLower();
-            query = query.Where(p => p.Subcategory != null && p.Subcategory.Name.ToLower().Contains(subcategory));
+
+            query = query.Where(p =>
+                p.Subcategory != null &&
+                p.Subcategory.Name.ToLower().Contains(subcategory));
         }
 
         if (request.PriceMin.HasValue)
@@ -62,7 +67,7 @@ public class GetProductsQueryHandler : IRequestHandler<GetProductsQuery, PageRes
 
         if (request.IsEnabled.HasValue)
         {
-            query = query.Where(x => x.IsEnabled == request.IsEnabled.Value);
+            query = query.Where(p => p.IsEnabled == request.IsEnabled.Value);
         }
 
         if (!string.IsNullOrWhiteSpace(request.Search))
@@ -83,8 +88,9 @@ public class GetProductsQueryHandler : IRequestHandler<GetProductsQuery, PageRes
 
         var totalCount = await query.CountAsync(cancellationToken);
 
+        query = ApplySorting(query, request.SortBy, request.SortDirection);
+
         var items = await query
-            .OrderBy(p => p.Name)
             .Skip(request.Paging.SkipCount)
             .Take(request.Paging.PageSize)
             .Select(p => new ProductDto
@@ -106,6 +112,7 @@ public class GetProductsQueryHandler : IRequestHandler<GetProductsQuery, PageRes
                 BrandId = p.BrandId,
                 BrandName = p.BrandEntity != null ? p.BrandEntity.Name : p.Brand,
                 BrandLogoUrl = p.BrandEntity != null ? p.BrandEntity.LogoUrl : null,
+
                 Size = p.Size,
                 CountryOfOrigin = p.CountryOfOrigin,
                 Barcode = p.Barcode,
@@ -135,6 +142,56 @@ public class GetProductsQueryHandler : IRequestHandler<GetProductsQuery, PageRes
             TotalCount = totalCount,
             Page = request.Paging.Page,
             PageSize = request.Paging.PageSize
+        };
+    }
+
+    private static IQueryable<ProductEntity> ApplySorting(
+        IQueryable<ProductEntity> query,
+        string? sortBy,
+        string? sortDirection)
+    {
+        var normalizedSortBy = sortBy?.Trim().ToLowerInvariant();
+
+        var isDescending = string.Equals(
+            sortDirection,
+            "desc",
+            StringComparison.OrdinalIgnoreCase);
+
+        return normalizedSortBy switch
+        {
+            "price" => isDescending
+                ? query.OrderByDescending(p => p.Price)
+                : query.OrderBy(p => p.Price),
+
+            "stock" or "stockquantity" => isDescending
+                ? query.OrderByDescending(p => p.StockQuantity)
+                : query.OrderBy(p => p.StockQuantity),
+
+            "status" or "isenabled" => isDescending
+                ? query.OrderByDescending(p => p.IsEnabled)
+                : query.OrderBy(p => p.IsEnabled),
+
+            "catalog" or "category" or "categoryname" => isDescending
+                ? query.OrderByDescending(p => p.Category.Name)
+                : query.OrderBy(p => p.Category.Name),
+
+            "subcategory" or "subcategoryname" => isDescending
+                ? query.OrderByDescending(p => p.Subcategory != null ? p.Subcategory.Name : string.Empty)
+                : query.OrderBy(p => p.Subcategory != null ? p.Subcategory.Name : string.Empty),
+
+            "brand" or "brandname" => isDescending
+                ? query.OrderByDescending(p => p.BrandEntity != null ? p.BrandEntity.Name : p.Brand ?? string.Empty)
+                : query.OrderBy(p => p.BrandEntity != null ? p.BrandEntity.Name : p.Brand ?? string.Empty),
+
+            "sku" => isDescending
+                ? query.OrderByDescending(p => p.Sku)
+                : query.OrderBy(p => p.Sku),
+
+            "name" or "product" => isDescending
+                ? query.OrderByDescending(p => p.Name)
+                : query.OrderBy(p => p.Name),
+
+            _ => query.OrderBy(p => p.Name)
         };
     }
 }

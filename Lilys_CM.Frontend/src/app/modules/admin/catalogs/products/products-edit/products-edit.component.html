@@ -15,7 +15,7 @@
   </header>
 
   <form *ngIf="form; else loadingState" [formGroup]="form" (ngSubmit)="onSubmit()" class="editor-card">
-    <mat-stepper [linear]="false" class="beauty-stepper">
+    <mat-stepper #stepper [linear]="true" class="beauty-stepper">
 
       <!-- STEP 1: OSNOVNO -->
       <mat-step>
@@ -91,7 +91,8 @@
             Odustani
           </button>
 
-          <button type="button" mat-raised-button color="primary" matStepperNext>
+          <button type="button" mat-raised-button color="primary"
+            (click)="goToNextStep(stepper, ['name', 'sku', 'brandId', 'shortDescription', 'seoTitle', 'seoDescription', 'description'])">
             Nastavi
           </button>
         </div>
@@ -171,7 +172,8 @@
             Nazad
           </button>
 
-          <button type="button" mat-raised-button color="primary" matStepperNext>
+          <button type="button" mat-raised-button color="primary"
+            (click)="goToNextStep(stepper, ['categoryId', 'subcategoryId', 'price', 'compareAtPrice', 'stockQuantity'])">
             Nastavi
           </button>
         </div>
@@ -238,8 +240,8 @@
           <button type="button" mat-stroked-button matStepperPrevious>
             Nazad
           </button>
-
-          <button type="button" mat-raised-button color="primary" matStepperNext>
+          <button type="button" mat-raised-button color="primary"
+            (click)="goToNextStep(stepper, ['size', 'countryOfOrigin', 'barcode', 'ingredients', 'howToUse', 'benefits'])">
             Nastavi
           </button>
         </div>
@@ -303,8 +305,7 @@
           <button type="button" mat-stroked-button matStepperPrevious>
             Nazad
           </button>
-
-          <button type="button" mat-raised-button color="primary" matStepperNext>
+          <button type="button" mat-raised-button color="primary" (click)="stepper.next()">
             Nastavi
           </button>
         </div>
@@ -342,8 +343,34 @@
           <mat-form-field appearance="outline">
             <mat-label>Vrijednost opcije</mat-label>
             <input matInput [(ngModel)]="variantValue" [ngModelOptions]="{ standalone: true }"
-              placeholder="Light / 50 ml / Vanilla" />
+              placeholder="Npr. Crvena / M / 50 ml" />
           </mat-form-field>
+
+          <div class="variant-add-action">
+            <button type="button" mat-stroked-button color="primary" (click)="addVariantOption()"
+              [disabled]="isVariantBusy">
+              <mat-icon>add</mat-icon>
+              Dodaj opciju u varijantu
+            </button>
+          </div>
+
+          <div class="wide variant-list" *ngIf="selectedVariantOptions.length > 0">
+            <div class="variant-list-header">
+              <h4>Opcije varijante koju uređujete</h4>
+              <span>{{ selectedVariantOptions.length }} ukupno</span>
+            </div>
+
+            <div class="variant-chip" *ngFor="let option of selectedVariantOptions; let i = index">
+              <div>
+                <strong>{{ option.optionName }}: {{ option.value }}</strong>
+              </div>
+
+              <button type="button" mat-icon-button color="warn" (click)="removeVariantOption(i)"
+                [disabled]="isVariantBusy" aria-label="Ukloni opciju">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </div>
 
           <mat-form-field appearance="outline">
             <mat-label>Cijena varijante</mat-label>
@@ -360,8 +387,8 @@
 
           <div class="variant-add-action">
             <button type="button" mat-raised-button color="primary" (click)="saveVariant()" [disabled]="isVariantBusy">
-              <mat-icon>{{ editingVariantId === null ? 'add' : 'save' }}</mat-icon>
-              {{ editingVariantId === null ? 'Dodaj varijantu' : 'Sačuvaj varijantu' }}
+              <mat-icon>{{ editingVariantId === null ? 'inventory_2' : 'save' }}</mat-icon>
+              {{ editingVariantId === null ? 'Dodaj kompletnu varijantu' : 'Sačuvaj varijantu' }}
             </button>
 
             <button *ngIf="editingVariantId !== null" type="button" mat-stroked-button color="warn"

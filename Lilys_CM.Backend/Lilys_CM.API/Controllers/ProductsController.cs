@@ -7,6 +7,7 @@ using Lilys_CM.Application.Modules.Catalog.Products.Queries.GetProductFilterOpti
 using Lilys_CM.Application.Modules.Catalog.Products.Queries.GetProducts;
 using Lilys_CM.Application.Modules.Catalog.Products.Queries.GetProductStockMovements;
 using Microsoft.AspNetCore.Authorization;
+using Lilys_CM.Application.Modules.Catalog.Products.Queries.GetProductSearchSuggestions;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -102,7 +103,7 @@ public class ProductsController : ControllerBase
         return NoContent();
     }
 
-   [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin")]
     [HttpPut("{id:int}/stock/adjust")]
     public async Task<IActionResult> AdjustStock(int id, [FromBody] AdjustProductStockCommand command)
     {
@@ -111,11 +112,18 @@ public class ProductsController : ControllerBase
         return NoContent();
     }
 
-   [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin")]
     [HttpGet("{id:int}/stock-movements")]
     public async Task<IActionResult> GetStockMovements(int id, [FromQuery] GetProductStockMovementsQuery query)
     {
         query.ProductId = id;
+        var result = await _mediator.Send(query);
+        return Ok(result);
+    }
+    [AllowAnonymous]
+    [HttpGet("search-suggestions")]
+    public async Task<IActionResult> GetSearchSuggestion([FromQuery] GetProductSearchSuggestionsQuery query)
+    {
         var result = await _mediator.Send(query);
         return Ok(result);
     }

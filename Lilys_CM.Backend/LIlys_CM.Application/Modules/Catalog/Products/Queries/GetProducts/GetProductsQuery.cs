@@ -13,4 +13,7 @@ public sealed class GetProductsQuery : BasePagedQuery<ProductDto>
     public decimal? PriceMax { get; init; }
     public bool? IsEnabled { get; init; }
     public string? Search { get; init; }
+
+    public string? SortBy { get; init; }
+    public string? SortDirection { get; init; }
 }

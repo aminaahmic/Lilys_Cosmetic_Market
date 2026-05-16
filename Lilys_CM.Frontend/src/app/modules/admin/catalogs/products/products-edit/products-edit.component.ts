@@ -2,6 +2,7 @@ import { SubcategoriesApiService } from '../../../../../api-services/subcategori
 import { SubcategoryDto } from '../../../../../api-services/subcategories/subcategories-api.models';
 import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { MatStepper } from '@angular/material/stepper';
 import { forkJoin } from 'rxjs';
 import { ProductFormService } from '../services/product-form.service';
 import { BaseFormComponent } from '../../../../../core/components/base-classes/base-form-component';
@@ -28,6 +29,12 @@ import {
   UpdateProductCommand,
   UpdateProductVariantCommand
 } from '../../../../../api-services/products/products-api.models';
+
+type VariantOptionDraft = {
+  optionId: number;
+  optionName: string;
+  value: string;
+};
 
 @Component({
   selector: 'app-products-edit',
@@ -73,6 +80,7 @@ export class ProductsEditComponent
   variantValue = '';
   variantPrice: number | null = null;
   variantStock: number | null = null;
+  selectedVariantOptions: VariantOptionDraft[] = [];
   isVariantBusy = false;
   editingVariantId: number | null = null;
 
@@ -278,6 +286,38 @@ export class ProductsEditComponent
     });
   }
 
+  protected goToNextStep(stepper: MatStepper, controlNames: string[]): void {
+    const isStepValid = this.validateStep(controlNames);
+
+    if (!isStepValid) {
+      this.toaster.warning('Popunite ispravno polja u ovom koraku prije nastavka.');
+      return;
+    }
+
+    stepper.next();
+  }
+
+  private validateStep(controlNames: string[]): boolean {
+    let isValid = true;
+
+    for (const controlName of controlNames) {
+      const control = this.form.get(controlName);
+
+      if (!control) {
+        continue;
+      }
+
+      control.markAsTouched();
+      control.updateValueAndValidity();
+
+      if (control.invalid) {
+        isValid = false;
+      }
+    }
+
+    return isValid;
+  }
+
   onCancel(): void {
     this.router.navigate(['/admin/products']);
   }
@@ -312,15 +352,71 @@ export class ProductsEditComponent
     });
   }
 
-  addVariant(): void {
-    if (this.isVariantBusy) {
-      return;
-    }
-
+  addVariantOption(): void {
     const optionId = Number(this.variantOptionId);
     const selectedOption = this.options.find(option => option.id === optionId);
     const optionName = selectedOption?.name?.trim() ?? '';
     const optionValue = this.variantValue.trim();
+
+    if (!optionId || !selectedOption || !optionValue) {
+      this.toaster.warning('Odaberite opciju i unesite vrijednost opcije.');
+      return;
+    }
+
+    const optionAlreadyAdded = this.selectedVariantOptions.some(option =>
+      option.optionId === optionId
+    );
+
+    if (optionAlreadyAdded) {
+      this.toaster.warning('Ova opcija je već dodana u trenutnu varijantu.');
+      return;
+    }
+
+    this.selectedVariantOptions = [
+      ...this.selectedVariantOptions,
+      {
+        optionId,
+        optionName,
+        value: optionValue
+      }
+    ];
+
+    this.variantOptionId = null;
+    this.variantValue = '';
+  }
+
+  removeVariantOption(index: number): void {
+    this.selectedVariantOptions = this.selectedVariantOptions.filter((_, i) => i !== index);
+  }
+
+  private getVariantKey(options: VariantOptionDraft[]): string {
+    return options
+      .map(option => `${option.optionId}:${option.value.trim().toLowerCase()}`)
+      .sort()
+      .join('|');
+  }
+
+  private getVariantDtoKey(variant: ProductVariantDto): string {
+    return variant.options
+      .map(option => `${option.optionId}:${option.value.trim().toLowerCase()}`)
+      .sort()
+      .join('|');
+  }
+
+  private resetVariantForm(): void {
+    this.editingVariantId = null;
+    this.variantOptionId = null;
+    this.variantName = '';
+    this.variantValue = '';
+    this.variantPrice = null;
+    this.variantStock = null;
+    this.selectedVariantOptions = [];
+  }
+
+  addVariant(): void {
+    if (this.isVariantBusy) {
+      return;
+    }
 
     const productPrice = Number(this.form.get('price')?.value ?? 0);
     const productStock = Number(this.form.get('stockQuantity')?.value ?? 0);
@@ -333,8 +429,8 @@ export class ProductsEditComponent
       ? Number(this.variantStock)
       : productStock;
 
-    if (!optionId || !selectedOption || !optionValue) {
-      this.toaster.warning('Odaberite naziv opcije i unesite vrijednost opcije.');
+    if (this.selectedVariantOptions.length === 0) {
+      this.toaster.warning('Dodajte barem jednu opciju za varijantu.');
       return;
     }
 
@@ -353,27 +449,24 @@ export class ProductsEditComponent
       return;
     }
 
+    const newVariantKey = this.getVariantKey(this.selectedVariantOptions);
+
     const alreadyExists = this.variants.some(variant =>
-      variant.options.some(option =>
-        option.optionName.toLowerCase() === optionName.toLowerCase() &&
-        option.value.toLowerCase() === optionValue.toLowerCase()
-      )
+      this.getVariantDtoKey(variant) === newVariantKey
     );
 
     if (alreadyExists) {
-      this.toaster.warning('Ova varijanta već postoji.');
+      this.toaster.warning('Ova kombinacija opcija već postoji.');
       return;
     }
 
     const command: CreateProductVariantCommand = {
       price,
       stock,
-      options: [
-        {
-          optionId,
-          value: optionValue
-        }
-      ]
+      options: this.selectedVariantOptions.map(option => ({
+        optionId: option.optionId,
+        value: option.value
+      }))
     };
 
     this.isVariantBusy = true;
@@ -381,12 +474,7 @@ export class ProductsEditComponent
     this.api.createVariant(this.productId, command).subscribe({
       next: () => {
         this.toaster.success('Varijanta je uspješno dodana.');
-
-        this.variantOptionId = null;
-        this.variantName = '';
-        this.variantValue = '';
-        this.variantPrice = null;
-        this.variantStock = null;
+        this.resetVariantForm();
         this.isVariantBusy = false;
         this.loadVariants();
       },
@@ -399,32 +487,28 @@ export class ProductsEditComponent
   }
 
   startEditVariant(variant: ProductVariantDto): void {
-    const firstOption = variant.options[0];
-
-    if (!firstOption) {
+    if (!variant.options || variant.options.length === 0) {
       this.toaster.warning('Ova varijanta nema opciju za uređivanje.');
       return;
     }
 
-    const selectedOption = this.options.find(
-      option => option.name.toLowerCase() === firstOption.optionName.toLowerCase()
-    );
-
     this.editingVariantId = variant.id;
-    this.variantOptionId = selectedOption?.id ?? null;
-    this.variantName = firstOption.optionName;
-    this.variantValue = firstOption.value;
     this.variantPrice = variant.price;
     this.variantStock = variant.stock;
-  }
 
-  cancelVariantEdit(): void {
-    this.editingVariantId = null;
+    this.selectedVariantOptions = variant.options.map(option => ({
+      optionId: option.optionId,
+      optionName: option.optionName,
+      value: option.value
+    }));
+
     this.variantOptionId = null;
     this.variantName = '';
     this.variantValue = '';
-    this.variantPrice = null;
-    this.variantStock = null;
+  }
+
+  cancelVariantEdit(): void {
+    this.resetVariantForm();
   }
 
   saveVariant(): void {
@@ -437,11 +521,6 @@ export class ProductsEditComponent
       return;
     }
 
-    const optionId = Number(this.variantOptionId);
-    const selectedOption = this.options.find(option => option.id === optionId);
-    const optionName = selectedOption?.name?.trim() ?? '';
-    const optionValue = this.variantValue.trim();
-
     const productPrice = Number(this.form.get('price')?.value ?? 0);
     const productStock = Number(this.form.get('stockQuantity')?.value ?? 0);
 
@@ -453,8 +532,8 @@ export class ProductsEditComponent
       ? Number(this.variantStock)
       : productStock;
 
-    if (!optionId || !selectedOption || !optionValue) {
-      this.toaster.warning('Odaberite naziv opcije i unesite vrijednost opcije.');
+    if (this.selectedVariantOptions.length === 0) {
+      this.toaster.warning('Dodajte barem jednu opciju za varijantu.');
       return;
     }
 
@@ -473,28 +552,25 @@ export class ProductsEditComponent
       return;
     }
 
+    const updatedVariantKey = this.getVariantKey(this.selectedVariantOptions);
+
     const alreadyExists = this.variants.some(variant =>
       variant.id !== this.editingVariantId &&
-      variant.options.some(option =>
-        option.optionName.toLowerCase() === optionName.toLowerCase() &&
-        option.value.toLowerCase() === optionValue.toLowerCase()
-      )
+      this.getVariantDtoKey(variant) === updatedVariantKey
     );
 
     if (alreadyExists) {
-      this.toaster.warning('Ova varijanta već postoji.');
+      this.toaster.warning('Ova kombinacija opcija već postoji.');
       return;
     }
 
     const command: UpdateProductVariantCommand = {
       price,
       stock,
-      options: [
-        {
-          optionId,
-          value: optionValue
-        }
-      ]
+      options: this.selectedVariantOptions.map(option => ({
+        optionId: option.optionId,
+        value: option.value
+      }))
     };
 
     this.isVariantBusy = true;
@@ -502,7 +578,7 @@ export class ProductsEditComponent
     this.api.updateVariant(this.productId, this.editingVariantId, command).subscribe({
       next: () => {
         this.toaster.success('Varijanta je uspješno ažurirana.');
-        this.cancelVariantEdit();
+        this.resetVariantForm();
         this.isVariantBusy = false;
         this.loadVariants();
       },
